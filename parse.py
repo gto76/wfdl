@@ -11,8 +11,8 @@ BASE = 0.75
 HEAD = '<html>\n<svg height=300px width=300px>\n<g transform="translate(150, 150), scale({})")>\n'.format(BASE)
 TAIL = "\n</g>\n</svg>\n</html>"
 
-ELEMENTS = [100, [0, 12, 1], [10, 60, 1], [5, 120, 1]]
-ELEMENTS_B = [90, [30, 12, 5]]
+ELEMENTS = [100, [3, 12, 1], [10, 60, 0.75], [3, 240, 0.75]]
+ELEMENTS_B = [94, [20, 12, 4]]
 
 def main():
     out = HEAD
