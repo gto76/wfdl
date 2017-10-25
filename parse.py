@@ -7,11 +7,14 @@ import math
 import sys
 import re
 
+HEAD = "<html>\n<svg>\n"
+TAIL = "\n</svg>\n</html>"
+
 base = 50
 aaa = [[0, 12], [10, 60], [5, 120]]
 
 def main():
-    out = ""
+    out = HEAD
     filled_positions = set()
     for a in aaa:
         length = a[0]
@@ -20,13 +23,11 @@ def main():
         positions = positions.difference(filled_positions)
         out += get_circle(positions, base, base+length)
         filled_positions.update(positions)
-    print(out)
-
+    print(out+TAIL)
 
 
 def get_positions(n):
     return set([i/n for i in range(n)])
-
 
 
 def get_circle(positions, ri, ro):
