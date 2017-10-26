@@ -62,10 +62,11 @@ def get_group(offset, elements):
 def get_shapes(pos, shape, args, offset):
     if shape == 'line':
         length, width = args
-        return get_lines(pos, 100-offset, 100-offset-length, width)
+        return get_elements(pos, get_line, 
+                            [100-offset, 100-offset-length, width]) #get_lines(pos, 100-offset, 100-offset-length, width)
     elif shape == 'circle':
         diameter = args[0]
-        return get_circles(pos, 100-offset, diameter)
+        return get_elements(pos, get_circle, [100-offset, diameter]) #get_circles(pos, 100-offset, diameter)
     return ""
 
 
@@ -74,31 +75,43 @@ def get_positions(n):
 
 ######
 
-def get_circles(positions, ro, diameter):
+def get_elements(positions, drawer, args):
     out = ""
     for position in positions:
         deg = position * 2*math.pi - math.pi/2
-        out += get_circle(deg, ro, diameter)
+        out += drawer([deg] + args)
     return out 
 
 
-def get_circle(deg, ro, diameter):
+# def get_circles(positions, args):    
+#     out = ""
+#     ro, diameter = args
+#     for position in positions:
+#         deg = position * 2*math.pi - math.pi/2
+#         out += get_circle(deg, ro, diameter)
+#     return out 
+
+
+# def get_lines(positions, args)):
+#     out = ""
+#     ro, ri, width = args
+#     for position in positions:
+#         deg = position * 2*math.pi - math.pi/2
+#         out += get_line(deg, ri, ro, width)
+#     return out 
+
+##
+
+def get_circle(args):
+    deg, ro, diameter = args
     cx = math.cos(deg) * ro
     cy = math.sin(deg) * ro
     return '<circle cx={} cy={} r={} style="stroke-width: 0; fill: rgb(0, 0, ' \
            '0);"></circle>'.format(cx, cy, diameter/2)
 
-##
 
-def get_lines(positions, ro, ri, width):
-    out = ""
-    for position in positions:
-        deg = position * 2*math.pi - math.pi/2
-        out += get_line(deg, ri, ro, width)
-    return out 
-
-
-def get_line(deg, ri, ro, width):
+def get_line(args):
+    deg, ri, ro, width = args
     x1 = math.cos(deg) * ri
     x2 = math.cos(deg) * ro
     y1 = math.sin(deg) * ri
