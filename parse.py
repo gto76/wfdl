@@ -20,16 +20,17 @@ SPEEDMASTER = [
                 {'a_len': 2, 'a_width': 0.5, 'b_off': 2, 'b_len': 23, 
                  'c_size': 2},
                 [
-                  [0, 
-                    [12, 'a_len', 0.75], 
-                    [60, 11, 'a_width'], 
-                    [240, 'a_len', 'a_width']],
+                  [1, 
+                    [12, 'line', 'a_len', 0.75], 
+                    [60, 'line', 11, 'a_width'], 
+                    [240, 'line', 'a_len', 'a_width']],
                   ['a_len + b_off', 
-                    [12, 'b_len', 5]],
-                  ['b_len', 
-                    [{'1/60', '-1/60'}, 'c_size', 'c_size']]
+                    [12, 'line', 'b_len', 5]],
+                  ['b_len - c_size', 
+                    [{'1/60', '-1/60'}, 'line', 'c_size', 'c_size']]
                 ]
               ]
+
 
 def main():
     out = HEAD
@@ -49,9 +50,7 @@ def get_group(offset, elements):
     out = ""
     filled_pos = set()
     for element in elements:
-        pos = element[0]
-        length = element[1]
-        width = element[2]
+        pos, shape, length, width = element
         if isinstance(pos, Number):
             pos = get_positions(pos)
         pos = pos.difference(filled_pos)
@@ -67,7 +66,7 @@ def get_positions(n):
 def get_circle(positions, ro, ri, width):
     out = ""
     for position in positions:
-        deg = position * 2*math.pi
+        deg = position * 2*math.pi - math.pi/2
         out += get_line(deg, ri, ro, width)
     return out 
 
@@ -109,6 +108,8 @@ def get_value_of_exp(exp, dictionary):
         return exp
     for key, value in dictionary.items():
         exp = exp.replace(key, str(value))
+    if re.search('[a-zA-Z]', exp):
+        return exp
     return eval_expr(exp)
 
 
@@ -122,10 +123,6 @@ operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
 
 
 def eval_expr(expr):
-    """
-    >>> eval_expr('2^6')
-    4
-    """
     return eval_(ast.parse(expr, mode='eval').body)
 
 
