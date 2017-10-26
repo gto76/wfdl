@@ -16,21 +16,34 @@ HEAD = '<html>\n<svg height=300px width=300px>\n<g transform="translate(150, ' \
        '150), scale({})")>\n'.format(BASE)
 TAIL = "\n</g>\n</svg>\n</html>"
 
+# SPEEDMASTER = [
+#                 {'a_len': 2, 'a_width': 0.5, 'b_off': 2, 'b_len': 23, 
+#                  'c_diameter': 3},
+#                 [
+#                   [1, 
+#                     [12, 'triangle', [10, 3]], 
+#                     [60, 'line', [11, 'a_width']], 
+#                     [240, 'line', ['a_len', 'a_width']]],
+#                   ['a_len + b_off', 
+#                     [12, 'line', ['b_len', 5]]],
+#                   ['b_len - c_diameter / 2', 
+#                     [{'1/60', '-1/60'}, 'circle', ['c_diameter']]]
+#                 ]
+#               ]
+
 SPEEDMASTER = [
                 {'a_len': 2, 'a_width': 0.5, 'b_off': 2, 'b_len': 23, 
                  'c_diameter': 3},
                 [
-                  [1, 
-                    [12, 'line', ['a_len', 0.75]], 
+                  [1,  
                     [60, 'line', [11, 'a_width']], 
                     [240, 'line', ['a_len', 'a_width']]],
-                  ['a_len + b_off', 
-                    [12, 'line', ['b_len', 5]]],
+                  [20, 
+                    [12, 'triangle', [20, 10]]],
                   ['b_len - c_diameter / 2', 
                     [{'1/60', '-1/60'}, 'circle', ['c_diameter']]]
                 ]
               ]
-
 
 def main():
     out = HEAD
@@ -59,6 +72,10 @@ def get_group(offset, elements):
     return out
 
 
+def get_positions(n):
+    return set([i/n for i in range(n)])
+
+
 def get_shapes(pos, shape, args, offset):
     if shape == 'line':
         length, width = args
@@ -67,13 +84,12 @@ def get_shapes(pos, shape, args, offset):
     elif shape == 'circle':
         diameter = args[0]
         return get_elements(pos, get_circle, [100-offset, diameter]) #get_circles(pos, 100-offset, diameter)
+    elif shape == 'triangle':
+        length, width = args
+        return get_elements(pos, get_triangle, 
+                            [100-offset, 100-offset-length, width])
     return ""
 
-
-def get_positions(n):
-    return set([i/n for i in range(n)])
-
-######
 
 def get_elements(positions, drawer, args):
     out = ""
@@ -82,25 +98,6 @@ def get_elements(positions, drawer, args):
         out += drawer([deg] + args)
     return out 
 
-
-# def get_circles(positions, args):    
-#     out = ""
-#     ro, diameter = args
-#     for position in positions:
-#         deg = position * 2*math.pi - math.pi/2
-#         out += get_circle(deg, ro, diameter)
-#     return out 
-
-
-# def get_lines(positions, args)):
-#     out = ""
-#     ro, ri, width = args
-#     for position in positions:
-#         deg = position * 2*math.pi - math.pi/2
-#         out += get_line(deg, ri, ro, width)
-#     return out 
-
-##
 
 def get_circle(args):
     deg, ro, diameter = args
@@ -118,6 +115,19 @@ def get_line(args):
     y2 = math.sin(deg) * ro
     return '<line x1={} y1={} x2={} y2={} style="stroke-width:{}; ' \
            'stroke:#000000"></line>'.format(x1, y1, x2, y2, width)
+
+
+def get_triangle(args):
+    deg, ro, ri, width = args
+    x1 = (math.cos(deg) * ro) - (math.cos(deg) * width / 2)
+    x2 = (math.cos(deg) * ro) + (math.cos(deg) * width / 2)
+    x3 = math.cos(deg) * ri
+    y1 = (math.sin(deg) * ro) - (math.sin(deg) * width / 2)
+    y2 = (math.sin(deg) * ro) + (math.sin(deg) * width / 2)
+    y3 = math.sin(deg) * ri
+    # return '<line x1={} y1={} x2={} y2={} style="stroke-width:{}; ' \
+           # 'stroke:#000000"></line>'.format(x1, y1, x2, y2, width)
+    return '<polygon points="{},{} {},{} {},{}" />'.format(x1, y1, x2, y2, x3, y3)
 
 
 ###
