@@ -19,8 +19,10 @@ TAIL = "\n</g>\n</svg>\n</html>"
 SPEEDMASTER = [
                 {'len_a': 2, 'widht_a': 0.5, 'off_b': 2},
                 [
-                  [100, ['len_a', 12, 0.75], [11, 60, 'widht_a'], ['len_a', 240, 'widht_a']],
-                  ['100 - len_a - off_b', [23, 12, 5]]
+                  [100, [12, 'len_a', 0.75], 
+                        [60, 11, 'widht_a'], 
+                        [240, 'len_a', 'widht_a']],
+                  ['100 - len_a - off_b', [12, 23, 5]]
                 ]
               ]
 
@@ -60,8 +62,8 @@ def get_group(elements):
     offset = elements[0]
     elements = elements[1:]
     for element in elements:
-        length = element[0]
-        n = element[1]
+        n = element[0]
+        length = element[1]
         width = element[2]
         positions = get_positions(n)
         positions = positions.difference(filled_positions)
