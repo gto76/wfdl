@@ -18,16 +18,16 @@ TAIL = "\n</g>\n</svg>\n</html>"
 
 SPEEDMASTER = [
                 {'a_len': 2, 'a_width': 0.5, 'b_off': 2, 'b_len': 23, 
-                 'c_size': 2},
+                 'c_diameter': 3},
                 [
                   [1, 
-                    [12, 'line', 'a_len', 0.75], 
-                    [60, 'line', 11, 'a_width'], 
-                    [240, 'line', 'a_len', 'a_width']],
+                    [12, 'line', ['a_len', 0.75]], 
+                    [60, 'line', [11, 'a_width']], 
+                    [240, 'line', ['a_len', 'a_width']]],
                   ['a_len + b_off', 
-                    [12, 'line', 'b_len', 5]],
-                  ['b_len - c_size', 
-                    [{'1/60', '-1/60'}, 'line', 'c_size', 'c_size']]
+                    [12, 'line', ['b_len', 5]]],
+                  ['b_len - c_diameter / 2', 
+                    [{'1/60', '-1/60'}, 'circle', ['c_diameter']]]
                 ]
               ]
 
@@ -50,20 +50,47 @@ def get_group(offset, elements):
     out = ""
     filled_pos = set()
     for element in elements:
-        pos, shape, length, width = element
+        pos, shape, args = element
         if isinstance(pos, Number):
             pos = get_positions(pos)
         pos = pos.difference(filled_pos)
-        out += get_circle(pos, 100-offset, 100-offset-length, width)
         filled_pos.update(pos)
+        out += get_shapes(pos, shape, args, offset)
     return out
+
+
+def get_shapes(pos, shape, args, offset):
+    if shape == 'line':
+        length, width = args
+        return get_lines(pos, 100-offset, 100-offset-length, width)
+    elif shape == 'circle':
+        diameter = args[0]
+        return get_circles(pos, 100-offset, diameter)
+    return ""
 
 
 def get_positions(n):
     return set([i/n for i in range(n)])
 
+######
 
-def get_circle(positions, ro, ri, width):
+def get_circles(positions, ro, diameter):
+    out = ""
+    for position in positions:
+        deg = position * 2*math.pi - math.pi/2
+        out += get_circle(deg, ro, diameter)
+    return out 
+
+
+def get_circle(deg, ro, diameter):
+    cx = math.cos(deg) * ro
+    cy = math.sin(deg) * ro
+    return '<circle cx={} cy={} r={} style="stroke-width: 0; fill: rgb(0, 0, ' \
+           '0);"></circle>'.format(cx, cy, diameter/2)
+
+##
+
+def get_lines(positions, ro, ri, width):
     out = ""
     for position in positions:
         deg = position * 2*math.pi - math.pi/2
