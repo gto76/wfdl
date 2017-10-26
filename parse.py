@@ -17,12 +17,17 @@ HEAD = '<html>\n<svg height=300px width=300px>\n<g transform="translate(150, ' \
 TAIL = "\n</g>\n</svg>\n</html>"
 
 SPEEDMASTER = [
-                {'len_a': 2, 'widht_a': 0.5, 'off_b': 2},
+                {'a_len': 2, 'a_width': 0.5, 'b_off': 2, 'b_len': 23, 
+                 'c_size': 2},
                 [
-                  [100, [12, 'len_a', 0.75], 
-                        [60, 11, 'widht_a'], 
-                        [240, 'len_a', 'widht_a']],
-                  ['100 - len_a - off_b', [12, 23, 5]]
+                  [0, 
+                    [12, 'a_len', 0.75], 
+                    [60, 11, 'a_width'], 
+                    [240, 'a_len', 'a_width']],
+                  ['a_len + b_off', 
+                    [12, 'b_len', 5]],
+                  ['b_len', 
+                    [{'1/60', '-1/60'}, 'c_size', 'c_size']]
                 ]
               ]
 
@@ -31,44 +36,27 @@ def main():
     dictionary = SPEEDMASTER[0]
     elements = SPEEDMASTER[1]
     elements = replace_matched_items(elements, dictionary)
+    offset = 0
     for element in elements:
-        out += get_group(element)
+        offset += element[0]
+        out += get_group(offset, element[1:])
     print(out+TAIL)
 
 
-def replace_matched_items(word_list, dictionary):
-    out = []
-    for element in word_list:
-        if type(element) is list:
-            out.append(replace_matched_items(element, dictionary))
-        else:
-            out.append(get_value_of_exp(element, dictionary))
-    return out
-
-
-def get_value_of_exp(exp, dictionary):
-    if isinstance(exp, Number):
-        return exp
-    for key, value in dictionary.items():
-        exp = exp.replace(key, str(value))
-    return eval_expr(exp)
-
-
-def get_group(elements):
-    if len(elements) < 2:
+def get_group(offset, elements):
+    if not elements:
         return
     out = ""
-    filled_positions = set()
-    offset = elements[0]
-    elements = elements[1:]
+    filled_pos = set()
     for element in elements:
-        n = element[0]
+        pos = element[0]
         length = element[1]
         width = element[2]
-        positions = get_positions(n)
-        positions = positions.difference(filled_positions)
-        out += get_circle(positions, offset, offset-length, width)
-        filled_positions.update(positions)
+        if isinstance(pos, Number):
+            pos = get_positions(pos)
+        pos = pos.difference(filled_pos)
+        out += get_circle(pos, 100-offset, 100-offset-length, width)
+        filled_pos.update(pos)
     return out
 
 
@@ -94,6 +82,37 @@ def get_line(deg, ri, ro, width):
 
 
 ###
+##  DICT SUB
+#
+
+def replace_matched_items(elements, dictionary):
+    out = []
+    for element in elements:
+        if type(element) is set:
+            out.append(replace_in_set(element, dictionary))
+        elif type(element) is list:
+            out.append(replace_matched_items(element, dictionary))
+        else:
+            out.append(get_value_of_exp(element, dictionary))
+    return out
+
+
+def replace_in_set(elements, dictionary):
+    out = set()
+    for element in elements:
+        out.add(get_value_of_exp(element, dictionary))
+    return out
+
+
+def get_value_of_exp(exp, dictionary):
+    if isinstance(exp, Number):
+        return exp
+    for key, value in dictionary.items():
+        exp = exp.replace(key, str(value))
+    return eval_expr(exp)
+
+
+###
 ##  EVAL
 #
 
@@ -106,10 +125,6 @@ def eval_expr(expr):
     """
     >>> eval_expr('2^6')
     4
-    >>> eval_expr('2**6')
-    64
-    >>> eval_expr('1 + 2*3**(4^5) / (6 + -7)')
-    -5.0
     """
     return eval_(ast.parse(expr, mode='eval').body)
 
