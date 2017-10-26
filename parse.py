@@ -12,7 +12,8 @@ from numbers import Number
 
 
 BASE = 0.75
-HEAD = '<html>\n<svg height=300px width=300px>\n<g transform="translate(150, 50), scale({})")>\n'.format(BASE)
+HEAD = '<html>\n<svg height=300px width=300px>\n<g transform="translate(150, ' \
+       '150), scale({})")>\n'.format(BASE)
 TAIL = "\n</g>\n</svg>\n</html>"
 
 SPEEDMASTER = [
