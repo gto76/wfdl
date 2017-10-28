@@ -26,17 +26,30 @@ SPEEDMASTER = [
                     [240, 'line', ['a_len', 'a_width']]],
                   ['a_len + b_off', 
                     [12, 'line', ['b_len', 5]]],
-                  ['b_len - c_diameter / 2', 
+                  ['b_len - c_diameter', 
                     [{'1/60', '-1/60'}, 'circle', ['c_diameter']]]
                 ]
               ]
 
-
+SUBMARINER = [
+               {'a_len': 3, 'a_width': 0.75, 'b_off': 2, 'b_len': 30, 
+                'c_diameter': 3},
+               [
+                 [1,
+                   [12, 'line', ['a_len', 'a_width * 1.5']],
+                   [60, 'line', ['a_len', 'a_width']]],
+                 ['a_len + b_off',
+                   [1, 'triangle', ['b_len', 'b_len * 0.7']],
+                   [4, 'line', ['b_len', 'b_len / 3']],
+                   [12, 'circle', ['b_len * 0.55']]]
+               ]
+             ]
 
 def main():
     out = HEAD
-    dictionary = SPEEDMASTER[0]
-    elements = SPEEDMASTER[1]
+    watch = SUBMARINER
+    dictionary = watch[0]
+    elements = watch[1]
     elements = replace_matched_items(elements, dictionary)
     offset = 0
     for element in elements:
@@ -89,8 +102,8 @@ def get_elements(positions, drawer, args):
 
 def get_circle(args):
     deg, ro, diameter = args
-    cx = math.cos(deg) * ro
-    cy = math.sin(deg) * ro
+    cx = math.cos(deg) * (ro - diameter/2)
+    cy = math.sin(deg) * (ro - diameter/2)
     return '<circle cx={} cy={} r={} style="stroke-width: 0; fill: rgb(0, 0, ' \
            '0);"></circle>'.format(cx, cy, diameter/2)
 
