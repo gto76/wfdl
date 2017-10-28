@@ -16,34 +16,22 @@ HEAD = '<html>\n<svg height=300px width=300px>\n<g transform="translate(150, ' \
        '150), scale({})")>\n'.format(BASE)
 TAIL = "\n</g>\n</svg>\n</html>"
 
-# SPEEDMASTER = [
-#                 {'a_len': 2, 'a_width': 0.5, 'b_off': 2, 'b_len': 23, 
-#                  'c_diameter': 3},
-#                 [
-#                   [1, 
-#                     [12, 'triangle', [10, 3]], 
-#                     [60, 'line', [11, 'a_width']], 
-#                     [240, 'line', ['a_len', 'a_width']]],
-#                   ['a_len + b_off', 
-#                     [12, 'line', ['b_len', 5]]],
-#                   ['b_len - c_diameter / 2', 
-#                     [{'1/60', '-1/60'}, 'circle', ['c_diameter']]]
-#                 ]
-#               ]
-
 SPEEDMASTER = [
                 {'a_len': 2, 'a_width': 0.5, 'b_off': 2, 'b_len': 23, 
                  'c_diameter': 3},
                 [
-                  [1,  
+                  [1, 
+                    [12, 'line', ['a_len', 'a_width * 1.5']], 
                     [60, 'line', [11, 'a_width']], 
                     [240, 'line', ['a_len', 'a_width']]],
-                  [20, 
-                    [12, 'triangle', [20, 10]]],
+                  ['a_len + b_off', 
+                    [12, 'line', ['b_len', 5]]],
                   ['b_len - c_diameter / 2', 
                     [{'1/60', '-1/60'}, 'circle', ['c_diameter']]]
                 ]
               ]
+
+
 
 def main():
     out = HEAD
