@@ -119,11 +119,13 @@ def get_line(args):
 
 def get_triangle(args):
     deg, ro, ri, width = args
-    x1 = (math.cos(deg) * ro) - (math.cos(deg) * width / 2)
-    x2 = (math.cos(deg) * ro) + (math.cos(deg) * width / 2)
+    x1 = (math.cos(deg) * ro) - (math.sin(deg) * width / 2)
+    y1 = (math.sin(deg) * ro) + (math.cos(deg) * width / 2)
+
+    x2 = (math.cos(deg) * ro) + (math.sin(deg) * width / 2)
+    y2 = (math.sin(deg) * ro) - (math.cos(deg) * width / 2)
+
     x3 = math.cos(deg) * ri
-    y1 = (math.sin(deg) * ro) - (math.sin(deg) * width / 2)
-    y2 = (math.sin(deg) * ro) + (math.sin(deg) * width / 2)
     y3 = math.sin(deg) * ri
     # return '<line x1={} y1={} x2={} y2={} style="stroke-width:{}; ' \
            # 'stroke:#000000"></line>'.format(x1, y1, x2, y2, width)
