@@ -1,9 +1,10 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3
 #
 # Usage: parse.py 
 # 
 
 import math
+from math import sin, cos
 import sys
 import re
 import ast
@@ -47,9 +48,7 @@ SUBMARINER = [
 
 def main():
     out = HEAD
-    watch = SUBMARINER
-    dictionary = watch[0]
-    elements = watch[1]
+    dictionary, elements = SUBMARINER
     elements = replace_matched_items(elements, dictionary)
     offset = 0
     for element in elements:
@@ -81,10 +80,10 @@ def get_shapes(pos, shape, args, offset):
     if shape == 'line':
         length, width = args
         return get_elements(pos, get_line, 
-                            [100-offset, 100-offset-length, width]) #get_lines(pos, 100-offset, 100-offset-length, width)
+                            [100-offset, 100-offset-length, width])
     elif shape == 'circle':
         diameter = args[0]
-        return get_elements(pos, get_circle, [100-offset, diameter]) #get_circles(pos, 100-offset, diameter)
+        return get_elements(pos, get_circle, [100-offset, diameter])
     elif shape == 'triangle':
         length, width = args
         return get_elements(pos, get_triangle, 
@@ -102,35 +101,32 @@ def get_elements(positions, drawer, args):
 
 def get_circle(args):
     deg, ro, diameter = args
-    cx = math.cos(deg) * (ro - diameter/2)
-    cy = math.sin(deg) * (ro - diameter/2)
+    cx = cos(deg) * (ro - diameter/2)
+    cy = sin(deg) * (ro - diameter/2)
     return '<circle cx={} cy={} r={} style="stroke-width: 0; fill: rgb(0, 0, ' \
            '0);"></circle>'.format(cx, cy, diameter/2)
 
 
 def get_line(args):
     deg, ri, ro, width = args
-    x1 = math.cos(deg) * ri
-    x2 = math.cos(deg) * ro
-    y1 = math.sin(deg) * ri
-    y2 = math.sin(deg) * ro
+    x1 = cos(deg) * ri
+    x2 = cos(deg) * ro
+    y1 = sin(deg) * ri
+    y2 = sin(deg) * ro
     return '<line x1={} y1={} x2={} y2={} style="stroke-width:{}; ' \
            'stroke:#000000"></line>'.format(x1, y1, x2, y2, width)
 
 
 def get_triangle(args):
     deg, ro, ri, width = args
-    x1 = (math.cos(deg) * ro) - (math.sin(deg) * width / 2)
-    y1 = (math.sin(deg) * ro) + (math.cos(deg) * width / 2)
-
-    x2 = (math.cos(deg) * ro) + (math.sin(deg) * width / 2)
-    y2 = (math.sin(deg) * ro) - (math.cos(deg) * width / 2)
-
-    x3 = math.cos(deg) * ri
-    y3 = math.sin(deg) * ri
-    # return '<line x1={} y1={} x2={} y2={} style="stroke-width:{}; ' \
-           # 'stroke:#000000"></line>'.format(x1, y1, x2, y2, width)
-    return '<polygon points="{},{} {},{} {},{}" />'.format(x1, y1, x2, y2, x3, y3)
+    x1 = (cos(deg) * ro) - (sin(deg) * width / 2)
+    y1 = (sin(deg) * ro) + (cos(deg) * width / 2)
+    x2 = (cos(deg) * ro) + (sin(deg) * width / 2)
+    y2 = (sin(deg) * ro) - (cos(deg) * width / 2)
+    x3 = cos(deg) * ri
+    y3 = sin(deg) * ri
+    return '<polygon points="{},{} {},{} {},{}" />'.format(x1, y1, x2, y2, x3, 
+                                                           y3)
 
 
 ###
@@ -150,10 +146,7 @@ def replace_matched_items(elements, dictionary):
 
 
 def replace_in_set(elements, dictionary):
-    out = set()
-    for element in elements:
-        out.add(get_value_of_exp(element, dictionary))
-    return out
+    return {get_value_of_exp(element, dictionary) for element in elements}
 
 
 def get_value_of_exp(exp, dictionary):
@@ -180,11 +173,11 @@ def eval_expr(expr):
 
 
 def eval_(node):
-    if isinstance(node, ast.Num): # <number>
+    if isinstance(node, ast.Num):
         return node.n
-    elif isinstance(node, ast.BinOp): # <left> <operator> <right>
+    elif isinstance(node, ast.BinOp):
         return operators[type(node.op)](eval_(node.left), eval_(node.right))
-    elif isinstance(node, ast.UnaryOp): # <operator> <operand> e.g., -1
+    elif isinstance(node, ast.UnaryOp):
         return operators[type(node.op)](eval_(node.operand))
     else:
         raise TypeError(node)
