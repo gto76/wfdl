@@ -3,13 +3,13 @@
 # Usage: parse.py 
 # 
 
-import math
-from math import sin, cos
-import sys
-import re
 import ast
-import operator as op
+import json
+from math import sin, cos, pi
 from numbers import Number
+import operator as op
+import re
+import sys
 
 
 BASE = 0.75
@@ -32,23 +32,24 @@ SPEEDMASTER = [
                 ]
               ]
 
-SUBMARINER = [
-               {'a_len': 3, 'a_width': 0.75, 'b_off': 2, 'b_len': 30, 
-                'c_diameter': 3},
-               [
-                 [1,
-                   [12, 'line', ['a_len', 'a_width * 1.5']],
-                   [60, 'line', ['a_len', 'a_width']]],
-                 ['a_len + b_off',
-                   [1, 'triangle', ['b_len', 'b_len * 0.7']],
-                   [4, 'line', ['b_len', 'b_len / 3']],
-                   [12, 'circle', ['b_len * 0.55']]]
-               ]
-             ]
+# SUBMARINER = [
+#                {'a_len': 3, 'a_width': 0.75, 'b_off': 2, 'b_len': 30, 
+#                 'c_diameter': 3},
+#                [
+#                  [1,
+#                    [12, 'line', ['a_len', 'a_width * 1.5']],
+#                    [60, 'line', ['a_len', 'a_width']]],
+#                  ['a_len + b_off',
+#                    [1, 'triangle', ['b_len', 'b_len * 0.7']],
+#                    [4, 'line', ['b_len', 'b_len / 3']],
+#                    [12, 'circle', ['b_len * 0.55']]]
+#                ]
+#              ]
 
 def main():
     out = HEAD
-    dictionary, elements = SUBMARINER
+    watch_str = ''.join(read_file('submariner.txt'))
+    dictionary, elements = eval(watch_str)
     elements = replace_matched_items(elements, dictionary)
     offset = 0
     for element in elements:
@@ -94,7 +95,7 @@ def get_shapes(pos, shape, args, offset):
 def get_elements(positions, drawer, args):
     out = ""
     for position in positions:
-        deg = position * 2*math.pi - math.pi/2
+        deg = position * 2*pi - pi/2
         out += drawer([deg] + args)
     return out 
 
@@ -181,6 +182,20 @@ def eval_(node):
         return operators[type(node.op)](eval_(node.operand))
     else:
         raise TypeError(node)
+
+
+###
+##  UTIL
+#
+
+def read_file(filename):
+    with open(filename, encoding='utf-8') as file:
+        return file.readlines()
+
+
+def read_json_file(filename):
+    with open(filename, encoding='utf-8') as file:
+        return json.load(file)
 
 
 if __name__ == '__main__':
