@@ -63,7 +63,7 @@ def main():
     for element in elements:
         offset += element[0]
         out += get_group(offset, element[1:])
-    print(out+TAIL)
+    print(out+TAIL, file='index.html')
 
 
 def get_group(offset, elements):
