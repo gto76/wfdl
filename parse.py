@@ -8,6 +8,7 @@ import json
 from math import sin, cos, pi
 from numbers import Number
 import operator as op
+import os
 import re
 import sys
 
@@ -47,9 +48,16 @@ SPEEDMASTER = [
 #              ]
 
 def main():
+    if len(sys.argv) < 2:
+        print('Missing watch file argument.', file=sys.stderr)
+        sys.exit(1)
+    watch_file = sys.argv[1]
+    if not os.path.isfile(watch_file):
+        print(f'File "{watch_file}" does not exist.', file=sys.stderr)
+        sys.exit(2)
     out = HEAD
-    watch_str = ''.join(read_file('submariner.txt'))
-    dictionary, elements = eval(watch_str)
+    watch_str = ''.join(read_file(watch_file))
+    dictionary, elements = ast.literal_eval(watch_str)
     elements = replace_matched_items(elements, dictionary)
     offset = 0
     for element in elements:
