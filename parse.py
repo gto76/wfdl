@@ -1,7 +1,8 @@
 #!/usr/local/bin/python3
 #
-# Usage: parse.py 
-# 
+# Usage: parse.py WATCH_FILE
+# Generates watch face image from passed watch file and saves it to 
+# 'index.html'.
 
 import ast
 import json
@@ -14,38 +15,10 @@ import sys
 
 
 BASE = 0.75
-HEAD = '<html>\n<svg height=300px width=300px>\n<g transform="translate(150, ' \
-       '150), scale({})")>\n'.format(BASE)
+HEAD = f'<html>\n<svg height=300px width=300px>\n<g transform="translate(150,' \
+       f' 150), scale({BASE})")>\n'
 TAIL = "\n</g>\n</svg>\n</html>"
 
-SPEEDMASTER = [
-                {'a_len': 2, 'a_width': 0.5, 'b_off': 2, 'b_len': 23, 
-                 'c_diameter': 3},
-                [
-                  [1, 
-                    [12, 'line', ['a_len', 'a_width * 1.5']], 
-                    [60, 'line', [11, 'a_width']], 
-                    [240, 'line', ['a_len', 'a_width']]],
-                  ['a_len + b_off', 
-                    [12, 'line', ['b_len', 5]]],
-                  ['b_len - c_diameter', 
-                    [{'1/60', '-1/60'}, 'circle', ['c_diameter']]]
-                ]
-              ]
-
-# SUBMARINER = [
-#                {'a_len': 3, 'a_width': 0.75, 'b_off': 2, 'b_len': 30, 
-#                 'c_diameter': 3},
-#                [
-#                  [1,
-#                    [12, 'line', ['a_len', 'a_width * 1.5']],
-#                    [60, 'line', ['a_len', 'a_width']]],
-#                  ['a_len + b_off',
-#                    [1, 'triangle', ['b_len', 'b_len * 0.7']],
-#                    [4, 'line', ['b_len', 'b_len / 3']],
-#                    [12, 'circle', ['b_len * 0.55']]]
-#                ]
-#              ]
 
 def main():
     if len(sys.argv) < 2:
@@ -55,15 +28,20 @@ def main():
     if not os.path.isfile(watch_file):
         print(f'File "{watch_file}" does not exist.', file=sys.stderr)
         sys.exit(2)
-    out = HEAD
     watch_str = ''.join(read_file(watch_file))
+    svg = get_svg(watch_str)
+    write_to_file('index.html', HEAD + svg + TAIL)
+
+
+def get_svg(watch_str):
+    out = []
     dictionary, elements = ast.literal_eval(watch_str)
     elements = replace_matched_items(elements, dictionary)
     offset = 0
     for element in elements:
         offset += element[0]
-        out += get_group(offset, element[1:])
-    print(out+TAIL, file='index.html')
+        out.append(get_group(offset, element[1:]))
+    return ''.join(out)
 
 
 def get_group(offset, elements):
@@ -201,9 +179,9 @@ def read_file(filename):
         return file.readlines()
 
 
-def read_json_file(filename):
-    with open(filename, encoding='utf-8') as file:
-        return json.load(file)
+def write_to_file(filename, text):
+    with open(filename, 'w', encoding='utf-8') as file:
+        file.write(text)
 
 
 if __name__ == '__main__':
