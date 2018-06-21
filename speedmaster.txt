@@ -1,7 +1,14 @@
 [
-  {"line_len": 20, "line_width": 3},
+  {"a_len": 2, "a_width": 0.5, "b_off": 2, "b_len": 23, 
+   "c_diameter": 3},
   [
-    [0, 
-      [12, "line", ["line_len", "line_width"]]]
+    [1, 
+      [12, "line", ["a_len", "a_width * 1.5"]], 
+      [60, "line", [11, "a_width"]], 
+      [240, "line", ["a_len", "a_width"]]],
+    ["a_len + b_off", 
+      [12, "line", ["b_len", 5]]],
+    ["b_len - c_diameter", 
+      [{"1/60", "-1/60"}, "circle", ["c_diameter"]]]
   ]
 ]
