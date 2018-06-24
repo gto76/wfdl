@@ -8,6 +8,6 @@
     ["a_len + b_off",
       [1, "triangle", ["b_len", "b_len * 0.7"]],
       [4, "line", ["b_len", "b_len / 3"]],
-      [12, "circle", ["b_len * 0.55"]]]
+      [12, "number", ["b_len * 0.55"]]]
   ]
 ]

@@ -12,6 +12,7 @@ import operator as op
 import os
 import re
 import sys
+from itertools import count
 
 
 BASE = 0.75
@@ -71,6 +72,9 @@ def get_shapes(pos, shape, args, offset):
     elif shape == 'circle':
         diameter = args[0]
         return get_elements(pos, get_circle, [100-offset, diameter])
+    elif shape == 'number':
+        diameter = args[0]
+        return get_elements(pos, get_number, [100-offset, diameter])
     elif shape == 'triangle':
         length, width = args
         return get_elements(pos, get_triangle, 
@@ -84,6 +88,17 @@ def get_elements(positions, drawer, args):
         deg = position * 2*pi - pi/2
         out += drawer([deg] + args)
     return out 
+
+
+def get_number(args):
+    # return '<circle cx={} cy={} r={} style="stroke-width: 0; fill: rgb(0, 0, ' \
+           # '0);"></circle>'.format(cx, cy, diameter/2)
+    deg, ro, diameter = args
+    x = cos(deg) * (ro - diameter/2)
+    y = sin(deg) * (ro - diameter/2)
+    i = (deg + pi/2) / (2*pi) * 12
+    i = round(i)
+    return f'<text class="title" x="{x}" y="{y}" fill="#111111" fill-opacity="0.9" font-size="{diameter}" font-weight="bold" alignment-baseline="middle" text-anchor="middle">{i}</text>'
 
 
 def get_circle(args):
