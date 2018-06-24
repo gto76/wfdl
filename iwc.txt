@@ -1,0 +1,11 @@
+[
+  {"a_len": 3, "a_width": 3, "b_off": 4, "b_len": 2, 
+   "c_len": 20, "two_lines_sep": 0.1},
+  [
+    [1,
+      [12, "circle", ["a_len"]],
+      [60, "circle", ["b_len"]]],
+    ["b_off",
+      [12, "number", ["c_len", "hour", "horizontal"]]]
+  ]
+]

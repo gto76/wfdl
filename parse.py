@@ -69,12 +69,18 @@ def get_shapes(pos, shape, args, offset):
         length, width = args
         return get_elements(pos, get_line, 
                             [100-offset, 100-offset-length, width])
+    if shape == 'two lines':
+        length, width, factor = args
+        return get_elements(pos, get_two_lines, 
+                            [100-offset, 100-offset-length, width, factor])
     elif shape == 'circle':
         diameter = args[0]
         return get_elements(pos, get_circle, [100-offset, diameter])
     elif shape == 'number':
         diameter = args[0]
-        return get_elements(pos, get_number, [100-offset, diameter])
+        kind = args[1]
+        orient = args[2]
+        return get_elements(pos, get_number, [100-offset, diameter, kind, orient])
     elif shape == 'triangle':
         length, width = args
         return get_elements(pos, get_triangle, 
@@ -93,12 +99,27 @@ def get_elements(positions, drawer, args):
 def get_number(args):
     # return '<circle cx={} cy={} r={} style="stroke-width: 0; fill: rgb(0, 0, ' \
            # '0);"></circle>'.format(cx, cy, diameter/2)
-    deg, ro, diameter = args
+    deg, ro, diameter, kind, orient = args
     x = cos(deg) * (ro - diameter/2)
     y = sin(deg) * (ro - diameter/2)
-    i = (deg + pi/2) / (2*pi) * 12
-    i = round(i)
+    i = get_hour(deg) if kind == "hour" else get_minute(deg)
     return f'<text class="title" x="{x}" y="{y}" fill="#111111" fill-opacity="0.9" font-size="{diameter}" font-weight="bold" alignment-baseline="middle" text-anchor="middle">{i}</text>'
+
+
+def get_hour(deg):
+    return deg_to_time(deg, 12)
+
+
+def get_minute(deg):
+    return deg_to_time(deg, 60)
+
+
+def deg_to_time(deg, factor):
+    i = (deg + pi/2) / (2*pi) * factor
+    i = round(i)
+    if i == 0:
+        i = factor
+    return i
 
 
 def get_circle(args):
@@ -115,8 +136,26 @@ def get_line(args):
     x2 = cos(deg) * ro
     y1 = sin(deg) * ri
     y2 = sin(deg) * ro
-    return '<line x1={} y1={} x2={} y2={} style="stroke-width:{}; ' \
-           'stroke:#000000"></line>'.format(x1, y1, x2, y2, width)
+    return _get_line(x1, y1, x2, y2, width)
+
+
+def get_two_lines(args):
+    deg, ri, ro, width, sep = args
+    x1 = cos(deg) * ri
+    x2 = cos(deg) * ro
+    y1 = sin(deg) * ri
+    y2 = sin(deg) * ro
+    r_line = abs(ri - ro)
+    factor = width / 2 * (1 + sep)
+    dx = sin(deg) * factor
+    dy = cos(deg) * factor
+    return _get_line(x1 + dx, y1 + dy, x2 + dx, y2 + dy, width) + \
+        _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
+
+
+def _get_line(x1, y1, x2, y2, width):
+    return f'<line x1={x1} y1={y1} x2={x2} y2={y2} style="stroke-width:{width}; ' \
+           'stroke:#000000"></line>'
 
 
 def get_triangle(args):

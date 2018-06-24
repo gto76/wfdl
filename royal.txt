@@ -1,0 +1,12 @@
+[
+  {"a_len": 1.5, "a_width": 0.5, "b_len": 4, "b_width": 1, 
+   "c_len": 20, "c_width": 3, "two_lines_sep": 0.1},
+  [
+    [1,
+      [60, "line", ["b_len", "b_width"]],
+      [300, "line", ["a_len", "a_width"]]],
+    ["a_len",
+      [1, "two lines", ["c_len", "c_width", "two_lines_sep"]],
+      [12, "line", ["c_len", "c_width"]]]
+  ]
+]
