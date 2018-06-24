@@ -97,13 +97,22 @@ def get_elements(positions, drawer, args):
 
 
 def get_number(args):
-    # return '<circle cx={} cy={} r={} style="stroke-width: 0; fill: rgb(0, 0, ' \
-           # '0);"></circle>'.format(cx, cy, diameter/2)
     deg, ro, diameter, kind, orient = args
     x = cos(deg) * (ro - diameter/2)
     y = sin(deg) * (ro - diameter/2)
     i = get_hour(deg) if kind == "hour" else get_minute(deg)
-    return f'<text class="title" x="{x}" y="{y}" fill="#111111" fill-opacity="0.9" font-size="{diameter}" font-weight="bold" alignment-baseline="middle" text-anchor="middle">{i}</text>'
+    rot = get_num_rotation(orient, deg, i)
+    return f'<g transform="translate({x}, {y})"><text transform="rotate({rot})" class="title" fill="#111111" fill-opacity="0.9" font-size="{diameter}" font-weight="bold" alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
+
+
+def get_num_rotation(orient, deg, i):
+    if orient == "horizontal":
+        return 0
+    elif orient == "rotating":
+        return (deg + pi/2) / pi * 180
+    else:
+        delta = pi if deg > 0 and deg < pi else 0
+        return (deg + pi/2 + delta) / pi * 180
 
 
 def get_hour(deg):
