@@ -54,6 +54,8 @@ def get_group(offset, elements):
         pos, shape, args = element
         if isinstance(pos, Number):
             pos = get_positions(pos)
+        if isinstance(pos, list):
+            pos = get_positions_list(pos)
         pos = pos.difference(filled_pos)
         filled_pos.update(pos)
         out += get_shapes(pos, shape, args, offset)
@@ -62,6 +64,17 @@ def get_group(offset, elements):
 
 def get_positions(n):
     return set([i/n for i in range(n)])
+
+
+def get_positions_list(args):
+    n = args[0]
+    start = 0
+    if len(args) == 2:
+        end = args[1]
+    else:
+        start = args[1]
+        end = args[2]
+    return set([i/n for i in range(n) if i/n >= start and i/n <= end])
 
 
 def get_shapes(pos, shape, args, offset):
