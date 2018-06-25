@@ -57,6 +57,8 @@ def get_group(offset, elements):
             out += f'<circle cx=0 cy=0 r={100-offset} style=" stroke-width: {stroke_width}; stroke: rgb(0,0,0); fill: rgba(0,0,0,0);"></circle>'
             continue
         pos, shape, args = element
+        width = get_angular_width(shape, args, offset)
+        print(width)
         if isinstance(pos, Number):
             pos = get_positions(pos)
         if isinstance(pos, list):
@@ -65,6 +67,34 @@ def get_group(offset, elements):
         filled_pos.update(pos)
         out += get_shapes(pos, shape, args, offset)
     return out
+
+
+def get_angular_width(shape, args, offset):
+    if shape == 'line':
+        _, width = args
+        return compute_angular_width(width, offset)
+    if shape == 'rounded line':
+        _, width = args
+        return compute_angular_width(width, offset)
+    elif shape == 'two lines':
+        _, width, factor = args
+        return compute_angular_width(2*width + width*factor, offset)
+    elif shape == 'circle':
+        diameter = args[0]
+        return compute_angular_width(diameter, offset)
+    elif shape == 'number':
+        size = args[0]
+        return compute_angular_width(size, offset)
+    elif shape == 'triangle':
+        _, width = args
+        return compute_angular_width(width, offset)
+    return ""
+
+
+def compute_angular_width(width, offset):
+    r = 100 - offset
+    a_sin = r / width
+    return math.asin(a_sin) / (2*pi) * 100
 
 
 def get_positions(n):
