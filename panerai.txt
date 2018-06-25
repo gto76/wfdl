@@ -3,7 +3,7 @@
    "c_diameter": 3},
   [
     [1,
-      [4, "number", ["b_len", "hour", "horizontal"]],
+      [4, "number", ["b_len", "hour", "horizontal", "arial"]],
       [12, "line", ["b_len", "b_len / 3"]],
       [60, "line", ["a_len", "a_width"]]]
   ]

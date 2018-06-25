@@ -19,7 +19,8 @@ BASE = 0.75
 HEAD = f'<html>\n<svg height=300px width=300px>\n<g transform="translate(150,' \
        f' 150), scale({BASE})")>\n'
 TAIL = "\n</g>\n</svg>\n</html>"
-
+ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII', 
+        8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
 
 def main():
     if len(sys.argv) < 2:
@@ -97,7 +98,7 @@ def get_shapes(pos, shape, args, offset):
         diameter = args[0]
         kind = args[1]
         orient = args[2]
-        return get_elements(pos, get_number, [100-offset, diameter, kind, orient])
+        return get_elements(pos, get_number, [100-offset] + args)
     elif shape == 'triangle':
         length, width = args
         return get_elements(pos, get_triangle, 
@@ -114,12 +115,26 @@ def get_elements(positions, drawer, args):
 
 
 def get_number(args):
-    deg, ro, diameter, kind, orient = args
+    font = ''
+    if len(args) == 5:
+        deg, ro, diameter, kind, orient = args
+    else:
+        deg, ro, diameter, kind, orient, font = args
     x = cos(deg) * (ro - diameter/2)
     y = sin(deg) * (ro - diameter/2)
-    i = get_hour(deg) if kind == "hour" else get_minute(deg)
+    i = get_num_str(kind, deg)
     rot = get_num_rotation(orient, deg, i)
-    return f'<g transform="translate({x}, {y})"><text transform="rotate({rot})" class="title" fill="#111111" fill-opacity="0.9" font-size="{diameter}" font-weight="bold" alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
+    return f'<g transform="translate({x}, {y})"><text transform="rotate({rot})" class="title" fill="#111111" fill-opacity="0.9" font-size="{diameter}" font-weight="bold" font-family="{font}" alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
+
+
+def get_num_str(kind, deg):
+    if kind == 'minute':
+        return get_minute(deg)
+    if kind == 'roman':
+        hour = get_hour(deg)
+        return ROMAN[hour]
+    else:
+        return get_hour(deg)
 
 
 def get_num_rotation(orient, deg, i):
