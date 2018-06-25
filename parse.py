@@ -52,6 +52,10 @@ def get_group(offset, elements):
     out = ""
     filled_pos = set()
     for element in elements:
+        if len(element) < 3:
+            stroke_width = element[1][0]
+            out += f'<circle cx=0 cy=0 r={100-offset} style=" stroke-width: {stroke_width}; stroke: rgb(0,0,0); fill: rgba(0,0,0,0);"></circle>'
+            continue
         pos, shape, args = element
         if isinstance(pos, Number):
             pos = get_positions(pos)
