@@ -69,7 +69,11 @@ def get_shapes(pos, shape, args, offset):
         length, width = args
         return get_elements(pos, get_line, 
                             [100-offset, 100-offset-length, width])
-    if shape == 'two lines':
+    if shape == 'rounded line':
+        length, width = args
+        return get_elements(pos, get_rounded_line, 
+                            [100-offset, 100-offset-length, width])
+    elif shape == 'two lines':
         length, width, factor = args
         return get_elements(pos, get_two_lines, 
                             [100-offset, 100-offset-length, width, factor])
@@ -146,6 +150,16 @@ def get_line(args):
     y1 = sin(deg) * ri
     y2 = sin(deg) * ro
     return _get_line(x1, y1, x2, y2, width)
+
+
+def get_rounded_line(args):
+    deg, ri, ro, width = args
+    x1 = cos(deg) * ri
+    x2 = cos(deg) * ro
+    y1 = sin(deg) * ri
+    y2 = sin(deg) * ro
+    deg = (deg-pi/2) / pi * 180 
+    return f'<rect rx="{width/2}" y="{ro}" x="-{width/2}" ry="{width/2}" transform="rotate({deg})" height="{ri-ro}" width="{width}"></rect>'
 
 
 def get_two_lines(args):
