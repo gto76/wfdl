@@ -11,6 +11,7 @@ import operator as op
 import os
 import re
 import sys
+from enum import Enum
 
 
 BASE = 0.75
@@ -21,6 +22,9 @@ ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
          8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
 WATCHES_DIR = 'watches/'
 BORDER_FACTOR = 0.1
+
+Shape = Enum('Shape', ['line', 'rounded_line', 'two_lines', 'circle', 'number',
+                       'triangle'])
 
 
 def main():
@@ -66,17 +70,18 @@ def get_group(ver_pos, elements, ranges):
     filled_pos = []
     for element in elements:
         if len(element) < 3:
-            out += get_circular_border(element)
+            out += get_circular_border(element, ver_pos)
             continue
 
         pos, shape, args = element
+        shape = Shape[shape]
         width = get_angular_width(shape, args, ver_pos)
         pos = get_positions(pos, width)
         filtered_pos = filter_positions(pos, filled_pos)
         filled_pos.extend(filtered_pos)
         out += get_shapes(filtered_pos, shape, args, ver_pos)
 
-    return out
+    return ranges, out
 
 
 # def get_objects(ranges, shape, args, ver_pos):
@@ -92,7 +97,7 @@ def get_positions(pos, width):
         return get_positions_list(pos, width)
 
 
-def get_circular_border(element):
+def get_circular_border(element, ver_pos):
     stroke_width = element[1][0]
     return f'<circle cx=0 cy=0 r={100-ver_pos} style=" stroke-width: ' \
            f'{stroke_width}; stroke: rgb(0,0,0); fill: rgba(0,0,0,0)' \
@@ -133,23 +138,25 @@ def get_ranges(pos, width):
     return [[start, end]]
 
 
+
+
 def get_angular_width(shape, args, offset):
-    if shape == 'line':
+    if shape == Shape.line:
         _, width = args
         return compute_angular_width(width, offset)
-    if shape == 'rounded line':
+    if shape == Shape.rounded_line:
         _, width = args
         return compute_angular_width(width, offset)
-    elif shape == 'two lines':
+    elif shape == Shape.two_lines:
         _, width, factor = args
         return compute_angular_width(2 * width + width * factor, offset)
-    elif shape == 'circle':
+    elif shape == Shape.circle:
         diameter = args[0]
         return compute_angular_width(diameter, offset)
-    elif shape == 'number':
+    elif shape == Shape.number:
         size = args[0]
         return compute_angular_width(size, offset)
-    elif shape == 'triangle':
+    elif shape == Shape.triangle:
         _, width = args
         return compute_angular_width(width, offset)
     return ""
@@ -197,28 +204,28 @@ def get_positions_set(positions, width):
 
 
 def get_shapes(pos, shape, args, offset):
-    if shape == 'line':
+    if shape == Shape.line:
         length, width = args
         return get_elements(pos, get_line,
                             [100 - offset, 100 - offset - length, width])
-    if shape == 'rounded line':
+    if shape == Shape.rounded_line:
         length, width = args
         return get_elements(pos, get_rounded_line,
                             [100 - offset, 100 - offset - length, width])
-    elif shape == 'two lines':
+    elif shape == Shape.two_lines:
         length, width, factor = args
         return get_elements(pos, get_two_lines,
                             [100 - offset, 100 - offset - length, width,
                              factor])
-    elif shape == 'circle':
+    elif shape == Shape.circle:
         diameter = args[0]
         return get_elements(pos, get_circle, [100 - offset, diameter])
-    elif shape == 'number':
+    elif shape == Shape.number:
         # diameter = args[0]
         # kind = args[1]
         # orient = args[2]
         return get_elements(pos, get_number, [100 - offset] + args)
-    elif shape == 'triangle':
+    elif shape == Shape.triangle:
         length, width = args
         return get_elements(pos, get_triangle,
                             [100 - offset, 100 - offset - length, width])
