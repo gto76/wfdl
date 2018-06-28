@@ -42,9 +42,10 @@ def get_svg(watch_str):
     elements = replace_matched_items(elements, dictionary)
     offset = 0
     vertical_pos = get_vertical_pos(elements)
+    ranges = []
     for ver_pos, element in zip(reversed(vertical_pos), reversed(elements)):
-        # offset += element[0]
-        out.append(get_group(ver_pos, element[1:]))
+        ranges, group = get_group(ver_pos, element[1:], ranges)
+        out.append(group)
     return ''.join(out)
 
 
@@ -58,32 +59,44 @@ def get_vertical_pos(elements):
     return out
 
 
-def get_group(offset, elements):
+def get_group(ver_pos, elements, ranges):
     if not elements:
         return
     out = ''
     filled_pos = []
     for element in elements:
         if len(element) < 3:
-            stroke_width = element[1][0]
-            out += f'<circle cx=0 cy=0 r={100-offset} style=" stroke-width: ' \
-                   f'{stroke_width}; stroke: rgb(0,0,0); fill: rgba(0,0,0,0)' \
-                   ';"></circle>'
+            out += get_circular_border(element)
             continue
-        pos, shape, args = element
-        width = get_angular_width(shape, args, offset)
-        if isinstance(pos, set):
-            pos = get_positions_set(pos, width)
-        elif isinstance(pos, Number):
-            pos = get_positions(pos, width)
-        elif isinstance(pos, list):
-            pos = get_positions_list(pos, width)
 
+        pos, shape, args = element
+        width = get_angular_width(shape, args, ver_pos)
+        pos = get_positions(pos, width)
         filtered_pos = filter_positions(pos, filled_pos)
         filled_pos.extend(filtered_pos)
+        out += get_shapes(filtered_pos, shape, args, ver_pos)
 
-        out += get_shapes(filtered_pos, shape, args, offset)
     return out
+
+
+# def get_objects(ranges, shape, args, ver_pos):
+    # return [Object(shape, args, ver_pos, hor_pos)] 
+
+
+def get_positions(pos, width):
+    if isinstance(pos, set):
+        return get_positions_set(pos, width)
+    elif isinstance(pos, Number):
+        return get_positions_num(pos, width)
+    elif isinstance(pos, list):
+        return get_positions_list(pos, width)
+
+
+def get_circular_border(element):
+    stroke_width = element[1][0]
+    return f'<circle cx=0 cy=0 r={100-ver_pos} style=" stroke-width: ' \
+           f'{stroke_width}; stroke: rgb(0,0,0); fill: rgba(0,0,0,0)' \
+           ';"></circle>'
 
 
 def filter_positions(positions, filled_pos):
@@ -148,7 +161,7 @@ def compute_angular_width(width, offset):
     return asin(a_sin) / (2 * pi)
 
 
-def get_positions(n, width):
+def get_positions_num(n, width):
     return get_positions_set([i / n for i in range(n)], width)
 
 
