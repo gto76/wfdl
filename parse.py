@@ -20,6 +20,7 @@ TAIL = "\n</g>\n</svg>\n</html>"
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
          8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
 WATCHES_DIR = 'watches/'
+BORDER_FACTOR = 0.2
 
 
 def main():
@@ -70,13 +71,13 @@ def get_group(offset, elements):
             pos = get_positions_list(pos, width)
 
         # print(pos, '\n')
-        pos = filter_positions(pos, filled_pos)
-        filled_pos.extend(pos)
+        filtered_pos = filter_positions(pos, filled_pos)
+        filled_pos.extend(filtered_pos)
 
         # pos = pos.difference(filled_pos)
         # filled_pos.update(pos)
 
-        out += get_shapes(pos, shape, args, offset)
+        out += get_shapes(filtered_pos, shape, args, offset)
     return out
 
 
@@ -100,7 +101,8 @@ def rng_intersects(rng, filled_ranges):
     start, end = rng
     for fil_range in filled_ranges:
         f_start, f_end = fil_range
-        if (f_start < start < f_end) or (f_start < end < f_end):
+        if (f_start < start < f_end) or (f_start < end < f_end) or \
+            (start < f_start and end > f_end):
             return True
     return False
 
@@ -133,8 +135,9 @@ def rng_intersects(rng, filled_ranges):
 
 
 def get_ranges(pos, width):
-    start = pos - width / 2
-    end = pos + width / 2
+    border = width * BORDER_FACTOR
+    start = (pos - width / 2) - border
+    end = (pos + width / 2) + border
     if start < 0:
         return [[start + 1, 1], [0, end]]
     if end > 1:
@@ -167,7 +170,7 @@ def get_angular_width(shape, args, offset):
 def compute_angular_width(width, offset):
     r = 100 - offset
     a_sin = width / r
-    return asin(a_sin) / (2 * pi) * 100
+    return asin(a_sin) / (2 * pi)
 
 
 def get_positions(n, width):
