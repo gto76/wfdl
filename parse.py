@@ -41,10 +41,21 @@ def get_svg(watch_str):
     dictionary, elements = ast.literal_eval(watch_str)
     elements = replace_matched_items(elements, dictionary)
     offset = 0
-    for element in elements:
-        offset += element[0]
-        out.append(get_group(offset, element[1:]))
+    vertical_pos = get_vertical_pos(elements)
+    for ver_pos, element in reversed(zip(vertical_pos, elements)):
+        # offset += element[0]
+        out.append(get_group(ver_pos, element[1:]))
     return ''.join(out)
+
+
+def get_vertical_pos(elements):
+    out = []
+    vertical = 0
+    offsets = [a[0] for a in elements]
+    for offset in offsets:
+        vertical += offset
+        out.append(vertical)
+    return out
 
 
 def get_group(offset, elements):
