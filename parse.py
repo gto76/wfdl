@@ -20,7 +20,7 @@ TAIL = "\n</g>\n</svg>\n</html>"
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
          8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
 WATCHES_DIR = 'watches/'
-BORDER_FACTOR = 0.2
+BORDER_FACTOR = 0.1
 
 
 def main():
@@ -51,7 +51,6 @@ def get_group(offset, elements):
     if not elements:
         return
     out = ''
-    # filled_pos = set()
     filled_pos = []
     for element in elements:
         if len(element) < 3:
@@ -62,7 +61,6 @@ def get_group(offset, elements):
             continue
         pos, shape, args = element
         width = get_angular_width(shape, args, offset)
-        # print(width)
         if isinstance(pos, set):
             pos = get_positions_set(pos, width)
         elif isinstance(pos, Number):
@@ -70,12 +68,8 @@ def get_group(offset, elements):
         elif isinstance(pos, list):
             pos = get_positions_list(pos, width)
 
-        # print(pos, '\n')
         filtered_pos = filter_positions(pos, filled_pos)
         filled_pos.extend(filtered_pos)
-
-        # pos = pos.difference(filled_pos)
-        # filled_pos.update(pos)
 
         out += get_shapes(filtered_pos, shape, args, offset)
     return out
@@ -91,9 +85,6 @@ def filter_positions(positions, filled_pos):
         if all(not rng_intersects(rng, filled_ranges) for rng in
                get_ranges(pos, width)):
             out.append(a_pos)
-            # for rng in get_ranges(pos, width):
-            # if not rng_intersects(rng, filled_ranges):
-            # out.append(a_pos)
     return out
 
 
@@ -105,33 +96,6 @@ def rng_intersects(rng, filled_ranges):
             (start < f_start and end > f_end):
             return True
     return False
-
-
-# def pos_intersects(pos, filled_ranges):
-#     start, end = get_start_end(pos)
-#     for fil_range in filled_ranges:
-#         f_start, f_end = fil_range
-#         if (start > f_start and start < f_end) or \
-#             (end > f_start and end < f_end):
-#             return True
-#     return False
-
-
-# def get_start_end(pos):
-# center, width = pos
-# start, end = center - width, center + width
-# if start < 0:
-# return start +
-
-
-# def pos_intersects(pos, filled_pos):
-# start, end = pos
-# for fil_pos in filled_pos:
-# f_start, f_end = fil_pos
-# if (start > f_start and start < f_end) or \
-# (end > f_start and end < f_end):
-# return True
-# return False
 
 
 def get_ranges(pos, width):
@@ -175,7 +139,6 @@ def compute_angular_width(width, offset):
 
 def get_positions(n, width):
     return get_positions_set([i / n for i in range(n)], width)
-    # return set([i/n for i in range(n)])
 
 
 def get_positions_list(args, width):
@@ -189,26 +152,24 @@ def get_positions_list(args, width):
     positions = [i/n for i in range(n) if start <= i/n <= end]
     return get_positions_set(positions, width)
 
-    # [i / n for i in range(n) if i / n >= start and i / n <= end], width)
-    # return set([i/n for i in range(n) if i/n >= start and i/n <= end])
-
 
 def get_positions_set(positions, width):
-    out = []
-    for pos in positions:
-        out.append([pos, width])
-        # pos = i / n
-        # start = pos - width/2
-        # end = pos + width/2
-        # if start < 0:
-        # out.append([start+1, 1])
-        # out.append([0, end])
-        # elif end > 1:
-        # out.append([start, 1])
-        # out.append([0, end-1])
-        # else:
-        # out.append([start, end])
-    return out
+    return [[pos, width] for pos in positions]
+
+
+# class Line:
+#     def __init__(s, pos, offset, args):
+#         s.pos = pos
+#         s.offset = offset
+#         s.args = args
+#     def get_width(s):
+#         pass
+#     def get_height(s):
+#         pass
+#     def get_range(s):
+#         pass
+#     def __str__(s):
+#         pass
 
 
 def get_shapes(pos, shape, args, offset):
@@ -320,10 +281,6 @@ def get_line(args):
 
 def get_rounded_line(args):
     deg, ri, ro, width = args
-    # x1 = cos(deg) * ri
-    # x2 = cos(deg) * ro
-    # y1 = sin(deg) * ri
-    # y2 = sin(deg) * ro
     deg = (deg - pi / 2) / pi * 180
     return f'<rect rx="{width/2}" y="{ro}" x="-{width/2}" ry="{width/2}" ' \
            f'transform="rotate({deg})" height="{ri-ro}" width="{width}"></rect>'
@@ -335,7 +292,6 @@ def get_two_lines(args):
     x2 = cos(deg) * ro
     y1 = sin(deg) * ri
     y2 = sin(deg) * ro
-    # r_line = abs(ri - ro)
     factor = width / 2 * (1 + sep)
     dx = sin(deg) * factor
     dy = cos(deg) * factor
