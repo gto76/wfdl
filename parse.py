@@ -42,7 +42,7 @@ def get_svg(watch_str):
     elements = replace_matched_items(elements, dictionary)
     offset = 0
     vertical_pos = get_vertical_pos(elements)
-    for ver_pos, element in reversed(zip(vertical_pos, elements)):
+    for ver_pos, element in zip(reversed(vertical_pos), reversed(elements)):
         # offset += element[0]
         out.append(get_group(ver_pos, element[1:]))
     return ''.join(out)
