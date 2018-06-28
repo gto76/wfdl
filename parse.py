@@ -5,28 +5,28 @@
 # 'index.html'.
 
 import ast
-import json
-from math import sin, cos, pi
+from math import sin, cos, pi, asin
 from numbers import Number
 import operator as op
 import os
 import re
 import sys
-from itertools import count
 
 
 BASE = 0.75
 HEAD = f'<html>\n<svg height=300px width=300px>\n<g transform="translate(150,' \
        f' 150), scale({BASE})")>\n'
 TAIL = "\n</g>\n</svg>\n</html>"
-ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII', 
-        8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
+ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
+         8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
+WATCHES_DIR = 'watches/'
+
 
 def main():
     if len(sys.argv) < 2:
         print('Missing watch file argument.', file=sys.stderr)
         sys.exit(1)
-    watch_file = sys.argv[1]
+    watch_file = WATCHES_DIR + sys.argv[1]
     if not os.path.isfile(watch_file):
         print(f'File "{watch_file}" does not exist.', file=sys.stderr)
         sys.exit(2)
@@ -49,24 +49,97 @@ def get_svg(watch_str):
 def get_group(offset, elements):
     if not elements:
         return
-    out = ""
-    filled_pos = set()
+    out = ''
+    # filled_pos = set()
+    filled_pos = []
     for element in elements:
         if len(element) < 3:
             stroke_width = element[1][0]
-            out += f'<circle cx=0 cy=0 r={100-offset} style=" stroke-width: {stroke_width}; stroke: rgb(0,0,0); fill: rgba(0,0,0,0);"></circle>'
+            out += f'<circle cx=0 cy=0 r={100-offset} style=" stroke-width: ' \
+                   f'{stroke_width}; stroke: rgb(0,0,0); fill: rgba(0,0,0,0)' \
+                   ';"></circle>'
             continue
         pos, shape, args = element
         width = get_angular_width(shape, args, offset)
-        print(width)
-        if isinstance(pos, Number):
-            pos = get_positions(pos)
-        if isinstance(pos, list):
-            pos = get_positions_list(pos)
-        pos = pos.difference(filled_pos)
-        filled_pos.update(pos)
+        # print(width)
+        if isinstance(pos, set):
+            pos = get_positions_set(pos, width)
+        elif isinstance(pos, Number):
+            pos = get_positions(pos, width)
+        elif isinstance(pos, list):
+            pos = get_positions_list(pos, width)
+
+        # print(pos, '\n')
+        pos = filter_positions(pos, filled_pos)
+        filled_pos.extend(pos)
+
+        # pos = pos.difference(filled_pos)
+        # filled_pos.update(pos)
+
         out += get_shapes(pos, shape, args, offset)
     return out
+
+
+def filter_positions(positions, filled_pos):
+    out = []
+    filled_ranges = [get_ranges(pos, width) for pos, width in filled_pos]
+    filled_ranges = [item for sublist in filled_ranges for item in sublist]
+    for a_pos in positions:
+        pos, width = a_pos
+
+        if all(not rng_intersects(rng, filled_ranges) for rng in
+               get_ranges(pos, width)):
+            out.append(a_pos)
+            # for rng in get_ranges(pos, width):
+            # if not rng_intersects(rng, filled_ranges):
+            # out.append(a_pos)
+    return out
+
+
+def rng_intersects(rng, filled_ranges):
+    start, end = rng
+    for fil_range in filled_ranges:
+        f_start, f_end = fil_range
+        if (f_start < start < f_end) or (f_start < end < f_end):
+            return True
+    return False
+
+
+# def pos_intersects(pos, filled_ranges):
+#     start, end = get_start_end(pos)
+#     for fil_range in filled_ranges:
+#         f_start, f_end = fil_range
+#         if (start > f_start and start < f_end) or \
+#             (end > f_start and end < f_end):
+#             return True
+#     return False
+
+
+# def get_start_end(pos):
+# center, width = pos
+# start, end = center - width, center + width
+# if start < 0:
+# return start +
+
+
+# def pos_intersects(pos, filled_pos):
+# start, end = pos
+# for fil_pos in filled_pos:
+# f_start, f_end = fil_pos
+# if (start > f_start and start < f_end) or \
+# (end > f_start and end < f_end):
+# return True
+# return False
+
+
+def get_ranges(pos, width):
+    start = pos - width / 2
+    end = pos + width / 2
+    if start < 0:
+        return [[start + 1, 1], [0, end]]
+    if end > 1:
+        return [[start, 1], [0, end - 1]]
+    return [[start, end]]
 
 
 def get_angular_width(shape, args, offset):
@@ -78,7 +151,7 @@ def get_angular_width(shape, args, offset):
         return compute_angular_width(width, offset)
     elif shape == 'two lines':
         _, width, factor = args
-        return compute_angular_width(2*width + width*factor, offset)
+        return compute_angular_width(2 * width + width * factor, offset)
     elif shape == 'circle':
         diameter = args[0]
         return compute_angular_width(diameter, offset)
@@ -93,15 +166,16 @@ def get_angular_width(shape, args, offset):
 
 def compute_angular_width(width, offset):
     r = 100 - offset
-    a_sin = r / width
-    return math.asin(a_sin) / (2*pi) * 100
+    a_sin = width / r
+    return asin(a_sin) / (2 * pi) * 100
 
 
-def get_positions(n):
-    return set([i/n for i in range(n)])
+def get_positions(n, width):
+    return get_positions_set([i / n for i in range(n)], width)
+    # return set([i/n for i in range(n)])
 
 
-def get_positions_list(args):
+def get_positions_list(args, width):
     n = args[0]
     start = 0
     if len(args) == 2:
@@ -109,43 +183,67 @@ def get_positions_list(args):
     else:
         start = args[1]
         end = args[2]
-    return set([i/n for i in range(n) if i/n >= start and i/n <= end])
+    positions = [i/n for i in range(n) if start <= i/n <= end]
+    return get_positions_set(positions, width)
+
+    # [i / n for i in range(n) if i / n >= start and i / n <= end], width)
+    # return set([i/n for i in range(n) if i/n >= start and i/n <= end])
+
+
+def get_positions_set(positions, width):
+    out = []
+    for pos in positions:
+        out.append([pos, width])
+        # pos = i / n
+        # start = pos - width/2
+        # end = pos + width/2
+        # if start < 0:
+        # out.append([start+1, 1])
+        # out.append([0, end])
+        # elif end > 1:
+        # out.append([start, 1])
+        # out.append([0, end-1])
+        # else:
+        # out.append([start, end])
+    return out
 
 
 def get_shapes(pos, shape, args, offset):
     if shape == 'line':
         length, width = args
-        return get_elements(pos, get_line, 
-                            [100-offset, 100-offset-length, width])
+        return get_elements(pos, get_line,
+                            [100 - offset, 100 - offset - length, width])
     if shape == 'rounded line':
         length, width = args
-        return get_elements(pos, get_rounded_line, 
-                            [100-offset, 100-offset-length, width])
+        return get_elements(pos, get_rounded_line,
+                            [100 - offset, 100 - offset - length, width])
     elif shape == 'two lines':
         length, width, factor = args
-        return get_elements(pos, get_two_lines, 
-                            [100-offset, 100-offset-length, width, factor])
+        return get_elements(pos, get_two_lines,
+                            [100 - offset, 100 - offset - length, width,
+                             factor])
     elif shape == 'circle':
         diameter = args[0]
-        return get_elements(pos, get_circle, [100-offset, diameter])
+        return get_elements(pos, get_circle, [100 - offset, diameter])
     elif shape == 'number':
-        diameter = args[0]
-        kind = args[1]
-        orient = args[2]
-        return get_elements(pos, get_number, [100-offset] + args)
+        # diameter = args[0]
+        # kind = args[1]
+        # orient = args[2]
+        return get_elements(pos, get_number, [100 - offset] + args)
     elif shape == 'triangle':
         length, width = args
-        return get_elements(pos, get_triangle, 
-                            [100-offset, 100-offset-length, width])
+        return get_elements(pos, get_triangle,
+                            [100 - offset, 100 - offset - length, width])
     return ""
 
 
 def get_elements(positions, drawer, args):
     out = ""
     for position in positions:
-        deg = position * 2*pi - pi/2
+        position = position[0]
+        deg = position * 2 * pi - pi / 2
         out += drawer([deg] + args)
-    return out 
+    return out
 
 
 def get_number(args):
@@ -154,11 +252,14 @@ def get_number(args):
         deg, ro, diameter, kind, orient = args
     else:
         deg, ro, diameter, kind, orient, font = args
-    x = cos(deg) * (ro - diameter/2)
-    y = sin(deg) * (ro - diameter/2)
+    x = cos(deg) * (ro - diameter / 2)
+    y = sin(deg) * (ro - diameter / 2)
     i = get_num_str(kind, deg)
-    rot = get_num_rotation(orient, deg, i)
-    return f'<g transform="translate({x}, {y})"><text transform="rotate({rot})" class="title" fill="#111111" fill-opacity="0.9" font-size="{diameter}" font-weight="bold" font-family="{font}" alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
+    rot = get_num_rotation(orient, deg)
+    return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
+           f')" class="title" fill="#111111" fill-opacity="0.9" font-size=' \
+           f'"{diameter}" font-weight="bold" font-family="{font}" ' \
+           f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 
 
 def get_num_str(kind, deg):
@@ -171,14 +272,14 @@ def get_num_str(kind, deg):
         return get_hour(deg)
 
 
-def get_num_rotation(orient, deg, i):
+def get_num_rotation(orient, deg):
     if orient == "horizontal":
         return 0
     elif orient == "rotating":
-        return (deg + pi/2) / pi * 180
+        return (deg + pi / 2) / pi * 180
     else:
-        delta = pi if deg > 0 and deg < pi else 0
-        return (deg + pi/2 + delta) / pi * 180
+        delta = pi if 0 < deg < pi else 0
+        return (deg + pi / 2 + delta) / pi * 180
 
 
 def get_hour(deg):
@@ -190,7 +291,7 @@ def get_minute(deg):
 
 
 def deg_to_time(deg, factor):
-    i = (deg + pi/2) / (2*pi) * factor
+    i = (deg + pi / 2) / (2 * pi) * factor
     i = round(i)
     if i == 0:
         i = factor
@@ -199,10 +300,10 @@ def deg_to_time(deg, factor):
 
 def get_circle(args):
     deg, ro, diameter = args
-    cx = cos(deg) * (ro - diameter/2)
-    cy = sin(deg) * (ro - diameter/2)
+    cx = cos(deg) * (ro - diameter / 2)
+    cy = sin(deg) * (ro - diameter / 2)
     return '<circle cx={} cy={} r={} style="stroke-width: 0; fill: rgb(0, 0, ' \
-           '0);"></circle>'.format(cx, cy, diameter/2)
+           '0);"></circle>'.format(cx, cy, diameter / 2)
 
 
 def get_line(args):
@@ -216,12 +317,13 @@ def get_line(args):
 
 def get_rounded_line(args):
     deg, ri, ro, width = args
-    x1 = cos(deg) * ri
-    x2 = cos(deg) * ro
-    y1 = sin(deg) * ri
-    y2 = sin(deg) * ro
-    deg = (deg-pi/2) / pi * 180 
-    return f'<rect rx="{width/2}" y="{ro}" x="-{width/2}" ry="{width/2}" transform="rotate({deg})" height="{ri-ro}" width="{width}"></rect>'
+    # x1 = cos(deg) * ri
+    # x2 = cos(deg) * ro
+    # y1 = sin(deg) * ri
+    # y2 = sin(deg) * ro
+    deg = (deg - pi / 2) / pi * 180
+    return f'<rect rx="{width/2}" y="{ro}" x="-{width/2}" ry="{width/2}" ' \
+           f'transform="rotate({deg})" height="{ri-ro}" width="{width}"></rect>'
 
 
 def get_two_lines(args):
@@ -230,7 +332,7 @@ def get_two_lines(args):
     x2 = cos(deg) * ro
     y1 = sin(deg) * ri
     y2 = sin(deg) * ro
-    r_line = abs(ri - ro)
+    # r_line = abs(ri - ro)
     factor = width / 2 * (1 + sep)
     dx = sin(deg) * factor
     dy = cos(deg) * factor
@@ -239,8 +341,8 @@ def get_two_lines(args):
 
 
 def _get_line(x1, y1, x2, y2, width):
-    return f'<line x1={x1} y1={y1} x2={x2} y2={y2} style="stroke-width:{width}; ' \
-           'stroke:#000000"></line>'
+    return f'<line x1={x1} y1={y1} x2={x2} y2={y2} style="stroke-width:' \
+           f'{width}; stroke:#000000"></line>'
 
 
 def get_triangle(args):
@@ -251,7 +353,7 @@ def get_triangle(args):
     y2 = (sin(deg) * ro) - (cos(deg) * width / 2)
     x3 = cos(deg) * ri
     y3 = sin(deg) * ri
-    return '<polygon points="{},{} {},{} {},{}" />'.format(x1, y1, x2, y2, x3, 
+    return '<polygon points="{},{} {},{} {},{}" />'.format(x1, y1, x2, y2, x3,
                                                            y3)
 
 
