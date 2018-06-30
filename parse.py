@@ -32,11 +32,12 @@ BORDER_FACTOR = 0.1
 #     number = get_number
 #     triangle = get_triangle
 
-Shape = Enum('Shape', ['line', 'rounded_line', 'two_lines', 'circle', 
+Shape = Enum('Shape', ['line', 'rounded_line', 'two_lines', 'circle',
                        'triangle', 'number'])
 
 GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
+
 
 def main():
     if len(sys.argv) < 2:
@@ -55,7 +56,6 @@ def get_svg(watch_str):
     out = []
     dictionary, elements = ast.literal_eval(watch_str)
     elements = replace_matched_items(elements, dictionary)
-    offset = 0
     rs = get_rs(elements)
     ranges = []
     for r, element in zip(reversed(rs), reversed(elements)):
@@ -100,8 +100,7 @@ def get_group(r, elements, ranges):
 
 
 def get_objects(ranges, fis, shape, args, r):
-    out = (get_object(ranges, ObjParams(shape, r, fi, args)) \
-                for fi in fis)
+    out = (get_object(ranges, ObjParams(shape, r, fi, args)) for fi in fis)
     return [a for a in out if a]
 
 
@@ -110,7 +109,7 @@ def get_object(ranges, prms):
     max_height = get_max_height(ranges, prms)
     if height > max_height:
         update_height(prms.shape, prms.args, max_height)
-    return None if range_ocupied(ranges, prms) else get_svg_el(prms, ranges)
+    return None if range_occupied(ranges, prms) else get_svg_el(prms, ranges)
 
 
 def get_height(prms):
@@ -127,21 +126,21 @@ def update_height(shape, args, height):
     return args
 
 
-def range_ocupied(ranges, prms):
+def range_occupied(ranges, prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    return False
+    width = get_angular_width(prms.shape, prms.args, 100 - prms.r)
+    return pos_occupied(prms.fi, width, ranges[-1].ranges)
 
 
 def get_svg_el(prms, occupied_ranges):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    DRAWERS = {Shape.line: get_line, Shape.rounded_line: get_rounded_line,
+    drawers = {Shape.line: get_line, Shape.rounded_line: get_rounded_line,
                Shape.two_lines: get_two_lines, Shape.circle: get_circle,
                Shape.number: get_number, Shape.triangle: get_triangle}
-    fun = DRAWERS[prms.shape]
+    fun = drawers[prms.shape]
     ranges, svg = fun(prms)
     occupied_ranges[-1].ranges.extend(ranges)
     return svg
-
 
     # def get_shapes(pos, shape, args, offset):
     # length, width = args
@@ -149,7 +148,6 @@ def get_svg_el(prms, occupied_ranges):
     # ro = 100 - offset - length
     # args = ri, ro, width
     # return get_elements(pos, fun, args)
-
 
     # def get_elements(positions, drawer, args):
     #     """args = ri, ro, width"""
@@ -159,7 +157,6 @@ def get_svg_el(prms, occupied_ranges):
     #     out += drawer([deg] + args)
     #     return out
 
-
     # def get_line(args):
     #     deg, ri, ro, width = args
     #     x1 = cos(deg) * ri
@@ -168,11 +165,9 @@ def get_svg_el(prms, occupied_ranges):
     #     y2 = sin(deg) * ro
     #     return _get_line(x1, y1, x2, y2, width)
 
-
     # def _get_line(x1, y1, x2, y2, width):
     #     return f'<line x1={x1} y1={y1} x2={x2} y2={y2} style="stroke-width:' \
     #            f'{width}; stroke:#000000"></line>'
-
 
 ##################
 
@@ -206,16 +201,17 @@ def get_two_lines(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height, width, sep = prms.args
     rad = prms.fi * 2 * pi - pi / 2
-    x1 = cos(rad) * ri
-    x2 = cos(rad) * ro
-    y1 = sin(rad) * ri
-    y2 = sin(rad) * ro
+    x1 = cos(rad) * (prms.r - height)
+    x2 = cos(rad) * prms.r
+    y1 = sin(rad) * (prms.r - height)
+    y2 = sin(rad) * prms.r
     factor = width / 2 * (1 + sep)
     dx = sin(rad) * factor
     dy = cos(rad) * factor
-    ranges = get_ranges(prms.fi, compute_angular_width(2*width+widht*sep, 100 - prms.r))
+    ranges = get_ranges(prms.fi, compute_angular_width(2 * width + width * sep,
+                                                       100 - prms.r))
     svg = _get_line(x1 + dx, y1 + dy, x2 + dx, y2 + dy, width) + \
-          _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
+        _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
     return ranges, svg
 
 
@@ -225,8 +221,8 @@ def get_circle(prms):
     cx = cos(rad) * (prms.r - diameter / 2)
     cy = sin(rad) * (prms.r - diameter / 2)
     ranges = get_ranges(prms.fi, compute_angular_width(diameter, 100 - prms.r))
-    svg = f'<circle cx={cx} cy={cy} r={diameter / 2} style="stroke-width: 0; fill: rgb(0, 0, ' \
-          '0);"></circle>'
+    svg = f'<circle cx={cx} cy={cy} r={diameter / 2} style="stroke-width: 0; ' \
+          'fill: rgb(0, 0, 0);"></circle>'
     return ranges, svg
 
 
@@ -265,13 +261,20 @@ def get_number(prms):
     return ranges, svg
 
 
+def get_circular_border(element, ver_pos):
+    stroke_width = element[1][0]
+    return f'<circle cx=0 cy=0 r={100-ver_pos} style=" stroke-width: ' \
+           f'{stroke_width}; stroke: rgb(0,0,0); fill: rgba(0,0,0,0)' \
+           ';"></circle>'
+
+
 ##################
 
 
 def get_fis(pos):
     if isinstance(pos, set):
         return pos
-    elif isinstance(pos, Number):
+    elif isinstance(pos, int):
         return [i / pos for i in range(pos)]
     elif isinstance(pos, list):
         n = pos[0]
@@ -281,7 +284,7 @@ def get_fis(pos):
         else:
             start = pos[1]
             end = pos[2]
-        return [i/n for i in range(n) if start <= i/n <= end]
+        return [i / n for i in range(n) if start <= i / n <= end]
 
 
 def get_positions(pos, width):
@@ -291,13 +294,6 @@ def get_positions(pos, width):
         return get_positions_num(pos, width)
     elif isinstance(pos, list):
         return get_positions_list(pos, width)
-
-
-def get_circular_border(element, ver_pos):
-    stroke_width = element[1][0]
-    return f'<circle cx=0 cy=0 r={100-ver_pos} style=" stroke-width: ' \
-           f'{stroke_width}; stroke: rgb(0,0,0); fill: rgba(0,0,0,0)' \
-           ';"></circle>'
 
 
 def filter_positions(positions, filled_pos):
@@ -313,12 +309,17 @@ def filter_positions(positions, filled_pos):
     return out
 
 
+def pos_occupied(fi, width, occupied_ranges):
+    ranges = get_ranges(fi, width)
+    return all(not rng_intersects(rng, occupied_ranges) for rng in ranges)
+
+
 def rng_intersects(rng, filled_ranges):
     start, end = rng
     for fil_range in filled_ranges:
         f_start, f_end = fil_range
         if (f_start < start < f_end) or (f_start < end < f_end) or \
-            (start < f_start and end > f_end):
+                (start < f_start and end > f_end):
             return True
     return False
 
@@ -359,7 +360,6 @@ def get_angular_width(shape, args, offset):
 def compute_angular_width(width, offset):
     r = 100 - offset
     a_sin = width / r
-    # print(width, offset, r, a_sin)
     return asin(a_sin) / (2 * pi)
 
 
@@ -375,7 +375,7 @@ def get_positions_list(args, width):
     else:
         start = args[1]
         end = args[2]
-    positions = [i/n for i in range(n) if start <= i/n <= end]
+    positions = [i / n for i in range(n) if start <= i / n <= end]
     return get_positions_set(positions, width)
 
 
@@ -383,57 +383,42 @@ def get_positions_set(positions, width):
     return [[pos, width] for pos in positions]
 
 
-# class Line:
-#     def __init__(s, pos, offset, args):
-#         s.pos = pos
-#         s.offset = offset
-#         s.args = args
-#     def get_width(s):
-#         pass
-#     def get_height(s):
-#         pass
-#     def get_range(s):
-#         pass
-#     def __str__(s):
-#         pass
+# def get_shapes(pos, shape, args, offset):
+#     if shape == Shape.line:
+#         length, width = args
+#         return get_elements(pos, get_line,
+#                             [100 - offset, 100 - offset - length, width])
+#     if shape == Shape.rounded_line:
+#         length, width = args
+#         return get_elements(pos, get_rounded_line,
+#                             [100 - offset, 100 - offset - length, width])
+#     elif shape == Shape.two_lines:
+#         length, width, factor = args
+#         return get_elements(pos, get_two_lines,
+#                             [100 - offset, 100 - offset - length, width,
+#                              factor])
+#     elif shape == Shape.circle:
+#         diameter = args[0]
+#         return get_elements(pos, get_circle, [100 - offset, diameter])
+#     elif shape == Shape.number:
+#         # diameter = args[0]
+#         # kind = args[1]
+#         # orient = args[2]
+#         return get_elements(pos, get_number, [100 - offset] + args)
+#     elif shape == Shape.triangle:
+#         length, width = args
+#         return get_elements(pos, get_triangle,
+#                             [100 - offset, 100 - offset - length, width])
+#     return ""
 
 
-def get_shapes(pos, shape, args, offset):
-    if shape == Shape.line:
-        length, width = args
-        return get_elements(pos, get_line,
-                            [100 - offset, 100 - offset - length, width])
-    if shape == Shape.rounded_line:
-        length, width = args
-        return get_elements(pos, get_rounded_line,
-                            [100 - offset, 100 - offset - length, width])
-    elif shape == Shape.two_lines:
-        length, width, factor = args
-        return get_elements(pos, get_two_lines,
-                            [100 - offset, 100 - offset - length, width,
-                             factor])
-    elif shape == Shape.circle:
-        diameter = args[0]
-        return get_elements(pos, get_circle, [100 - offset, diameter])
-    elif shape == Shape.number:
-        # diameter = args[0]
-        # kind = args[1]
-        # orient = args[2]
-        return get_elements(pos, get_number, [100 - offset] + args)
-    elif shape == Shape.triangle:
-        length, width = args
-        return get_elements(pos, get_triangle,
-                            [100 - offset, 100 - offset - length, width])
-    return ""
-
-
-def get_elements(positions, drawer, args):
-    out = ""
-    for position in positions:
-        position = position[0]
-        deg = position * 2 * pi - pi / 2
-        out += drawer([deg] + args)
-    return out
+# def get_elements(positions, drawer, args):
+#     out = ""
+#     for position in positions:
+#         position = position[0]
+#         deg = position * 2 * pi - pi / 2
+#         out += drawer([deg] + args)
+#     return out
 
 
 # def get_number(args):
@@ -450,42 +435,6 @@ def get_elements(positions, drawer, args):
 #            f')" class="title" fill="#111111" fill-opacity="0.9" font-size=' \
 #            f'"{diameter}" font-weight="bold" font-family="{font}" ' \
 #            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
-
-
-def get_num_str(kind, deg):
-    if kind == 'minute':
-        return get_minute(deg)
-    if kind == 'roman':
-        hour = get_hour(deg)
-        return ROMAN[hour]
-    else:
-        return get_hour(deg)
-
-
-def get_num_rotation(orient, deg):
-    if orient == "horizontal":
-        return 0
-    elif orient == "rotating":
-        return (deg + pi / 2) / pi * 180
-    else:
-        delta = pi if 0 < deg < pi else 0
-        return (deg + pi / 2 + delta) / pi * 180
-
-
-def get_hour(deg):
-    return deg_to_time(deg, 12)
-
-
-def get_minute(deg):
-    return deg_to_time(deg, 60)
-
-
-def deg_to_time(deg, factor):
-    i = (deg + pi / 2) / (2 * pi) * factor
-    i = round(i)
-    if i == 0:
-        i = factor
-    return i
 
 
 # def get_circle(args):
@@ -525,10 +474,6 @@ def deg_to_time(deg, factor):
 #         _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
 
 
-def _get_line(x1, y1, x2, y2, width):
-    return f'<line x1={x1} y1={y1} x2={x2} y2={y2} style="stroke-width:' \
-           f'{width}; stroke:#000000"></line>'
-
 
 # def get_triangle(args):
 #     deg, ro, ri, width = args
@@ -540,6 +485,50 @@ def _get_line(x1, y1, x2, y2, width):
 #     y3 = sin(deg) * ri
 #     return '<polygon points="{},{} {},{} {},{}" />'.format(x1, y1, x2, y2, x3,
 #                                                            y3)
+
+###
+##  WATCH UTIL
+#
+
+def _get_line(x1, y1, x2, y2, width):
+    return f'<line x1={x1} y1={y1} x2={x2} y2={y2} style="stroke-width:' \
+           f'{width}; stroke:#000000"></line>'
+
+
+def get_num_str(kind, deg):
+    if kind == 'minute':
+        return get_minute(deg)
+    if kind == 'roman':
+        hour = get_hour(deg)
+        return ROMAN[hour]
+    else:
+        return get_hour(deg)
+
+
+def get_num_rotation(orient, deg):
+    if orient == "horizontal":
+        return 0
+    elif orient == "rotating":
+        return (deg + pi / 2) / pi * 180
+    else:
+        delta = pi if 0 < deg < pi else 0
+        return (deg + pi / 2 + delta) / pi * 180
+
+
+def get_hour(deg):
+    return deg_to_time(deg, 12)
+
+
+def get_minute(deg):
+    return deg_to_time(deg, 60)
+
+
+def deg_to_time(deg, factor):
+    i = (deg + pi / 2) / (2 * pi) * factor
+    i = round(i)
+    if i == 0:
+        i = factor
+    return i
 
 
 ###
@@ -571,23 +560,6 @@ def get_value_of_exp(exp, dictionary):
         return exp
     return eval_expr(exp)
 
-
-
-# class Shape(Enum):
-#     line = get_line
-#     rounded_line = get_rounded_line
-#     two_lines = get_two_lines
-#     circle = get_circle
-#     number = get_number
-#     triangle = get_triangle
-
-# class Shape(Enum):
-#     line = 1
-#     rounded_line = 2
-#     two_lines = 3
-#     circle = 4
-#     number = 5
-#     triangle = 6
 
 ###
 ##  EVAL
