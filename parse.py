@@ -24,14 +24,6 @@ ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
 WATCHES_DIR = 'watches/'
 BORDER_FACTOR = 0.1
 
-# class Shape(Enum):
-#     line = get_line
-#     rounded_line = get_rounded_line
-#     two_lines = get_two_lines
-#     circle = get_circle
-#     number = get_number
-#     triangle = get_triangle
-
 Shape = Enum('Shape', ['line', 'rounded_line', 'two_lines', 'circle',
                        'triangle', 'number'])
 
@@ -233,8 +225,8 @@ def get_triangle(prms):
     y1 = (sin(rad) * prms.r) + (cos(rad) * width / 2)
     x2 = (cos(rad) * prms.r) + (sin(rad) * width / 2)
     y2 = (sin(rad) * prms.r) - (cos(rad) * width / 2)
-    x3 = cos(rad) * prms.r - height
-    y3 = sin(rad) * prms.r - height
+    x3 = cos(rad) * (prms.r - height)
+    y3 = sin(rad) * (prms.r - height)
     ranges = get_ranges(prms.fi, compute_angular_width(width, 100 - prms.r))
     svg = f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
     return ranges, svg
@@ -311,7 +303,7 @@ def filter_positions(positions, filled_pos):
 
 def pos_occupied(fi, width, occupied_ranges):
     ranges = get_ranges(fi, width)
-    return all(not rng_intersects(rng, occupied_ranges) for rng in ranges)
+    return any(rng_intersects(rng, occupied_ranges) for rng in ranges)
 
 
 def rng_intersects(rng, filled_ranges):
