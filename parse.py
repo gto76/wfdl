@@ -127,8 +127,12 @@ def get_height(prms):
     return prms.args[0]
 
 
-def get_max_height(ranges, prms):
+def get_max_height(all_ranges, prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
+    # for grp_ranges in reversed(all_ranges):
+    #     r, ranges = grp_ranges
+    #     width = get_angular_width(prms.shape, prms.args, prms.r)
+
     return 100
 
 
@@ -138,7 +142,7 @@ def update_height(shape, args, height):
 
 def range_occupied(ranges, prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    width = get_angular_width(prms.shape, prms.args, 100 - prms.r)
+    width = get_angular_width(prms.shape, prms.args, prms.r)
     return pos_occupied(prms.fi, width, ranges[-1].ranges)
 
 
@@ -183,30 +187,29 @@ def get_ranges(pos, width):
     return [[start, end]]
 
 
-def get_angular_width(shape, args, offset):
+def get_angular_width(shape, args, r):
     if shape == Shape.line:
         _, width = args
-        return compute_angular_width(width, offset)
+        return compute_angular_width(width, r)
     if shape == Shape.rounded_line:
         _, width = args
-        return compute_angular_width(width, offset)
+        return compute_angular_width(width, r)
     elif shape == Shape.two_lines:
         _, width, factor = args
-        return compute_angular_width(2 * width + width * factor, offset)
+        return compute_angular_width(2 * width + width * factor, r)
     elif shape == Shape.circle:
         diameter = args[0]
-        return compute_angular_width(diameter, offset)
+        return compute_angular_width(diameter, r)
     elif shape == Shape.number:
         size = args[0]
-        return compute_angular_width(size, offset)
+        return compute_angular_width(size, r)
     elif shape == Shape.triangle:
         _, width = args
-        return compute_angular_width(width, offset)
+        return compute_angular_width(width, r)
     return ""
 
 
-def compute_angular_width(width, offset):
-    r = 100 - offset
+def compute_angular_width(width, r):
     a_sin = width / r
     return asin(a_sin) / (2 * pi)
 
@@ -223,7 +226,7 @@ def get_line(prms):
     x2 = cos(rad) * (prms.r - height)
     y1 = sin(rad) * prms.r
     y2 = sin(rad) * (prms.r - height)
-    ranges = get_ranges(prms.fi, compute_angular_width(width, 100 - prms.r))
+    ranges = get_ranges(prms.fi, compute_angular_width(width, prms.r))
     return ranges, _get_line(x1, y1, x2, y2, width)
 
 
@@ -232,7 +235,7 @@ def get_rounded_line(prms):
     height, width = prms.args
     rad = prms.fi * 2 * pi - pi / 2
     rot = (rad - pi / 2) / pi * 180
-    ranges = get_ranges(prms.fi, compute_angular_width(width, 100 - prms.r))
+    ranges = get_ranges(prms.fi, compute_angular_width(width, prms.r))
     svg = f'<rect rx="{width/2}" y="{prms.r}" x="-{width/2}" ry="{width/2}" ' \
           f'transform="rotate({rot})" height="{height}" width="{width}">' \
           '</rect>'
@@ -251,7 +254,7 @@ def get_two_lines(prms):
     dx = sin(rad) * factor
     dy = cos(rad) * factor
     ranges = get_ranges(prms.fi, compute_angular_width(2 * width + width * sep,
-                                                       100 - prms.r))
+                                                       prms.r))
     svg = _get_line(x1 + dx, y1 + dy, x2 + dx, y2 + dy, width) + \
         _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
     return ranges, svg
@@ -262,7 +265,7 @@ def get_circle(prms):
     rad = prms.fi * 2 * pi - pi / 2
     cx = cos(rad) * (prms.r - diameter / 2)
     cy = sin(rad) * (prms.r - diameter / 2)
-    ranges = get_ranges(prms.fi, compute_angular_width(diameter, 100 - prms.r))
+    ranges = get_ranges(prms.fi, compute_angular_width(diameter, prms.r))
     svg = f'<circle cx={cx} cy={cy} r={diameter / 2} style="stroke-width: 0; ' \
           'fill: rgb(0, 0, 0);"></circle>'
     return ranges, svg
@@ -277,7 +280,7 @@ def get_triangle(prms):
     y2 = (sin(rad) * prms.r) - (cos(rad) * width / 2)
     x3 = cos(rad) * (prms.r - height)
     y3 = sin(rad) * (prms.r - height)
-    ranges = get_ranges(prms.fi, compute_angular_width(width, 100 - prms.r))
+    ranges = get_ranges(prms.fi, compute_angular_width(width, prms.r))
     svg = f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
     return ranges, svg
 
@@ -295,7 +298,7 @@ def get_number(prms):
     i = get_num_str(kind, rad)
     rad = prms.fi * 2 * pi - pi / 2
     rot = get_num_rotation(orient, rad)
-    ranges = get_ranges(prms.fi, compute_angular_width(size, 100 - prms.r))
+    ranges = get_ranges(prms.fi, compute_angular_width(size, prms.r))
     svg = f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
           f')" class="title" fill="#111111" fill-opacity="0.9" font-size=' \
           f'"{size}" font-weight="bold" font-family="{font}" ' \
