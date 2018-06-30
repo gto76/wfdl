@@ -116,8 +116,8 @@ def get_objects(ranges, fis, shape, args, r):
 def get_object(ranges, prms):
     height = get_height(prms)
     max_height = get_max_height(ranges, prms)
-    print(height, max_height)
     if height > max_height:
+        print(height, max_height)
         update_height(prms.shape, prms.args, max_height)
     if range_occupied(ranges, prms):
         return None
@@ -137,7 +137,7 @@ def get_max_height(all_ranges, prms):
         r, ranges = grp_ranges
         width = get_angular_width(prms.shape, prms.args, r)
         if pos_occupied(prms.fi, width, ranges):
-            return (prms.r - r) - 4.5
+            return (prms.r - r) - 2
     return 100
 
 
