@@ -11,6 +11,7 @@ import operator as op
 import os
 import re
 import sys
+import enum
 from enum import Enum
 from collections import namedtuple
 
@@ -23,9 +24,15 @@ ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
          8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
 WATCHES_DIR = 'watches/'
 BORDER_FACTOR = 0.2
+VER_BORDER = 2
 
-Shape = Enum('Shape', ['line', 'rounded_line', 'two_lines', 'circle',
-                       'triangle', 'number'])
+class Shape(Enum):
+    line = enum.auto()
+    rounded_line = enum.auto()
+    two_lines = enum.auto()
+    circle = enum.auto()
+    triangle = enum.auto()
+    number = enum.auto()
 
 GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
@@ -117,7 +124,7 @@ def get_object(ranges, prms):
     height = get_height(prms)
     max_height = get_max_height(ranges, prms)
     if height > max_height:
-        print(height, max_height)
+        # print(height, max_height)
         update_height(prms.shape, prms.args, max_height)
     if range_occupied(ranges, prms):
         return None
@@ -137,12 +144,18 @@ def get_max_height(all_ranges, prms):
         r, ranges = grp_ranges
         width = get_angular_width(prms.shape, prms.args, r)
         if pos_occupied(prms.fi, width, ranges):
-            return (prms.r - r) - 2
+            return (prms.r - r) - VER_BORDER
     return 100
 
 
 def update_height(shape, args, height):
-    args[0] = height
+    if shape == Shape.triangle:
+        height_old, width_old = args
+        factor = height / height_old
+        width = width_old * factor
+        args[0], args[1] = height, width
+    else:
+        args[0] = height
 
 
 def range_occupied(ranges, prms):
@@ -175,8 +188,8 @@ def rng_intersects(rng, filled_ranges):
     start, end = rng
     for fil_range in filled_ranges:
         f_start, f_end = fil_range
-        if (f_start < start < f_end) or (f_start < end < f_end) or \
-                (start < f_start and end > f_end):
+        if (f_start <= start <= f_end) or (f_start <= end <= f_end) or \
+                (start <= f_start and end >= f_end):
             return True
     return False
 
