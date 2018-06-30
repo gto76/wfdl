@@ -26,6 +26,10 @@ WATCHES_DIR = 'watches/'
 BORDER_FACTOR = 0.2
 VER_BORDER = 2
 
+GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
+ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
+
+
 class Shape(Enum):
     line = enum.auto()
     rounded_line = enum.auto()
@@ -33,10 +37,23 @@ class Shape(Enum):
     circle = enum.auto()
     triangle = enum.auto()
     number = enum.auto()
+    square = enum.auto()
 
-GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
-ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
 
+WIDTH_FORMULA = {
+        Shape.line: lambda args: args[1],
+        Shape.rounded_line: lambda args: args[1],
+        Shape.two_lines: lambda args: 2*args[1] + args[1]*args[2],
+        Shape.circle: lambda args: args[0],
+        Shape.number: lambda args: args[0],
+        Shape.triangle: lambda args: args[1],
+        Shape.square: lambda args: args[0]
+    }
+
+
+###
+##  MAIN
+#
 
 def main():
     if len(sys.argv) < 2:
@@ -124,11 +141,11 @@ def get_object(ranges, prms):
     height = get_height(prms)
     max_height = get_max_height(ranges, prms)
     if height > max_height:
-        # print(height, max_height)
         update_height(prms.shape, prms.args, max_height)
     if range_occupied(ranges, prms):
         return None
-    return get_svg_el(prms, ranges)
+    update_ranges(ranges, prms)
+    return get_svg_el(prms)
 
 
 def get_height(prms):
@@ -164,15 +181,18 @@ def range_occupied(ranges, prms):
     return pos_occupied(prms.fi, width, ranges[-1].ranges)
 
 
-def get_svg_el(prms, occupied_ranges):
+def update_ranges(occupied_ranges, prms):
+    ranges = get_ranges_prms(prms)
+    occupied_ranges[-1].ranges.extend(ranges)
+
+
+def get_svg_el(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     drawers = {Shape.line: get_line, Shape.rounded_line: get_rounded_line,
                Shape.two_lines: get_two_lines, Shape.circle: get_circle,
                Shape.number: get_number, Shape.triangle: get_triangle}
-    fun = drawers[prms.shape]
-    ranges, svg = fun(prms)
-    occupied_ranges[-1].ranges.extend(ranges)
-    return svg
+    drawer = drawers[prms.shape]
+    return drawer(prms)
 
 
 ###
@@ -194,6 +214,11 @@ def rng_intersects(rng, filled_ranges):
     return False
 
 
+def get_ranges_prms(prms):
+    width = get_angular_width(prms.shape, prms.args, prms.r)
+    return get_ranges(prms.fi, width)
+
+
 def get_ranges(pos, width):
     border = width * BORDER_FACTOR
     start = (pos - width / 2) - border
@@ -206,25 +231,9 @@ def get_ranges(pos, width):
 
 
 def get_angular_width(shape, args, r):
-    if shape == Shape.line:
-        _, width = args
-        return compute_angular_width(width, r)
-    if shape == Shape.rounded_line:
-        _, width = args
-        return compute_angular_width(width, r)
-    elif shape == Shape.two_lines:
-        _, width, factor = args
-        return compute_angular_width(2 * width + width * factor, r)
-    elif shape == Shape.circle:
-        diameter = args[0]
-        return compute_angular_width(diameter, r)
-    elif shape == Shape.number:
-        size = args[0]
-        return compute_angular_width(size, r)
-    elif shape == Shape.triangle:
-        _, width = args
-        return compute_angular_width(width, r)
-    return ""
+    width_formula = WIDTH_FORMULA[shape]
+    width = width_formula(args)
+    return compute_angular_width(width, r)
 
 
 def compute_angular_width(width, r):
@@ -244,8 +253,7 @@ def get_line(prms):
     x2 = cos(rad) * (prms.r - height)
     y1 = sin(rad) * prms.r
     y2 = sin(rad) * (prms.r - height)
-    ranges = get_ranges(prms.fi, compute_angular_width(width, prms.r))
-    return ranges, _get_line(x1, y1, x2, y2, width)
+    return _get_line(x1, y1, x2, y2, width)
 
 
 def get_rounded_line(prms):
@@ -253,11 +261,9 @@ def get_rounded_line(prms):
     height, width = prms.args
     rad = get_rad(prms.fi)
     rot = (rad - pi / 2) / pi * 180
-    ranges = get_ranges(prms.fi, compute_angular_width(width, prms.r))
-    svg = f'<rect rx="{width/2}" y="{prms.r}" x="-{width/2}" ry="{width/2}" ' \
-          f'transform="rotate({rot})" height="{height}" width="{width}">' \
-          '</rect>'
-    return ranges, svg
+    return f'<rect rx="{width/2}" y="{prms.r}" x="-{width/2}" ry="{width/2}" ' \
+           f'transform="rotate({rot})" height="{height}" width="{width}">' \
+           '</rect>'
 
 
 def get_two_lines(prms):
@@ -271,11 +277,8 @@ def get_two_lines(prms):
     factor = width / 2 * (1 + sep)
     dx = sin(rad) * factor
     dy = cos(rad) * factor
-    ranges = get_ranges(prms.fi, compute_angular_width(2 * width + width * sep,
-                                                       prms.r))
-    svg = _get_line(x1 + dx, y1 + dy, x2 + dx, y2 + dy, width) + \
+    return _get_line(x1 + dx, y1 + dy, x2 + dx, y2 + dy, width) + \
         _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
-    return ranges, svg
 
 
 def get_circle(prms):
@@ -283,10 +286,8 @@ def get_circle(prms):
     rad = get_rad(prms.fi)
     cx = cos(rad) * (prms.r - diameter / 2)
     cy = sin(rad) * (prms.r - diameter / 2)
-    ranges = get_ranges(prms.fi, compute_angular_width(diameter, prms.r))
-    svg = f'<circle cx={cx} cy={cy} r={diameter / 2} style="stroke-width: 0; ' \
-          'fill: rgb(0, 0, 0);"></circle>'
-    return ranges, svg
+    return f'<circle cx={cx} cy={cy} r={diameter / 2} style="stroke-width: 0;' \
+           ' fill: rgb(0, 0, 0);"></circle>'
 
 
 def get_triangle(prms):
@@ -298,9 +299,7 @@ def get_triangle(prms):
     y2 = (sin(rad) * prms.r) - (cos(rad) * width / 2)
     x3 = cos(rad) * (prms.r - height)
     y3 = sin(rad) * (prms.r - height)
-    ranges = get_ranges(prms.fi, compute_angular_width(width, prms.r))
-    svg = f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
-    return ranges, svg
+    return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
 
 
 def get_number(prms):
@@ -315,12 +314,25 @@ def get_number(prms):
     y = sin(rad) * (prms.r - size / 2)
     i = get_num_str(kind, rad)
     rot = get_num_rotation(orient, rad)
-    ranges = get_ranges(prms.fi, compute_angular_width(size, prms.r))
-    svg = f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
-          f')" class="title" fill="#111111" fill-opacity="0.9" font-size=' \
-          f'"{size}" font-weight="bold" font-family="{font}" ' \
-          f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
-    return ranges, svg
+    return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
+           f')" class="title" fill="#111111" fill-opacity="0.9" font-size=' \
+           f'"{size}" font-weight="bold" font-family="{font}" ' \
+           f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
+
+
+# <polygon points="4.550000000000005,-94.0 -4.5499999999999945,-94.0
+# 4.9598195365467806e-15,-81.0"></polygon>
+# def get_square(prms):
+#     # height, width = prms.args
+#     side = prms.args[0]
+#     rad = get_rad(prms.fi)
+#     x1 = (cos(rad) * prms.r) - (sin(rad) * width / 2)
+#     y1 = (sin(rad) * prms.r) + (cos(rad) * width / 2)
+#     x2 = (cos(rad) * prms.r) + (sin(rad) * width / 2)
+#     y2 = (sin(rad) * prms.r) - (cos(rad) * width / 2)
+#     x3 = cos(rad) * (prms.r - height)
+#     y3 = sin(rad) * (prms.r - height)
+#     return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
 
 
 def get_circular_border(element, ver_pos):
