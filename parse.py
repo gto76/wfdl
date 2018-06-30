@@ -221,7 +221,7 @@ def compute_angular_width(width, r):
 def get_line(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height, width = prms.args
-    rad = prms.fi * 2 * pi - pi / 2
+    rad = get_rad(prms.fi)
     x1 = cos(rad) * prms.r
     x2 = cos(rad) * (prms.r - height)
     y1 = sin(rad) * prms.r
@@ -233,7 +233,7 @@ def get_line(prms):
 def get_rounded_line(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height, width = prms.args
-    rad = prms.fi * 2 * pi - pi / 2
+    rad = get_rad(prms.fi)
     rot = (rad - pi / 2) / pi * 180
     ranges = get_ranges(prms.fi, compute_angular_width(width, prms.r))
     svg = f'<rect rx="{width/2}" y="{prms.r}" x="-{width/2}" ry="{width/2}" ' \
@@ -245,7 +245,7 @@ def get_rounded_line(prms):
 def get_two_lines(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height, width, sep = prms.args
-    rad = prms.fi * 2 * pi - pi / 2
+    rad = get_rad(prms.fi)
     x1 = cos(rad) * (prms.r - height)
     x2 = cos(rad) * prms.r
     y1 = sin(rad) * (prms.r - height)
@@ -262,7 +262,7 @@ def get_two_lines(prms):
 
 def get_circle(prms):
     diameter = prms.args[0]
-    rad = prms.fi * 2 * pi - pi / 2
+    rad = get_rad(prms.fi)
     cx = cos(rad) * (prms.r - diameter / 2)
     cy = sin(rad) * (prms.r - diameter / 2)
     ranges = get_ranges(prms.fi, compute_angular_width(diameter, prms.r))
@@ -273,7 +273,7 @@ def get_circle(prms):
 
 def get_triangle(prms):
     height, width = prms.args
-    rad = prms.fi * 2 * pi - pi / 2
+    rad = get_rad(prms.fi)
     x1 = (cos(rad) * prms.r) - (sin(rad) * width / 2)
     y1 = (sin(rad) * prms.r) + (cos(rad) * width / 2)
     x2 = (cos(rad) * prms.r) + (sin(rad) * width / 2)
@@ -292,11 +292,10 @@ def get_number(prms):
         size, kind, orient = prms.args
     else:
         size, kind, orient, font = prms.args
-    rad = prms.fi * 2 * pi - pi / 2
+    rad = get_rad(prms.fi)
     x = cos(rad) * (prms.r - size / 2)
     y = sin(rad) * (prms.r - size / 2)
     i = get_num_str(kind, rad)
-    rad = prms.fi * 2 * pi - pi / 2
     rot = get_num_rotation(orient, rad)
     ranges = get_ranges(prms.fi, compute_angular_width(size, prms.r))
     svg = f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
@@ -316,6 +315,10 @@ def get_circular_border(element, ver_pos):
 ###
 ##  SVG UTIL
 #
+
+def get_rad(fi):
+    return fi * 2 * pi - pi / 2
+
 
 def _get_line(x1, y1, x2, y2, width):
     return f'<line x1={x1} y1={y1} x2={x2} y2={y2} style="stroke-width:' \
