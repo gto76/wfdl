@@ -104,7 +104,8 @@ def get_fis(pos):
 
 
 def get_objects(ranges, fis, shape, args, r):
-    out = (get_object(ranges, ObjParams(shape, r, fi, args)) for fi in fis)
+    out = (get_object(ranges, ObjParams(shape, r, fi, list(args)))
+           for fi in fis)
     return [a for a in out if a]
 
 
@@ -115,6 +116,7 @@ def get_objects(ranges, fis, shape, args, r):
 def get_object(ranges, prms):
     height = get_height(prms)
     max_height = get_max_height(ranges, prms)
+    print(height, max_height)
     if height > max_height:
         update_height(prms.shape, prms.args, max_height)
     if range_occupied(ranges, prms):
@@ -129,15 +131,18 @@ def get_height(prms):
 
 def get_max_height(all_ranges, prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    # for grp_ranges in reversed(all_ranges):
-    #     r, ranges = grp_ranges
-    #     width = get_angular_width(prms.shape, prms.args, prms.r)
-
+    if len(all_ranges) <= 1:
+        return 100
+    for grp_ranges in reversed(all_ranges[:-1]):
+        r, ranges = grp_ranges
+        width = get_angular_width(prms.shape, prms.args, r)
+        if pos_occupied(prms.fi, width, ranges):
+            return (prms.r - r) - 4.5
     return 100
 
 
 def update_height(shape, args, height):
-    return args
+    args[0] = height
 
 
 def range_occupied(ranges, prms):
