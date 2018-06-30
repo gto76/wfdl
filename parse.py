@@ -22,7 +22,7 @@ TAIL = "\n</g>\n</svg>\n</html>"
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
          8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
 WATCHES_DIR = 'watches/'
-BORDER_FACTOR = 0.1
+BORDER_FACTOR = 0.2
 
 Shape = Enum('Shape', ['line', 'rounded_line', 'two_lines', 'circle',
                        'triangle', 'number'])
@@ -43,6 +43,10 @@ def main():
     svg = get_svg(watch_str)
     write_to_file('index.html', HEAD + svg + TAIL)
 
+
+###
+##  RENDERING
+#
 
 def get_svg(watch_str):
     out = []
@@ -75,20 +79,28 @@ def get_group(r, elements, ranges):
         if len(element) < 3:
             out.append(get_circular_border(element, 100 - r))
             continue
-
         pos, shape, args = element
         shape = Shape[shape]
         fis = get_fis(pos)
         objects = get_objects(ranges, fis, shape, args, r)
         out.extend(objects)
-
-        # width = get_angular_width(shape, args, r)
-        # pos = get_positions(pos, width)
-        # filtered_pos = filter_positions(pos, ranges[-1].ranges)
-        # ranges[-1].ranges.extend(filtered_pos)
-        # out += get_shapes(filtered_pos, shape, args, r)
-
     return out
+
+
+def get_fis(pos):
+    if isinstance(pos, set):
+        return pos
+    elif isinstance(pos, int):
+        return [i / pos for i in range(pos)]
+    elif isinstance(pos, list):
+        n = pos[0]
+        start = 0
+        if len(pos) == 2:
+            end = pos[1]
+        else:
+            start = pos[1]
+            end = pos[2]
+        return [i / n for i in range(n) if start <= i / n <= end]
 
 
 def get_objects(ranges, fis, shape, args, r):
@@ -96,12 +108,18 @@ def get_objects(ranges, fis, shape, args, r):
     return [a for a in out if a]
 
 
+###
+##  OBJECT
+#
+
 def get_object(ranges, prms):
     height = get_height(prms)
     max_height = get_max_height(ranges, prms)
     if height > max_height:
         update_height(prms.shape, prms.args, max_height)
-    return None if range_occupied(ranges, prms) else get_svg_el(prms, ranges)
+    if range_occupied(ranges, prms):
+        return None
+    return get_svg_el(prms, ranges)
 
 
 def get_height(prms):
@@ -134,35 +152,68 @@ def get_svg_el(prms, occupied_ranges):
     occupied_ranges[-1].ranges.extend(ranges)
     return svg
 
-    # def get_shapes(pos, shape, args, offset):
-    # length, width = args
-    # ri = 100 - offset
-    # ro = 100 - offset - length
-    # args = ri, ro, width
-    # return get_elements(pos, fun, args)
 
-    # def get_elements(positions, drawer, args):
-    #     """args = ri, ro, width"""
-    #     out = ""
-    #     position = position[0]
-    #     deg = position * 2 * pi - pi / 2
-    #     out += drawer([deg] + args)
-    #     return out
+###
+## RANGES
+#
 
-    # def get_line(args):
-    #     deg, ri, ro, width = args
-    #     x1 = cos(deg) * ri
-    #     x2 = cos(deg) * ro
-    #     y1 = sin(deg) * ri
-    #     y2 = sin(deg) * ro
-    #     return _get_line(x1, y1, x2, y2, width)
+def pos_occupied(fi, width, occupied_ranges):
+    ranges = get_ranges(fi, width)
+    return any(rng_intersects(rng, occupied_ranges) for rng in ranges)
 
-    # def _get_line(x1, y1, x2, y2, width):
-    #     return f'<line x1={x1} y1={y1} x2={x2} y2={y2} style="stroke-width:' \
-    #            f'{width}; stroke:#000000"></line>'
 
-##################
+def rng_intersects(rng, filled_ranges):
+    start, end = rng
+    for fil_range in filled_ranges:
+        f_start, f_end = fil_range
+        if (f_start < start < f_end) or (f_start < end < f_end) or \
+                (start < f_start and end > f_end):
+            return True
+    return False
 
+
+def get_ranges(pos, width):
+    border = width * BORDER_FACTOR
+    start = (pos - width / 2) - border
+    end = (pos + width / 2) + border
+    if start < 0:
+        return [[start + 1, 1], [0, end]]
+    if end > 1:
+        return [[start, 1], [0, end - 1]]
+    return [[start, end]]
+
+
+def get_angular_width(shape, args, offset):
+    if shape == Shape.line:
+        _, width = args
+        return compute_angular_width(width, offset)
+    if shape == Shape.rounded_line:
+        _, width = args
+        return compute_angular_width(width, offset)
+    elif shape == Shape.two_lines:
+        _, width, factor = args
+        return compute_angular_width(2 * width + width * factor, offset)
+    elif shape == Shape.circle:
+        diameter = args[0]
+        return compute_angular_width(diameter, offset)
+    elif shape == Shape.number:
+        size = args[0]
+        return compute_angular_width(size, offset)
+    elif shape == Shape.triangle:
+        _, width = args
+        return compute_angular_width(width, offset)
+    return ""
+
+
+def compute_angular_width(width, offset):
+    r = 100 - offset
+    a_sin = width / r
+    return asin(a_sin) / (2 * pi)
+
+
+###
+##  SVG
+#
 
 def get_line(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
@@ -181,7 +232,6 @@ def get_rounded_line(prms):
     height, width = prms.args
     rad = prms.fi * 2 * pi - pi / 2
     rot = (rad - pi / 2) / pi * 180
-
     ranges = get_ranges(prms.fi, compute_angular_width(width, 100 - prms.r))
     svg = f'<rect rx="{width/2}" y="{prms.r}" x="-{width/2}" ry="{width/2}" ' \
           f'transform="rotate({rot})" height="{height}" width="{width}">' \
@@ -260,226 +310,8 @@ def get_circular_border(element, ver_pos):
            ';"></circle>'
 
 
-##################
-
-
-def get_fis(pos):
-    if isinstance(pos, set):
-        return pos
-    elif isinstance(pos, int):
-        return [i / pos for i in range(pos)]
-    elif isinstance(pos, list):
-        n = pos[0]
-        start = 0
-        if len(pos) == 2:
-            end = pos[1]
-        else:
-            start = pos[1]
-            end = pos[2]
-        return [i / n for i in range(n) if start <= i / n <= end]
-
-
-def get_positions(pos, width):
-    if isinstance(pos, set):
-        return get_positions_set(pos, width)
-    elif isinstance(pos, Number):
-        return get_positions_num(pos, width)
-    elif isinstance(pos, list):
-        return get_positions_list(pos, width)
-
-
-def filter_positions(positions, filled_pos):
-    out = []
-    filled_ranges = [get_ranges(pos, width) for pos, width in filled_pos]
-    filled_ranges = [item for sublist in filled_ranges for item in sublist]
-    for a_pos in positions:
-        pos, width = a_pos
-
-        if all(not rng_intersects(rng, filled_ranges) for rng in
-               get_ranges(pos, width)):
-            out.append(a_pos)
-    return out
-
-
-def pos_occupied(fi, width, occupied_ranges):
-    ranges = get_ranges(fi, width)
-    return any(rng_intersects(rng, occupied_ranges) for rng in ranges)
-
-
-def rng_intersects(rng, filled_ranges):
-    start, end = rng
-    for fil_range in filled_ranges:
-        f_start, f_end = fil_range
-        if (f_start < start < f_end) or (f_start < end < f_end) or \
-                (start < f_start and end > f_end):
-            return True
-    return False
-
-
-def get_ranges(pos, width):
-    border = width * BORDER_FACTOR
-    start = (pos - width / 2) - border
-    end = (pos + width / 2) + border
-    if start < 0:
-        return [[start + 1, 1], [0, end]]
-    if end > 1:
-        return [[start, 1], [0, end - 1]]
-    return [[start, end]]
-
-
-def get_angular_width(shape, args, offset):
-    if shape == Shape.line:
-        _, width = args
-        return compute_angular_width(width, offset)
-    if shape == Shape.rounded_line:
-        _, width = args
-        return compute_angular_width(width, offset)
-    elif shape == Shape.two_lines:
-        _, width, factor = args
-        return compute_angular_width(2 * width + width * factor, offset)
-    elif shape == Shape.circle:
-        diameter = args[0]
-        return compute_angular_width(diameter, offset)
-    elif shape == Shape.number:
-        size = args[0]
-        return compute_angular_width(size, offset)
-    elif shape == Shape.triangle:
-        _, width = args
-        return compute_angular_width(width, offset)
-    return ""
-
-
-def compute_angular_width(width, offset):
-    r = 100 - offset
-    a_sin = width / r
-    return asin(a_sin) / (2 * pi)
-
-
-def get_positions_num(n, width):
-    return get_positions_set([i / n for i in range(n)], width)
-
-
-def get_positions_list(args, width):
-    n = args[0]
-    start = 0
-    if len(args) == 2:
-        end = args[1]
-    else:
-        start = args[1]
-        end = args[2]
-    positions = [i / n for i in range(n) if start <= i / n <= end]
-    return get_positions_set(positions, width)
-
-
-def get_positions_set(positions, width):
-    return [[pos, width] for pos in positions]
-
-
-# def get_shapes(pos, shape, args, offset):
-#     if shape == Shape.line:
-#         length, width = args
-#         return get_elements(pos, get_line,
-#                             [100 - offset, 100 - offset - length, width])
-#     if shape == Shape.rounded_line:
-#         length, width = args
-#         return get_elements(pos, get_rounded_line,
-#                             [100 - offset, 100 - offset - length, width])
-#     elif shape == Shape.two_lines:
-#         length, width, factor = args
-#         return get_elements(pos, get_two_lines,
-#                             [100 - offset, 100 - offset - length, width,
-#                              factor])
-#     elif shape == Shape.circle:
-#         diameter = args[0]
-#         return get_elements(pos, get_circle, [100 - offset, diameter])
-#     elif shape == Shape.number:
-#         # diameter = args[0]
-#         # kind = args[1]
-#         # orient = args[2]
-#         return get_elements(pos, get_number, [100 - offset] + args)
-#     elif shape == Shape.triangle:
-#         length, width = args
-#         return get_elements(pos, get_triangle,
-#                             [100 - offset, 100 - offset - length, width])
-#     return ""
-
-
-# def get_elements(positions, drawer, args):
-#     out = ""
-#     for position in positions:
-#         position = position[0]
-#         deg = position * 2 * pi - pi / 2
-#         out += drawer([deg] + args)
-#     return out
-
-
-# def get_number(args):
-#     font = ''
-#     if len(args) == 5:
-#         deg, ro, diameter, kind, orient = args
-#     else:
-#         deg, ro, diameter, kind, orient, font = args
-#     x = cos(deg) * (ro - diameter / 2)
-#     y = sin(deg) * (ro - diameter / 2)
-#     i = get_num_str(kind, deg)
-#     rot = get_num_rotation(orient, deg)
-#     return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
-#            f')" class="title" fill="#111111" fill-opacity="0.9" font-size=' \
-#            f'"{diameter}" font-weight="bold" font-family="{font}" ' \
-#            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
-
-
-# def get_circle(args):
-#     deg, ro, diameter = args
-#     cx = cos(deg) * (ro - diameter / 2)
-#     cy = sin(deg) * (ro - diameter / 2)
-#     return '<circle cx={} cy={} r={} style="stroke-width: 0; fill: rgb(0, 0, ' \
-#            '0);"></circle>'.format(cx, cy, diameter / 2)
-
-
-# def get_line(args):
-#     deg, ri, ro, width = args
-#     x1 = cos(deg) * ri
-#     x2 = cos(deg) * ro
-#     y1 = sin(deg) * ri
-#     y2 = sin(deg) * ro
-#     return _get_line(x1, y1, x2, y2, width)
-
-
-# def get_rounded_line(args):
-#     deg, ri, ro, width = args
-#     deg = (deg - pi / 2) / pi * 180
-#     return f'<rect rx="{width/2}" y="{ro}" x="-{width/2}" ry="{width/2}" ' \
-#            f'transform="rotate({deg})" height="{ri-ro}" width="{width}"></rect>'
-
-
-# def get_two_lines(args):
-#     deg, ri, ro, width, sep = args
-#     x1 = cos(deg) * ri
-#     x2 = cos(deg) * ro
-#     y1 = sin(deg) * ri
-#     y2 = sin(deg) * ro
-#     factor = width / 2 * (1 + sep)
-#     dx = sin(deg) * factor
-#     dy = cos(deg) * factor
-#     return _get_line(x1 + dx, y1 + dy, x2 + dx, y2 + dy, width) + \
-#         _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
-
-
-
-# def get_triangle(args):
-#     deg, ro, ri, width = args
-#     x1 = (cos(deg) * ro) - (sin(deg) * width / 2)
-#     y1 = (sin(deg) * ro) + (cos(deg) * width / 2)
-#     x2 = (cos(deg) * ro) + (sin(deg) * width / 2)
-#     y2 = (sin(deg) * ro) - (cos(deg) * width / 2)
-#     x3 = cos(deg) * ri
-#     y3 = sin(deg) * ri
-#     return '<polygon points="{},{} {},{} {},{}" />'.format(x1, y1, x2, y2, x3,
-#                                                            y3)
-
 ###
-##  WATCH UTIL
+##  SVG UTIL
 #
 
 def _get_line(x1, y1, x2, y2, width):
