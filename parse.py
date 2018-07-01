@@ -5,13 +5,12 @@
 # 'index.html'.
 
 import ast
-import enum
 import operator as op
 import os
 import re
 import sys
 from collections import namedtuple
-from enum import Enum
+from enum import Enum, auto
 from math import pi, asin
 from numbers import Number
 
@@ -32,21 +31,21 @@ ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
 
 
 class Shape(Enum):
-    line = enum.auto()              # height, width
-    rounded_line = enum.auto()      # height, width
-    two_lines = enum.auto()         # height, width, distance_factor
-    circle = enum.auto()            # height
-    triangle = enum.auto()          # height, width
-    number = enum.auto()            # height, kind (minute, roman, hour),
+    line = auto()               # height, width
+    rounded_line = auto()       # height, width
+    two_lines = auto()          # height, width, distance_factor
+    circle = auto()             # height
+    triangle = auto()           # height, width
+    number = auto()             # height, kind (minute, roman, hour),
     # orient (horizontal, rotating, half_rotating) [, font]
-    upside_triangle = enum.auto()   # height, width
-    square = enum.auto()            # height
-    octagon = enum.auto()           # height, width, sides_factor
-    arrow = enum.auto()             # height, width, angle
-    rhombus = enum.auto()           # height, width
-    trapeze = enum.auto()           # height, width, width_2
-    tear = enum.auto()              # height, width
-    spear = enum.auto()             # height, width, center
+    upside_triangle = auto()    # height, width
+    square = auto()             # height
+    octagon = auto()            # height, width, sides_factor
+    arrow = auto()              # height, width, angle
+    rhombus = auto()            # height, width
+    trapeze = auto()            # height, width, width_2
+    tear = auto()               # height, width
+    spear = auto()              # height, width, center
 
 
 WIDTH_FORMULA = {
