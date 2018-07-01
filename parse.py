@@ -5,23 +5,24 @@
 # 'index.html'.
 
 import ast
-from math import sin, cos, pi, asin
-from numbers import Number
+import enum
 import operator as op
 import os
 import re
 import sys
-import enum
-from enum import Enum
 from collections import namedtuple
+from enum import Enum
+from math import pi, asin
+from numbers import Number
+
+from svg import get_line, get_rounded_line, get_two_lines, get_circle, \
+    get_triangle, get_number
 
 
 BASE = 0.75
 HEAD = f'<html>\n<svg height=300px width=300px>\n<g transform="translate(150,' \
        f' 150), scale({BASE})")>\n'
 TAIL = "\n</g>\n</svg>\n</html>"
-ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
-         8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
 WATCHES_DIR = 'watches/'
 BORDER_FACTOR = 0.2
 VER_BORDER = 2
@@ -31,13 +32,21 @@ ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
 
 
 class Shape(Enum):
-    line = enum.auto()
-    rounded_line = enum.auto()
-    two_lines = enum.auto()
-    circle = enum.auto()
-    triangle = enum.auto()
-    number = enum.auto()
-    square = enum.auto()
+    line = enum.auto()              # height, width
+    rounded_line = enum.auto()      # height, width
+    two_lines = enum.auto()         # height, width, distance_factor
+    circle = enum.auto()            # height
+    triangle = enum.auto()          # height, width
+    number = enum.auto()            # height, kind (minute, roman, hour),
+    # orient (horizontal, rotating, half_rotating) [, font]
+    upside_triangle = enum.auto()   # height, width
+    square = enum.auto()            # height
+    octagon = enum.auto()           # height, width, sides_factor
+    arrow = enum.auto()             # height, width, angle
+    rhombus = enum.auto()           # height, width
+    trapeze = enum.auto()           # height, width, width_2
+    tear = enum.auto()              # height, width
+    spear = enum.auto()             # height, width, center
 
 
 WIDTH_FORMULA = {
@@ -45,9 +54,16 @@ WIDTH_FORMULA = {
         Shape.rounded_line: lambda args: args[1],
         Shape.two_lines: lambda args: 2*args[1] + args[1]*args[2],
         Shape.circle: lambda args: args[0],
-        Shape.number: lambda args: args[0],
         Shape.triangle: lambda args: args[1],
-        Shape.square: lambda args: args[0]
+        Shape.number: lambda args: args[0],
+        Shape.upside_triangle: lambda args: args[1],
+        Shape.square: lambda args: args[0],
+        Shape.octagon: lambda args: args[1],
+        Shape.arrow: lambda args: args[1],
+        Shape.rhombus: lambda args: args[1],
+        Shape.trapeze: lambda args: args[1],
+        Shape.tear: lambda args: args[1],
+        Shape.spear: lambda args: args[1]
     }
 
 
@@ -192,7 +208,12 @@ def get_svg_el(prms):
                Shape.two_lines: get_two_lines, Shape.circle: get_circle,
                Shape.number: get_number, Shape.triangle: get_triangle}
     drawer = drawers[prms.shape]
-    return drawer(prms)
+    prms_rad = ObjParams(prms.shape, prms.r, get_rad(prms.fi), prms.args)
+    return drawer(prms_rad)
+
+
+def get_rad(fi):
+    return fi * 2 * pi - pi / 2
 
 
 ###
@@ -245,150 +266,11 @@ def compute_angular_width(width, r):
 ##  SVG
 #
 
-def get_line(prms):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    height, width = prms.args
-    rad = get_rad(prms.fi)
-    x1 = cos(rad) * prms.r
-    x2 = cos(rad) * (prms.r - height)
-    y1 = sin(rad) * prms.r
-    y2 = sin(rad) * (prms.r - height)
-    return _get_line(x1, y1, x2, y2, width)
-
-
-def get_rounded_line(prms):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    height, width = prms.args
-    rad = get_rad(prms.fi)
-    rot = (rad - pi / 2) / pi * 180
-    return f'<rect rx="{width/2}" y="{prms.r}" x="-{width/2}" ry="{width/2}" ' \
-           f'transform="rotate({rot})" height="{height}" width="{width}">' \
-           '</rect>'
-
-
-def get_two_lines(prms):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    height, width, sep = prms.args
-    rad = get_rad(prms.fi)
-    x1 = cos(rad) * (prms.r - height)
-    x2 = cos(rad) * prms.r
-    y1 = sin(rad) * (prms.r - height)
-    y2 = sin(rad) * prms.r
-    factor = width / 2 * (1 + sep)
-    dx = sin(rad) * factor
-    dy = cos(rad) * factor
-    return _get_line(x1 + dx, y1 + dy, x2 + dx, y2 + dy, width) + \
-        _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
-
-
-def get_circle(prms):
-    diameter = prms.args[0]
-    rad = get_rad(prms.fi)
-    cx = cos(rad) * (prms.r - diameter / 2)
-    cy = sin(rad) * (prms.r - diameter / 2)
-    return f'<circle cx={cx} cy={cy} r={diameter / 2} style="stroke-width: 0;' \
-           ' fill: rgb(0, 0, 0);"></circle>'
-
-
-def get_triangle(prms):
-    height, width = prms.args
-    rad = get_rad(prms.fi)
-    x1 = (cos(rad) * prms.r) - (sin(rad) * width / 2)
-    y1 = (sin(rad) * prms.r) + (cos(rad) * width / 2)
-    x2 = (cos(rad) * prms.r) + (sin(rad) * width / 2)
-    y2 = (sin(rad) * prms.r) - (cos(rad) * width / 2)
-    x3 = cos(rad) * (prms.r - height)
-    y3 = sin(rad) * (prms.r - height)
-    return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
-
-
-def get_number(prms):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    font = ''
-    if len(prms.args) == 3:
-        size, kind, orient = prms.args
-    else:
-        size, kind, orient, font = prms.args
-    rad = get_rad(prms.fi)
-    x = cos(rad) * (prms.r - size / 2)
-    y = sin(rad) * (prms.r - size / 2)
-    i = get_num_str(kind, rad)
-    rot = get_num_rotation(orient, rad)
-    return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
-           f')" class="title" fill="#111111" fill-opacity="0.9" font-size=' \
-           f'"{size}" font-weight="bold" font-family="{font}" ' \
-           f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
-
-
-# <polygon points="4.550000000000005,-94.0 -4.5499999999999945,-94.0
-# 4.9598195365467806e-15,-81.0"></polygon>
-# def get_square(prms):
-#     # height, width = prms.args
-#     side = prms.args[0]
-#     rad = get_rad(prms.fi)
-#     x1 = (cos(rad) * prms.r) - (sin(rad) * width / 2)
-#     y1 = (sin(rad) * prms.r) + (cos(rad) * width / 2)
-#     x2 = (cos(rad) * prms.r) + (sin(rad) * width / 2)
-#     y2 = (sin(rad) * prms.r) - (cos(rad) * width / 2)
-#     x3 = cos(rad) * (prms.r - height)
-#     y3 = sin(rad) * (prms.r - height)
-#     return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
-
-
 def get_circular_border(element, ver_pos):
     stroke_width = element[1][0]
     return f'<circle cx=0 cy=0 r={100-ver_pos} style=" stroke-width: ' \
            f'{stroke_width}; stroke: rgb(0,0,0); fill: rgba(0,0,0,0)' \
            ';"></circle>'
-
-
-###
-##  SVG UTIL
-#
-
-def get_rad(fi):
-    return fi * 2 * pi - pi / 2
-
-
-def _get_line(x1, y1, x2, y2, width):
-    return f'<line x1={x1} y1={y1} x2={x2} y2={y2} style="stroke-width:' \
-           f'{width}; stroke:#000000"></line>'
-
-
-def get_num_str(kind, deg):
-    if kind == 'minute':
-        return get_minute(deg)
-    if kind == 'roman':
-        hour = get_hour(deg)
-        return ROMAN[hour]
-    else:
-        return get_hour(deg)
-
-
-def get_num_rotation(orient, deg):
-    if orient == "horizontal":
-        return 0
-    elif orient == "rotating":
-        return (deg + pi / 2) / pi * 180
-    else:
-        delta = pi if 0 < deg < pi else 0
-        return (deg + pi / 2 + delta) / pi * 180
-
-
-def get_hour(deg):
-    return deg_to_time(deg, 12)
-
-
-def get_minute(deg):
-    return deg_to_time(deg, 60)
-
-
-def deg_to_time(deg, factor):
-    i = (deg + pi / 2) / (2 * pi) * factor
-    i = round(i)
-    if i == 0:
-        i = factor
-    return i
 
 
 ###
