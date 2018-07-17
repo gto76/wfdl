@@ -93,10 +93,10 @@ def get_svg(watch_str):
     out = []
     parts = ast.literal_eval(watch_str)
     dictionary = {}
-    if len(parts) == 2:
+    if isinstance(parts[0], dict):
         dictionary, elements = parts
     else:
-        elements = parts[0]
+        elements = parts
     elements = replace_matched_items(elements, dictionary)
     radia = get_radia(elements)
     ranges = []
