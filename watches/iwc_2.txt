@@ -3,21 +3,59 @@
   [
     [0,
       [12, "number", [7.2, "minute", "rotating", "arial", "normal"]],
-      [60, "line", ["_a", "_b"]],
-      [240, "line", ["_a / 2", "_b / 2"]]],
+      [60, "rounded_line", ["_a", "_b"]],
+      [240, "rounded_line", ["_a / 2", "_b / 2"]]
+    ],
     ["_a + 2",
-      [2, "number", [20, "roman", "horizontal", "arial", "normal"]],
-      [12, "rounded_line", [28, 3]]],
+      [2, "number fixed", [35, "roman", "horizontal", "arial", "normal"]],
+      [12, "rounded_line", [28, 3]]
+    ],
     [20,
-      [{0.25}, "face", [50,
+      [{0}, "face", [60,
           [
             {"_c": 6, "_d": 1},
             [
               [0,
-                [12, "rounded_line", [28, 3]]]
+                ["border", [6]]],
+              [10,
+                [6, "number", [25, 30, "half_rotating", "arial", "normal"]],
+                [30, "rounded_line", [10, 1.5]]]
             ]
           ]
         ]
-      ]]
+      ],
+      [{0.5}, "face", [60,
+          [
+            {"_c": 6, "_d": 1},
+            [
+              [0,
+                ["border", [6]]
+              ],
+              [10,
+                [6, "number", [25, "hour", "half_rotating", "arial", "normal"]],
+                [12, "rounded_line", [20, 3]],
+                [24, "rounded_line", [10, 1.5]]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    [8,
+      [{0.75}, "face", [44,
+          [
+            [
+              [0,
+                [6, "rounded_line", [27, 4]],
+                [60, "rounded_line", [13, 1.5]]
+              ],
+              [40,
+                [1, "number", [35, "minute", "horizontal", "arial", "normal"]]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
   ]
 ]

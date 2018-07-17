@@ -47,6 +47,7 @@ class Shape(Enum):
     spear = auto()              # height, width, center
     face = auto()               # height, params
 
+ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
 
 WIDTH_FORMULA = {
         Shape.line: lambda args: args[1],
@@ -90,17 +91,23 @@ def main():
 
 def get_svg(watch_str):
     out = []
-    dictionary, elements = ast.literal_eval(watch_str)
+    parts = ast.literal_eval(watch_str)
+    dictionary = {}
+    if len(parts) == 2:
+        dictionary, elements = parts
+    else:
+        elements = parts[0]
     elements = replace_matched_items(elements, dictionary)
-    rs = get_rs(elements)
+    radia = get_radia(elements)
     ranges = []
-    for r, element in zip(reversed(rs), reversed(elements)):
+    for r, element in zip(reversed(radia), reversed(elements)):
         group = get_group(r, element[1:], ranges)
         out.extend(group)
+    out.reverse()
     return ''.join(out)
 
 
-def get_rs(elements):
+def get_radia(elements):
     out = []
     r = 100
     offsets = [a[0] for a in elements]
@@ -120,9 +127,13 @@ def get_group(r, elements, ranges):
             out.append(get_circular_border(element, 100 - r))
             continue
         pos, shape, args = element
+        fixed = False
+        if len(shape.split()) == 2:
+            shape = shape.split()[0]
+            fixed = True
         shape = Shape[shape]
         fis = get_fis(pos)
-        objects = get_objects(ranges, fis, shape, args, r)
+        objects = get_objects(ranges, fis, shape, args, r, fixed)
         out.extend(objects)
     return out
 
@@ -143,8 +154,8 @@ def get_fis(pos):
         return [i / n for i in range(n) if start <= i / n <= end]
 
 
-def get_objects(ranges, fis, shape, args, r):
-    out = (get_object(ranges, ObjParams(shape, r, fi, list(args)))
+def get_objects(ranges, fis, shape, args, r, fixed):
+    out = (get_object(ranges, ObjParams(shape, r, fi, list(args)), fixed)
            for fi in fis)
     return [a for a in out if a]
 
@@ -153,15 +164,20 @@ def get_objects(ranges, fis, shape, args, r):
 ##  OBJECT
 #
 
-def get_object(ranges, prms):
-    height = get_height(prms)
-    max_height = get_max_height(ranges, prms)
-    if height > max_height:
-        update_height(prms.shape, prms.args, max_height)
+def get_object(ranges, prms, fixed):
+    if not fixed:
+        fix_height(ranges, prms)
     if range_occupied(ranges, prms):
         return None
     update_ranges(ranges, prms)
     return get_svg_el(prms)
+
+
+def fix_height(ranges, prms):
+    height = get_height(prms)
+    max_height = get_max_height(ranges, prms)
+    if height > max_height:
+        update_height(prms.shape, prms.args, max_height)
 
 
 def get_height(prms):
@@ -213,13 +229,14 @@ def get_svg_el(prms):
 def get_subface(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     face_str = str(prms.args[1])
-    print(face_str)
     svg = get_svg(face_str)
     size = prms.args[0]
     x = cos(prms.fi) * (prms.r - size / 2)
     y = sin(prms.fi) * (prms.r - size / 2)
     scale = size / 200
-    return f'<g transform="translate({x}, {y}), scale({scale})">{svg}</g>'
+    bckg = f'<circle cx={x} cy={y} r={size/2+VER_BORDER} style="stroke-width: 0;' \
+           ' fill: rgb(255, 255, 255);"></circle>'
+    return f'{bckg}<g transform="translate({x}, {y}), scale({scale})">{svg}</g>'
 
 
 def get_rad(fi):

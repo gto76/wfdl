@@ -1,5 +1,6 @@
 from collections import namedtuple
 from math import cos, sin, pi
+from numbers import Number
 
 
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
@@ -137,6 +138,8 @@ def _get_line(x1, y1, x2, y2, width):
 
 
 def get_num_str(kind, deg):
+    if isinstance(kind, Number):
+        return deg_to_time(deg, kind)
     if kind == 'minute':
         return get_minute(deg)
     if kind == 'roman':
