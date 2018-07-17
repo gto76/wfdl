@@ -1,8 +1,15 @@
+from collections import namedtuple
 from math import cos, sin, pi
 
 
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
          8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
+
+
+def get_shape(prms):
+    fun_name = f'get_{prms.shape.name}'
+    fun = globals()[fun_name]
+    return fun(prms)
 
 
 def get_line(prms):
@@ -19,7 +26,7 @@ def get_rounded_line(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height, width = prms.args
     rot = (prms.fi - pi / 2) / pi * 180
-    return f'<rect rx="{width/2}" y="{prms.r}" x="-{width/2}" ry="{width/2}" ' \
+    return f'<rect rx="{width/2}" y="{prms.r-height}" x="-{width/2}" ry="{width/2}" ' \
            f'transform="rotate({rot})" height="{height}" width="{width}">' \
            '</rect>'
 
@@ -57,44 +64,43 @@ def get_triangle(prms):
     return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
 
 
+def get_upside_triangle(prms):
+    height, width = prms.args
+    x1 = cos(prms.fi) * prms.r
+    y1 = sin(prms.fi) * prms.r
+    r2 = prms.r - height
+    x2 = (cos(prms.fi) * r2) - (sin(prms.fi) * width / 2)
+    y2 = (sin(prms.fi) * r2) + (cos(prms.fi) * width / 2)
+    x3 = (cos(prms.fi) * r2) + (sin(prms.fi) * width / 2)
+    y3 = (sin(prms.fi) * r2) - (cos(prms.fi) * width / 2)
+    return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
+
+
 def get_number(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     font = ''
     if len(prms.args) == 3:
         size, kind, orient = prms.args
-    else:
+    elif len(prms.args) == 4:
         size, kind, orient, font = prms.args
+    else:
+        size, kind, orient, font, weight = prms.args
     x = cos(prms.fi) * (prms.r - size / 2)
     y = sin(prms.fi) * (prms.r - size / 2)
     i = get_num_str(kind, prms.fi)
     rot = get_num_rotation(orient, prms.fi)
     return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
            f')" class="title" fill="#111111" fill-opacity="0.9" font-size=' \
-           f'"{size}" font-weight="bold" font-family="{font}" ' \
+           f'"{size}" font-weight="{weight}" font-family="{font}" ' \
            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 
 
-def get_upside_triangle(prms):
-    height, width = prms.args
-
-
 def get_square(prms):
+    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height = prms.args[0]
-
-# <polygon points="4.550000000000005,-94.0 -4.5499999999999945,-94.0
-# 4.9598195365467806e-15,-81.0"></polygon>
-# def get_square(prms):
-#     # height, width = prms.args
-#     side = prms.args[0]
-#     rad = get_rad(prms.fi)
-#     x1 = (cos(rad) * prms.r) - (sin(rad) * width / 2)
-#     y1 = (sin(rad) * prms.r) + (cos(rad) * width / 2)
-#     x2 = (cos(rad) * prms.r) + (sin(rad) * width / 2)
-#     y2 = (sin(rad) * prms.r) - (cos(rad) * width / 2)
-#     x3 = cos(rad) * (prms.r - height)
-#     y3 = sin(rad) * (prms.r - height)
-#     return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
-
+    ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
+    prms = ObjParams(prms.shape, prms.r, prms.fi, [height, height])
+    return get_line(prms)
 
 
 def get_octagon(prms):

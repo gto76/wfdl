@@ -11,11 +11,10 @@ import re
 import sys
 from collections import namedtuple
 from enum import Enum, auto
-from math import pi, asin
+from math import pi, asin, sin, cos
 from numbers import Number
 
-from svg import get_line, get_rounded_line, get_two_lines, get_circle, \
-    get_triangle, get_number
+from svg import get_shape
 
 
 BASE = 0.75
@@ -23,7 +22,7 @@ HEAD = f'<html>\n<svg height=300px width=300px>\n<g transform="translate(150,' \
        f' 150), scale({BASE})")>\n'
 TAIL = "\n</g>\n</svg>\n</html>"
 WATCHES_DIR = 'watches/'
-BORDER_FACTOR = 0.2
+BORDER_FACTOR = 0.1
 VER_BORDER = 2
 
 GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
@@ -46,6 +45,7 @@ class Shape(Enum):
     trapeze = auto()            # height, width, width_2
     tear = auto()               # height, width
     spear = auto()              # height, width, center
+    face = auto()               # height, params
 
 
 WIDTH_FORMULA = {
@@ -62,7 +62,8 @@ WIDTH_FORMULA = {
         Shape.rhombus: lambda args: args[1],
         Shape.trapeze: lambda args: args[1],
         Shape.tear: lambda args: args[1],
-        Shape.spear: lambda args: args[1]
+        Shape.spear: lambda args: args[1],
+        Shape.face: lambda args: args[0]
     }
 
 
@@ -203,12 +204,22 @@ def update_ranges(occupied_ranges, prms):
 
 def get_svg_el(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    drawers = {Shape.line: get_line, Shape.rounded_line: get_rounded_line,
-               Shape.two_lines: get_two_lines, Shape.circle: get_circle,
-               Shape.number: get_number, Shape.triangle: get_triangle}
-    drawer = drawers[prms.shape]
     prms_rad = ObjParams(prms.shape, prms.r, get_rad(prms.fi), prms.args)
-    return drawer(prms_rad)
+    if prms.shape != Shape.face:
+        return get_shape(prms_rad)
+    return get_subface(prms_rad)
+
+
+def get_subface(prms):
+    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
+    face_str = str(prms.args[1])
+    print(face_str)
+    svg = get_svg(face_str)
+    size = prms.args[0]
+    x = cos(prms.fi) * (prms.r - size / 2)
+    y = sin(prms.fi) * (prms.r - size / 2)
+    scale = size / 200
+    return f'<g transform="translate({x}, {y}), scale({scale})">{svg}</g>'
 
 
 def get_rad(fi):
@@ -283,6 +294,8 @@ def replace_matched_items(elements, dictionary):
             out.append(replace_in_set(element, dictionary))
         elif type(element) is list:
             out.append(replace_matched_items(element, dictionary))
+        elif type(element) is dict:
+            out.append(element)
         else:
             out.append(get_value_of_exp(element, dictionary))
     return out

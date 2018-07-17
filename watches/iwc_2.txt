@@ -1,0 +1,23 @@
+[
+  {"_a": 6, "_b": 1},
+  [
+    [0,
+      [12, "number", [7.2, "minute", "rotating", "arial", "normal"]],
+      [60, "line", ["_a", "_b"]],
+      [240, "line", ["_a / 2", "_b / 2"]]],
+    ["_a + 2",
+      [2, "number", [20, "roman", "horizontal", "arial", "normal"]],
+      [12, "rounded_line", [28, 3]]],
+    [20,
+      [{0.25}, "face", [50,
+          [
+            {"_c": 6, "_d": 1},
+            [
+              [0,
+                [12, "rounded_line", [28, 3]]]
+            ]
+          ]
+        ]
+      ]]
+  ]
+]
