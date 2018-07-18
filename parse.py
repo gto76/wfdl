@@ -91,20 +91,55 @@ def main():
 
 def get_svg(watch_str):
     out = []
+    variables, beasel, face = get_parts(watch_str)
+    beasel = replace_matched_items(beasel, variables)
+    set_negative_height(beasel)
+    face = replace_matched_items(face, variables)
+    out = get_part_svg(beasel)
+    out.extend(get_part_svg(face))
+    return ''.join(out)
+
+
+def set_negative_height(elements):
+    if not elements:
+        return
+    for el in elements:
+        el[0] = -el[0]
+        for e in el[1:]:
+            if len(e) < 3:
+                pass
+            args = e[2]
+            args[0] = -args[0]
+
+
+def get_parts(watch_str):
     parts = ast.literal_eval(watch_str)
     dictionary = {}
+    beasel = None
     if isinstance(parts[0], dict):
-        dictionary, elements = parts
+        if len(parts) == 3:
+            dictionary, beasel, elements = parts
+        else:
+            dictionary, elements = parts
     else:
-        elements = parts
-    elements = replace_matched_items(elements, dictionary)
+        if len(parts) == 2:
+            beasel, elements = parts
+        else:
+            elements = parts[0]
+    return dictionary, beasel, elements
+
+
+def get_part_svg(elements):
+    if not elements:
+        return []
+    out = []
     radia = get_radia(elements)
     ranges = []
     for r, element in zip(reversed(radia), reversed(elements)):
         group = get_group(r, element[1:], ranges)
         out.extend(group)
     out.reverse()
-    return ''.join(out)
+    return out
 
 
 def get_radia(elements):
@@ -155,9 +190,16 @@ def get_fis(pos):
 
 
 def get_objects(ranges, fis, shape, args, r, fixed):
-    out = (get_object(ranges, ObjParams(shape, r, fi, list(args)), fixed)
-           for fi in fis)
-    return [a for a in out if a]
+    # out = (get_object(ranges, ObjParams(shape, r, fi, list(args)), fixed)
+    #        for fi in fis)
+    out = []
+    for fi in fis:
+        obj = get_object(ranges, ObjParams(shape, r, fi, list(args)), fixed)
+        if not obj:
+            continue
+        out.append(obj)
+    return out
+    # return [a for a in out if a]
 
 
 ###
@@ -176,7 +218,7 @@ def get_object(ranges, prms, fixed):
 def fix_height(ranges, prms):
     height = get_height(prms)
     max_height = get_max_height(ranges, prms)
-    if height > max_height:
+    if abs(height) > abs(max_height):
         update_height(prms.shape, prms.args, max_height)
 
 
@@ -193,7 +235,9 @@ def get_max_height(all_ranges, prms):
         r, ranges = grp_ranges
         width = get_angular_width(prms.shape, prms.args, r)
         if pos_occupied(prms.fi, width, ranges):
-            return (prms.r - r) - VER_BORDER
+            out = prms.r - r
+            border = VER_BORDER if prms.r < 0 else -VER_BORDER
+            return out + VER_BORDER
     return 100
 
 
@@ -280,7 +324,7 @@ def get_ranges(pos, width):
 
 def get_angular_width(shape, args, r):
     width_formula = WIDTH_FORMULA[shape]
-    width = width_formula(args)
+    width = abs(width_formula(args))
     return compute_angular_width(width, r)
 
 
@@ -305,6 +349,8 @@ def get_circular_border(element, ver_pos):
 #
 
 def replace_matched_items(elements, dictionary):
+    if not elements:
+        return []
     out = []
     for element in elements:
         if type(element) is set:

@@ -28,7 +28,7 @@ def get_rounded_line(prms):
     height, width = prms.args
     rot = (prms.fi - pi / 2) / pi * 180
     return f'<rect rx="{width/2}" y="{prms.r-height}" x="-{width/2}" ry="{width/2}" ' \
-           f'transform="rotate({rot})" height="{height}" width="{width}">' \
+           f'transform="rotate({rot})" height="{abs(height)}" width="{width}">' \
            '</rect>'
 
 
@@ -50,7 +50,7 @@ def get_circle(prms):
     diameter = prms.args[0]
     cx = cos(prms.fi) * (prms.r - diameter / 2)
     cy = sin(prms.fi) * (prms.r - diameter / 2)
-    return f'<circle cx={cx} cy={cy} r={diameter / 2} style="stroke-width: 0;' \
+    return f'<circle cx={cx} cy={cy} r={abs(diameter) / 2} style="stroke-width: 0;' \
            ' fill: rgb(0, 0, 0);"></circle>'
 
 
@@ -86,13 +86,14 @@ def get_number(prms):
         size, kind, orient, font = prms.args
     else:
         size, kind, orient, font, weight = prms.args
+    #size_r = size * 2/3
     x = cos(prms.fi) * (prms.r - size / 2)
     y = sin(prms.fi) * (prms.r - size / 2)
     i = get_num_str(kind, prms.fi)
     rot = get_num_rotation(orient, prms.fi)
     return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
-           f')" class="title" fill="#111111" fill-opacity="0.9" font-size=' \
-           f'"{size}" font-weight="{weight}" font-family="{font}" ' \
+           f')" class="title" fill="#111111" fill-opacity="1" font-size=' \
+           f'"{abs(size)}" font-weight="{weight}" font-family="{font}" ' \
            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 
 
