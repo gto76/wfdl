@@ -236,8 +236,14 @@ def get_max_height(all_ranges, prms):
         width = get_angular_width(prms.shape, prms.args, r)
         if pos_occupied(prms.fi, width, ranges):
             out = prms.r - r
-            border = VER_BORDER if prms.r < 0 else -VER_BORDER
-            return out + VER_BORDER
+            height = get_height(prms)
+            border = VER_BORDER if height < 0 else -VER_BORDER
+            max_height = out + border
+            if height > 0 and max_height <= 0:
+                return 0
+            if height < 0 and max_height >= 0:
+                return 0
+            return max_height
     return 100
 
 
@@ -264,6 +270,13 @@ def update_ranges(occupied_ranges, prms):
 
 def get_svg_el(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
+    height = get_height(prms)
+    if height == 0:
+        return ''
+    if height < 0:
+        args = prms.args
+        args[0] = -args[0]
+        prms = ObjParams(prms.shape, prms.r - height, prms.fi, args)
     prms_rad = ObjParams(prms.shape, prms.r, get_rad(prms.fi), prms.args)
     if prms.shape != Shape.face:
         return get_shape(prms_rad)

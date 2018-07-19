@@ -79,8 +79,12 @@ def get_upside_triangle(prms):
 
 def get_number(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    font = ''
-    if len(prms.args) == 3:
+    orient = ''
+    font = 'arial'
+    weight = ''
+    if len(prms.args) == 2:
+        size, kind = prms.args
+    elif len(prms.args) == 3:
         size, kind, orient = prms.args
     elif len(prms.args) == 4:
         size, kind, orient, font = prms.args

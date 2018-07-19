@@ -2,14 +2,22 @@
   {
     "_a": 6,
     "_b": 1,
+    "_c": 24,
+    "_d": 6,
+    "_e": 60,
     "sub_1": [
+        {"_a": 22, "_b": 3},
         [
           [0,
-            ["border", [6]]
+            ["border", [1]]
           ],
           [10,
-            [6, "number", [25, 30, "half_rotating", "arial", "normal"]],
-            [30, "rounded_line", [10, 1.5]]
+            [6, "line", ["_a", "_b"]],
+            [12, "line", ["_a", "_b/2"]],
+            [24, "line", ["_a/2", "_b/2"]]
+          ],
+          ["_a/2",
+            [6, "number", [25, "hour", "horizontal"]]
           ]
         ]
       ],
@@ -17,7 +25,7 @@
         {"_c": 6, "_d": 1},
         [
           [0,
-            ["border", [6]]
+            ["border", [1]]
           ],
           [10,
             [6, "number", [25, "hour", "half_rotating", "arial", "normal"]],
@@ -39,32 +47,28 @@
       ]
   },
   [
-    [0,
-      [10, "circle", [40]],
-      [20, "line", ["_a+20", "_b"]],
-      [100, "line", ["_a / 2+20", "_b / 2"]]
+    [2,
+      [20, "rounded_line", ["_a", "_b"]],
+      [100, "line", ["_a/2", "_b/2"]]
     ],
-    [20,
-      [12, "line", ["_a", "_b"]],
-      [60, "line", ["_a / 2", "_b / 2"]]
+    [3,
+      [10, "number", ["_a", 100]],
     ]
   ],
   [
     [0,
-      [12, "number", [7.2, "minute", "rotating", "arial", "normal"]],
-      [60, "rounded_line", ["_a", "_b"]],
-      [240, "rounded_line", ["_a / 2", "_b / 2"]]
+      [12, "line", ["_a", "_b"]],
+      [60, "rounded_line", ["_a", "_b/2"]],
+      [240, "rounded_line", ["_a/2", "_b/4"]]
     ],
-    ["_a + 2",
-      [2, "number fixed", [35, "roman", "horizontal", "arial", "normal"]],
-      [12, "rounded_line", [28, 3]]
+    ["_a/2 + 2",
+      [1, "triangle", ["_d*1.2", "_d*1.5"]],
+      [12, "line", ["_c", "_d"]]
     ],
-    [20,
-      [{0}, "face", [60, "sub_1"]],
-      [{0.5}, "face", [60, "sub_2"]]
-    ],
-    [8,
-      [{0.75}, "face", [44, "sub_3"]]
+    [10,
+      [{0}, "face", ["_e", "sub_1"]],
+      [{0.5}, "face", ["_e", "sub_2"]],
+      [{0.75}, "face", ["_e", "sub_3"]]
     ]
   ]
 ]
