@@ -11,7 +11,7 @@ import re
 import sys
 from collections import namedtuple
 from enum import Enum, auto
-from math import pi, asin, sin, cos
+from math import pi, asin, sin, cos, ceil
 from numbers import Number
 
 from svg import get_shape
@@ -55,7 +55,7 @@ WIDTH_FORMULA = {
         Shape.two_lines: lambda args: 2*args[1] + args[1]*args[2],
         Shape.circle: lambda args: args[0],
         Shape.triangle: lambda args: args[1],
-        Shape.number: lambda args: args[0],
+        Shape.number: lambda args: args[0] * 1.34,
         Shape.upside_triangle: lambda args: args[1],
         Shape.square: lambda args: args[0],
         Shape.octagon: lambda args: args[1],
@@ -152,32 +152,32 @@ def get_radia(elements):
     return out
 
 
-def get_group(r, elements, ranges):
-    if not elements:
+def get_group(r, subgroups, ranges):
+    if not subgroups:
         return
     out = []
     ranges.append(GrpRanges(r, []))
-    for element in elements:
-        if len(element) < 3:
-            out.append(get_circular_border(element, 100 - r))
+    for subgroup in subgroups:
+        if len(subgroup) < 3:
+            out.append(get_circular_border(subgroup, 100 - r))
             continue
-        pos, shape, args = element
+        pos, shape, args = subgroup
         fixed = False
         if len(shape.split()) == 2:
             shape = shape.split()[0]
             fixed = True
         shape = Shape[shape]
-        fis = get_fis(pos)
-        objects = get_objects(ranges, fis, shape, args, r, fixed)
+        fia = get_fia(pos)
+        objects = get_objects(ranges, fia, shape, args, r, fixed)
         out.extend(objects)
     return out
 
 
-def get_fis(pos):
+def get_fia(pos):
     if isinstance(pos, set):
         return pos
-    elif isinstance(pos, int):
-        return [i / pos for i in range(pos)]
+    elif isinstance(pos, Number):
+        return [i / pos for i in range(ceil(pos))]
     elif isinstance(pos, list):
         n = pos[0]
         start = 0
@@ -189,11 +189,11 @@ def get_fis(pos):
         return [i / n for i in range(n) if start <= i / n <= end]
 
 
-def get_objects(ranges, fis, shape, args, r, fixed):
+def get_objects(ranges, fia, shape, args, r, fixed):
     # out = (get_object(ranges, ObjParams(shape, r, fi, list(args)), fixed)
     #        for fi in fis)
     out = []
-    for fi in fis:
+    for fi in fia:
         obj = get_object(ranges, ObjParams(shape, r, fi, list(args)), fixed)
         if not obj:
             continue

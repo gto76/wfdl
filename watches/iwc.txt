@@ -1,11 +1,48 @@
 [
-  {"a_len": 3, "a_width": 3, "b_off": 4, "b_len": 2, 
-   "c_len": 20, "two_lines_sep": 0.1},
+  {
+    "a_len": 3, "a_width": 3, "b_off": 7, "b_len": 2,
+    "c_len": 14, "two_lines_sep": 0.1,
+    "sub_1": [
+        [
+          [0,
+            [7, "number", [13, ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"], "half_rotating"]],
+            [14, "circle", [3]]
+          ],
+          [25,
+            [12, "line", [20, 3]],
+            [60, "line", [10, 1.5]]
+          ]
+        ]
+      ],
+    "sub_2": [
+        [
+          [0,
+            [12, "number", [13, ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"], "half_rotating"]]
+          ]
+        ]
+      ],
+    "sub_3": [
+        [
+          [0,
+            [{0}, "number", [10, 31, "half_rotating"]],
+            [15.5, "circle", [3]],
+            [31, "number", [10, 31, "half_rotating"]]
+          ]
+        ]
+      ]
+  },
   [
     [1,
       [12, "circle", ["a_len"]],
-      [60, "circle", ["b_len"]]],
+      [60, "circle", ["b_len"]]
+    ],
     ["b_off",
-      [12, "number", ["c_len", "hour", "horizontal"]]]
+      [12, "number fixed", ["c_len", "hour", "horizontal"]]
+    ],
+    [0,
+      [{0.5}, "face", [68, "sub_2"]],
+      [{0.75}, "face", [68, "sub_1"]],
+      [{0.25}, "face", [68, "sub_3"]]
+    ]
   ]
 ]

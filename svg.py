@@ -146,6 +146,9 @@ def _get_line(x1, y1, x2, y2, width):
 def get_num_str(kind, deg):
     if isinstance(kind, Number):
         return deg_to_time(deg, kind)
+    if isinstance(kind, list):
+        i = deg_to_time(deg, len(kind))
+        return kind[i-1]
     if kind == 'minute':
         return get_minute(deg)
     if kind == 'roman':
