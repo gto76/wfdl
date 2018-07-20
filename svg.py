@@ -95,9 +95,10 @@ def get_number(prms):
     y = sin(prms.fi) * (prms.r - size / 2)
     i = get_num_str(kind, prms.fi)
     rot = get_num_rotation(orient, prms.fi)
+    fact = 6
     return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
-           f')" class="title" fill="#111111" fill-opacity="1" font-size=' \
-           f'"{abs(size)}" font-weight="{weight}" font-family="{font}" ' \
+           f'), translate(0, {size/fact})" class="title" fill="#111111" fill-opacity="1" font-size=' \
+           f'"{size*(1+1.0/fact*2)}" font-weight="{weight}" font-family="{font}" ' \
            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 
 
