@@ -12,7 +12,7 @@ import sys
 from collections import namedtuple
 from enum import Enum, auto
 from math import pi, asin, sin, cos, ceil
-from numbers import Number
+from numbers import Number, Real
 
 from svg import get_shape
 
@@ -26,10 +26,13 @@ BORDER_FACTOR = 0.1
 VER_BORDER = 2
 
 GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
-ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
+ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
+
+COLORS = {"black": 0, "white": 255}
 
 
 class Shape(Enum):
+    border = auto()             # height, fi
     line = auto()               # height, width
     rounded_line = auto()       # height, width
     two_lines = auto()          # height, width, distance_factor
@@ -46,6 +49,7 @@ class Shape(Enum):
     tear = auto()               # height, width
     spear = auto()              # height, width, center
     face = auto()               # height, params
+
 
 ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
 
@@ -90,7 +94,6 @@ def main():
 #
 
 def get_svg(watch_str):
-    out = []
     variables, beasel, face = get_parts(watch_str)
     beasel = replace_matched_items(beasel, variables)
     set_negative_height(beasel)
@@ -158,25 +161,30 @@ def get_group(r, subgroups, ranges):
     out = []
     ranges.append(GrpRanges(r, []))
     for subgroup in subgroups:
-        if len(subgroup) < 3:
-            out.append(get_circular_border(subgroup, 100 - r))
-            continue
-        pos, shape, args = subgroup
-        fixed = False
-        if len(shape.split()) == 2:
-            shape = shape.split()[0]
-            fixed = True
-        shape = Shape[shape]
-        fia = get_fia(pos)
-        objects = get_objects(ranges, fia, shape, args, r, fixed)
-        out.extend(objects)
+        elements = get_subgroup(r, subgroup, ranges)
+        out.extend(elements)
     return out
+
+
+def get_subgroup(r, subgroup, ranges):
+    color = "black"
+    if len(subgroup) == 3:
+        pos, shape, args = subgroup
+    elif len(subgroup) == 4:
+        pos, shape, args, color = subgroup
+    fixed = False
+    if len(shape.split()) == 2:
+        shape = shape.split()[0]
+        fixed = True
+    shape = Shape[shape]
+    fia = get_fia(pos)
+    return get_objects(ranges, fia, shape, args, r, fixed, color)
 
 
 def get_fia(pos):
     if isinstance(pos, set):
         return pos
-    elif isinstance(pos, Number):
+    elif isinstance(pos, Real):
         return [i / pos for i in range(ceil(pos))]
     elif isinstance(pos, list):
         n = pos[0]
@@ -189,17 +197,14 @@ def get_fia(pos):
         return [i / n for i in range(n) if start <= i / n <= end]
 
 
-def get_objects(ranges, fia, shape, args, r, fixed):
-    # out = (get_object(ranges, ObjParams(shape, r, fi, list(args)), fixed)
-    #        for fi in fis)
+def get_objects(ranges, fia, shape, args, r, fixed, color):
     out = []
     for fi in fia:
-        obj = get_object(ranges, ObjParams(shape, r, fi, list(args)), fixed)
+        obj = get_object(ranges, ObjParams(shape, r, fi, list(args), color), fixed)
         if not obj:
             continue
         out.append(obj)
     return out
-    # return [a for a in out if a]
 
 
 ###
@@ -207,6 +212,8 @@ def get_objects(ranges, fia, shape, args, r, fixed):
 #
 
 def get_object(ranges, prms, fixed):
+    if prms.shape == Shape.border:
+        return get_svg_el(prms)
     if not fixed:
         fix_height(ranges, prms)
     if range_occupied(ranges, prms):
@@ -235,16 +242,29 @@ def get_max_height(all_ranges, prms):
         r, ranges = grp_ranges
         width = get_angular_width(prms.shape, prms.args, r)
         if pos_occupied(prms.fi, width, ranges):
-            out = prms.r - r
-            height = get_height(prms)
-            border = VER_BORDER if height < 0 else -VER_BORDER
-            max_height = out + border
-            if height > 0 and max_height <= 0:
-                return 0
-            if height < 0 and max_height >= 0:
-                return 0
-            return max_height
+            # out = prms.r - r
+            # height = get_height(prms)
+            # border = VER_BORDER if height < 0 else -VER_BORDER
+            # max_height = out + border
+            # if height > 0 and max_height <= 0:
+            #     return 0
+            # if height < 0 and max_height >= 0:
+            #     return 0
+            # return max_height
+            return calculate_max_height(prms, r)
     return 100
+
+
+def calculate_max_height(prms, r):
+    out = prms.r - r
+    height = get_height(prms)
+    border = VER_BORDER if height < 0 else -VER_BORDER
+    max_height = out + border
+    if height > 0 >= max_height:
+        return 0
+    if height < 0 <= max_height:
+        return 0
+    return max_height
 
 
 def update_height(shape, args, height):
@@ -276,8 +296,11 @@ def get_svg_el(prms):
     if height < 0:
         args = prms.args
         args[0] = -args[0]
-        prms = ObjParams(prms.shape, prms.r - height, prms.fi, args)
-    prms_rad = ObjParams(prms.shape, prms.r, get_rad(prms.fi), prms.args)
+        prms = ObjParams(prms.shape, prms.r - height, prms.fi, args, prms.color)
+    rad = get_rad(prms.fi)
+    brightness = COLORS[prms.color]
+    color = f'rgb({brightness}, {brightness}, {brightness})'
+    prms_rad = ObjParams(prms.shape, prms.r, rad, prms.args, color)
     if prms.shape != Shape.face:
         return get_shape(prms_rad)
     return get_subface(prms_rad)
@@ -291,8 +314,8 @@ def get_subface(prms):
     x = cos(prms.fi) * (prms.r - size / 2)
     y = sin(prms.fi) * (prms.r - size / 2)
     scale = size / 200
-    bckg = f'<circle cx={x} cy={y} r={size/2+VER_BORDER} style="stroke-width: 0;' \
-           ' fill: rgb(255, 255, 255);"></circle>'
+    bckg = f'<circle cx={x} cy={y} r={size/2+VER_BORDER} style="stroke-width:' \
+        '0; fill: rgb(255, 255, 255);"></circle>'
     return f'{bckg}<g transform="translate({x}, {y}), scale({scale})">{svg}</g>'
 
 
@@ -344,17 +367,6 @@ def get_angular_width(shape, args, r):
 def compute_angular_width(width, r):
     a_sin = width / r
     return asin(a_sin) / (2 * pi)
-
-
-###
-##  SVG
-#
-
-def get_circular_border(element, ver_pos):
-    stroke_width = element[1][0]
-    return f'<circle cx=0 cy=0 r={100-ver_pos} style=" stroke-width: ' \
-           f'{stroke_width}; stroke: rgb(0,0,0); fill: rgba(0,0,0,0)' \
-           ';"></circle>'
 
 
 ###

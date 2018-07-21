@@ -1,6 +1,6 @@
 from collections import namedtuple
 from math import cos, sin, pi
-from numbers import Number
+from numbers import Real
 
 
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
@@ -11,6 +11,14 @@ def get_shape(prms):
     fun_name = f'get_{prms.shape.name}'
     fun = globals()[fun_name]
     return fun(prms)
+
+
+def get_border(prms):
+# def get_border(element, ver_pos)text:
+    stroke_width = prms.args[0]
+    return f'<circle cx=0 cy=0 r={prms.r} style=" stroke-width: ' \
+           f'{stroke_width}; stroke: {prms.color}; fill: rgba(0,0,0,0)' \
+           ';"></circle>'
 
 
 def get_line(prms):
@@ -144,7 +152,7 @@ def _get_line(x1, y1, x2, y2, width):
 
 
 def get_num_str(kind, deg):
-    if isinstance(kind, Number):
+    if isinstance(kind, Real):
         return deg_to_time(deg, kind)
     if isinstance(kind, list):
         i = deg_to_time(deg, len(kind))
@@ -178,6 +186,8 @@ def get_minute(deg):
 
 def deg_to_time(deg, factor):
     i = (deg + pi / 2) / (2 * pi) * factor
+    if factor < 0:
+        i = abs(factor) + i
     i = round(i)
     if i == 0:
         i = factor
