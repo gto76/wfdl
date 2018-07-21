@@ -28,7 +28,7 @@ VER_BORDER = 2
 GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
 
-COLORS = {"black": 0, "white": 255}
+# COLORS = {"black": 0, "white": 255}
 
 
 class Shape(Enum):
@@ -298,9 +298,9 @@ def get_svg_el(prms):
         args[0] = -args[0]
         prms = ObjParams(prms.shape, prms.r - height, prms.fi, args, prms.color)
     rad = get_rad(prms.fi)
-    brightness = COLORS[prms.color]
-    color = f'rgb({brightness}, {brightness}, {brightness})'
-    prms_rad = ObjParams(prms.shape, prms.r, rad, prms.args, color)
+    # brightness = COLORS[prms.color]
+    # color = f'rgb({brightness}, {brightness}, {brightness})'
+    prms_rad = ObjParams(prms.shape, prms.r, rad, prms.args, prms.color)
     if prms.shape != Shape.face:
         return get_shape(prms_rad)
     return get_subface(prms_rad)

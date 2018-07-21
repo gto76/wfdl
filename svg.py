@@ -14,11 +14,47 @@ def get_shape(prms):
 
 
 def get_border(prms):
-# def get_border(element, ver_pos)text:
-    stroke_width = prms.args[0]
-    return f'<circle cx=0 cy=0 r={prms.r} style=" stroke-width: ' \
-           f'{stroke_width}; stroke: {prms.color}; fill: rgba(0,0,0,0)' \
-           ';"></circle>'
+    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
+    height = prms.args[0]
+    range = prms.args[1] * 2*pi / 2
+    d = describeArc(0, 0, prms.r-height/2, prms.fi - range, prms.fi + range, height)
+
+    return f'<g stroke="{prms.color}" fill="none" stroke-width="{height}">' \
+        f'<path d="{d}"/></g>'
+
+    # return f'<g stroke="none" fill="{prms.color}">' \
+    #     '<path d="' \
+    #     'M 100 300' \
+    #     'A 100 100 0 0 1 300 300' \
+    #     'L 250 300' \
+    #     'A 50 50 0 0 0 150 300' \
+    #     'L 100 300' \
+    #     'Z"/>' \
+    #     '</g>'
+
+
+def describeArc(x, y, r, start_fi, end_fi, height):
+    r_b = r - height
+    start = polarToCartesian(x, y, r, end_fi)
+    end = polarToCartesian(x, y, r, start_fi)
+    start_b = polarToCartesian(x, y, r_b, start_fi)
+    end_b = polarToCartesian(x, y, r_b, end_fi)
+    arcSweep = 1  # 0 if end_fi - start_fi <= 180 else 1
+    d = [
+        'M', start.x, start.y,
+        'A', r, r, 0, arcSweep, 0, end.x, end.y,
+        # 'M', start_b.x, start_b.y,  # x, y,
+        # 'A', r_b, r_b, 0, 0, 0, end_b.x, end_b.y,
+        # 'L', start.x, start.y
+    ]
+    return ' '.join(str(a) for a in d)
+
+
+def polarToCartesian(center_x, center_y, radius, fi):
+    Point = namedtuple('Point', list('xy'))
+    x = center_x + (radius * cos(fi))
+    y = center_y + (radius * sin(fi))
+    return Point(x, y)
 
 
 def get_line(prms):
@@ -105,7 +141,7 @@ def get_number(prms):
     rot = get_num_rotation(orient, prms.fi)
     fact = 6
     return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
-           f'), translate(0, {size/fact})" class="title" fill="#111111" fill-opacity="1" font-size=' \
+           f'), translate(0, {size/fact})" class="title" fill="{prms.color}" fill-opacity="1" font-size=' \
            f'"{size*(1+1.0/fact*2)}" font-weight="{weight}" font-family="{font}" ' \
            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 

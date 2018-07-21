@@ -29,8 +29,10 @@
             [31, "number", [10, 31, "half_rotating"]]
           ],
           [20,
-            [{0.5}, "border", [20, 0.8]],
-            [8, "number", [20, -8, "horizontal"], "white"]
+            [{0.5}, "border", [25, 0.875]]
+          ],
+          [5,
+            [[8, 0.1, 0.9], "number", [14, -8, "horizontal"], "white"]
           ]
         ]
       ]
