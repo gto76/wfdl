@@ -49,6 +49,7 @@ class Shape(Enum):
     tear = auto()               # height, width
     spear = auto()              # height, width, center
     face = auto()               # height, params
+    date = auto()               # height, params
 
 
 ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
@@ -68,7 +69,8 @@ WIDTH_FORMULA = {
         Shape.trapeze: lambda args: args[1],
         Shape.tear: lambda args: args[1],
         Shape.spear: lambda args: args[1],
-        Shape.face: lambda args: args[0]
+        Shape.face: lambda args: args[0],
+        Shape.date: lambda args: args[1]
     }
 
 

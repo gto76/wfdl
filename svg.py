@@ -22,16 +22,6 @@ def get_border(prms):
     return f'<g stroke="{prms.color}" fill="none" stroke-width="{height}">' \
         f'<path d="{d}"/></g>'
 
-    # return f'<g stroke="none" fill="{prms.color}">' \
-    #     '<path d="' \
-    #     'M 100 300' \
-    #     'A 100 100 0 0 1 300 300' \
-    #     'L 250 300' \
-    #     'A 50 50 0 0 0 150 300' \
-    #     'L 100 300' \
-    #     'Z"/>' \
-    #     '</g>'
-
 
 def describeArc(x, y, r, start_fi, end_fi, height):
     r_b = r - height
@@ -42,10 +32,7 @@ def describeArc(x, y, r, start_fi, end_fi, height):
     arcSweep = 1  # 0 if end_fi - start_fi <= 180 else 1
     d = [
         'M', start.x, start.y,
-        'A', r, r, 0, arcSweep, 0, end.x, end.y,
-        # 'M', start_b.x, start_b.y,  # x, y,
-        # 'A', r_b, r_b, 0, 0, 0, end_b.x, end_b.y,
-        # 'L', start.x, start.y
+        'A', r, r, 0, arcSweep, 0, end.x, end.y
     ]
     return ' '.join(str(a) for a in d)
 
@@ -65,6 +52,18 @@ def get_line(prms):
     y1 = sin(prms.fi) * prms.r
     y2 = sin(prms.fi) * (prms.r - height)
     return _get_line(x1, y1, x2, y2, width)
+
+
+def get_date(prms):
+    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
+    bckg = get_line(prms)
+    height, width = prms.args
+    txt_size = width - 3
+    Prms = namedtuple('Prms', ['shape', 'r', 'fi', 'args', 'color'])
+    prms = Prms(prms.shape, prms.r - height/2 + txt_size/2, prms.fi, [txt_size, 31, "horizontal"],
+                "white")
+    txt = get_number(prms)
+    return bckg + txt
 
 
 def get_rounded_line(prms):

@@ -29,10 +29,11 @@
             [31, "number", [10, 31, "half_rotating"]]
           ],
           [20,
-            [{0.5}, "border", [25, 0.875]]
+            [{0.5}, "border", [22, 0.875]]
           ],
           [5,
-            [[8, 0.1, 0.9], "number", [14, -8, "horizontal"], "white"]
+            [{0}, "number", [12, ["DAYS"]]],
+            [[8, 0.1, 0.9], "number", [12, -8, "horizontal"], "white"]
           ]
         ]
       ]
