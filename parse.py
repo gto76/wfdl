@@ -5,16 +5,15 @@
 # 'index.html'.
 
 import ast
-import operator as op
 import os
-import re
 import sys
 from collections import namedtuple
 from enum import Enum, auto
 from math import pi, asin, sin, cos, ceil
-from numbers import Number, Real
+from numbers import Real
 
 from svg import get_shape
+from util import replace_matched_items, read_file, write_to_file
 
 
 BASE = 0.75
@@ -27,8 +26,6 @@ VER_BORDER = 2
 
 GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
-
-# COLORS = {"black": 0, "white": 255}
 
 
 class Shape(Enum):
@@ -169,11 +166,19 @@ def get_group(r, subgroups, ranges):
 
 
 def get_subgroup(r, subgroup, ranges):
+    no_el = len(subgroup)
+    if no_el < 3 or no_el > 5:
+        msg = f'Number of elements in subgroup "{subgroup}" is {no_el}, but ' \
+            'it should be between 3 and 5.'
+        raise ValueError(msg)
+    offset = 0
     color = "black"
-    if len(subgroup) == 3:
+    if no_el == 3:
         pos, shape, args = subgroup
-    elif len(subgroup) == 4:
+    elif no_el == 4:
         pos, shape, args, color = subgroup
+    else:
+        pos, shape, args, color, offset = subgroup
     fixed = False
     if len(shape.split()) == 2:
         shape = shape.split()[0]
@@ -202,7 +207,8 @@ def get_fia(pos):
 def get_objects(ranges, fia, shape, args, r, fixed, color):
     out = []
     for fi in fia:
-        obj = get_object(ranges, ObjParams(shape, r, fi, list(args), color), fixed)
+        obj = get_object(ranges, ObjParams(shape, r, fi, list(args), color),
+                         fixed)
         if not obj:
             continue
         out.append(obj)
@@ -244,15 +250,6 @@ def get_max_height(all_ranges, prms):
         r, ranges = grp_ranges
         width = get_angular_width(prms.shape, prms.args, r)
         if pos_occupied(prms.fi, width, ranges):
-            # out = prms.r - r
-            # height = get_height(prms)
-            # border = VER_BORDER if height < 0 else -VER_BORDER
-            # max_height = out + border
-            # if height > 0 and max_height <= 0:
-            #     return 0
-            # if height < 0 and max_height >= 0:
-            #     return 0
-            # return max_height
             return calculate_max_height(prms, r)
     return 100
 
@@ -300,8 +297,6 @@ def get_svg_el(prms):
         args[0] = -args[0]
         prms = ObjParams(prms.shape, prms.r - height, prms.fi, args, prms.color)
     rad = get_rad(prms.fi)
-    # brightness = COLORS[prms.color]
-    # color = f'rgb({brightness}, {brightness}, {brightness})'
     prms_rad = ObjParams(prms.shape, prms.r, rad, prms.args, prms.color)
     if prms.shape != Shape.face:
         return get_shape(prms_rad)
@@ -369,78 +364,6 @@ def get_angular_width(shape, args, r):
 def compute_angular_width(width, r):
     a_sin = width / r
     return asin(a_sin) / (2 * pi)
-
-
-###
-##  DICT SUB
-#
-
-def replace_matched_items(elements, dictionary):
-    if not elements:
-        return []
-    out = []
-    for element in elements:
-        if type(element) is set:
-            out.append(replace_in_set(element, dictionary))
-        elif type(element) is list:
-            out.append(replace_matched_items(element, dictionary))
-        elif type(element) is dict:
-            out.append(element)
-        else:
-            out.append(get_value_of_exp(element, dictionary))
-    return out
-
-
-def replace_in_set(elements, dictionary):
-    return {get_value_of_exp(element, dictionary) for element in elements}
-
-
-def get_value_of_exp(exp, dictionary):
-    if isinstance(exp, Number):
-        return exp
-    for key, value in dictionary.items():
-        exp = exp.replace(key, str(value))
-    if re.search('[a-zA-Z]', exp):
-        return exp
-    return eval_expr(exp)
-
-
-###
-##  EVAL
-#
-
-operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
-             ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
-             ast.USub: op.neg}
-
-
-def eval_expr(expr):
-    return eval_(ast.parse(expr, mode='eval').body)
-
-
-def eval_(node):
-    if isinstance(node, ast.Num):
-        return node.n
-    elif isinstance(node, ast.BinOp):
-        return operators[type(node.op)](eval_(node.left), eval_(node.right))
-    elif isinstance(node, ast.UnaryOp):
-        return operators[type(node.op)](eval_(node.operand))
-    else:
-        raise TypeError(node)
-
-
-###
-##  UTIL
-#
-
-def read_file(filename):
-    with open(filename, encoding='utf-8') as file:
-        return file.readlines()
-
-
-def write_to_file(filename, text):
-    with open(filename, 'w', encoding='utf-8') as file:
-        file.write(text)
 
 
 if __name__ == '__main__':
