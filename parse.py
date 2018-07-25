@@ -89,7 +89,7 @@ def main():
 
 
 ###
-##  RENDERING
+##  GROUPS
 #
 
 def get_svg(watch_str):
@@ -185,9 +185,9 @@ def get_subgroup(r, subgroup, ranges):
         fixed = True
     shape = Shape[shape]
     fia = get_fia(pos)
-    return get_objects(ranges, fia, shape, args, r, fixed, color)
+    return get_objects(ranges, fia, shape, args, r, fixed, color, offset)
 
-
+# TODO offset
 def get_fia(pos):
     if isinstance(pos, set):
         return pos
@@ -204,14 +204,15 @@ def get_fia(pos):
         return [i / n for i in range(n) if start <= i / n <= end]
 
 
-def get_objects(ranges, fia, shape, args, r, fixed, color):
+def get_objects(ranges, fia, shape, args, r, fixed, color, offset):
     out = []
+    curr_ranges = []
     for fi in fia:
-        obj = get_object(ranges, ObjParams(shape, r, fi, list(args), color),
+        obj = get_object(ranges, curr_ranges,
+                         ObjParams(shape, r, fi, list(args), color),
                          fixed)
-        if not obj:
-            continue
-        out.append(obj)
+        if obj:
+            out.append(obj)
     return out
 
 
@@ -219,14 +220,14 @@ def get_objects(ranges, fia, shape, args, r, fixed, color):
 ##  OBJECT
 #
 
-def get_object(ranges, prms, fixed):
+def get_object(ranges, curr_ranges, prms, fixed):
     if prms.shape == Shape.border:
         return get_svg_el(prms)
     if not fixed:
         fix_height(ranges, prms)
-    if range_occupied(ranges, prms):
+    if range_occupied(curr_ranges, prms):
         return None
-    update_ranges(ranges, prms)
+    update_ranges(ranges, curr_ranges, prms)
     return get_svg_el(prms)
 
 
@@ -276,15 +277,29 @@ def update_height(shape, args, height):
         args[0] = height
 
 
-def range_occupied(ranges, prms):
+def range_occupied(curr_ranges, prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     width = get_angular_width(prms.shape, prms.args, prms.r)
-    return pos_occupied(prms.fi, width, ranges[-1].ranges)
+    return pos_occupied(prms.fi, width, curr_ranges)
 
 
-def update_ranges(occupied_ranges, prms):
-    ranges = get_ranges_prms(prms)
-    occupied_ranges[-1].ranges.extend(ranges)
+def update_ranges(ranges, curr_ranges, prms):
+    new_ranges = get_ranges_prms(prms)
+    curr_ranges.extend(new_ranges)
+    range = get_range(ranges, prms)
+    range.extend(new_ranges)
+    # ranges[-1].ranges.extend(new_ranges)
+
+
+def get_range(ranges, prms):
+    for range in reversed(ranges):
+        if range.r == prms.r:
+            return range.range
+    out = []
+    range = GrpRanges(prms.r, out)
+    ranges.append(range)
+    ranges.sort(key=lambda a: a[0])
+    return out
 
 
 def get_svg_el(prms):
