@@ -19,16 +19,15 @@ def get_shape(prms):
 def get_border(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
     height = prms.args[0]
-    r = prms.r-height/2
+    r = prms.r - height / 2
     fi = 1 if len(prms.args) < 2 else prms.args[1]
     if fi >= 1:
         return _get_circle(r, height, prms.color)
-    arcSweep = 0 if fi < 0.5 else 1
-    rng = fi * 2*pi / 2
-    d = describeArc(0, 0, r, prms.fi - rng, prms.fi + rng,
-                    height, arcSweep)
+    arc_sweep = 0 if fi < 0.5 else 1
+    rng = fi * 2 * pi / 2
+    d = describe_arc(0, 0, r, prms.fi - rng, prms.fi + rng, arc_sweep)
     return f'<g stroke="{prms.color}" fill="none" stroke-width="{height}">' \
-        f'<path d="{d}"/></g>'
+           f'<path d="{d}"/></g>'
 
 
 def _get_circle(r, height, color):
@@ -36,21 +35,17 @@ def _get_circle(r, height, color):
            f' stroke: {color}; fill: rgba(0, 0, 0, 0);"></circle>'
 
 
-def describeArc(x, y, r, start_fi, end_fi, height, arcSweep):
-    r_b = r - height
-    start = polarToCartesian(x, y, r, end_fi)
-    end = polarToCartesian(x, y, r, start_fi)
-    start_b = polarToCartesian(x, y, r_b, start_fi)
-    end_b = polarToCartesian(x, y, r_b, end_fi)
-    # arcSweep = 0  # 0 if end_fi - start_fi <= 180 else 1
+def describe_arc(x, y, r, start_fi, end_fi, arc_sweep):
+    start = polar_to_cartesian(x, y, r, end_fi)
+    end = polar_to_cartesian(x, y, r, start_fi)
     d = [
         'M', start.x, start.y,
-        'A', r, r, 0, arcSweep, 0, end.x, end.y
+        'A', r, r, 0, arc_sweep, 0, end.x, end.y
     ]
     return ' '.join(str(a) for a in d)
 
 
-def polarToCartesian(center_x, center_y, radius, fi):
+def polar_to_cartesian(center_x, center_y, radius, fi):
     Point = namedtuple('Point', list('xy'))
     x = center_x + (radius * cos(fi))
     y = center_y + (radius * sin(fi))
@@ -73,8 +68,8 @@ def get_date(prms):
     height, width = prms.args
     txt_size = width - 3
     Prms = namedtuple('Prms', ['shape', 'r', 'fi', 'args', 'color'])
-    prms = Prms(prms.shape, prms.r - height/2 + txt_size/2, prms.fi, [txt_size, 31, "horizontal"],
-                "white")
+    prms = Prms(prms.shape, prms.r - height / 2 + txt_size / 2, prms.fi,
+                [txt_size, 31, "horizontal"], "white")
     txt = get_number(prms)
     return bckg + txt
 
@@ -83,9 +78,9 @@ def get_rounded_line(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height, width = prms.args
     rot = (prms.fi - pi / 2) / pi * 180
-    return f'<rect rx="{width/2}" y="{prms.r-height}" x="-{width/2}" ry="{width/2}" ' \
-           f'transform="rotate({rot})" height="{abs(height)}" width="{width}">' \
-           '</rect>'
+    return f'<rect rx="{width/2}" y="{prms.r-height}" x="-{width/2}" ry=' \
+           f'"{width/2}" transform="rotate({rot})" height="{abs(height)}" ' \
+           f'width="{width}"></rect>'
 
 
 def get_two_lines(prms):
@@ -106,8 +101,8 @@ def get_circle(prms):
     diameter = prms.args[0]
     cx = cos(prms.fi) * (prms.r - diameter / 2)
     cy = sin(prms.fi) * (prms.r - diameter / 2)
-    return f'<circle cx={cx} cy={cy} r={abs(diameter) / 2} style="stroke-width: 0;' \
-           ' fill: rgb(0, 0, 0);"></circle>'
+    return f'<circle cx={cx} cy={cy} r={abs(diameter) / 2} style=' \
+           f'"stroke-width: 0; fill: rgb(0, 0, 0);"></circle>'
 
 
 def get_triangle(prms):
@@ -146,15 +141,16 @@ def get_number(prms):
         size, kind, orient, font = prms.args
     else:
         size, kind, orient, font, weight = prms.args
-    #size_r = size * 2/3
+    # size_r = size * 2/3
     x = cos(prms.fi) * (prms.r - size / 2)
     y = sin(prms.fi) * (prms.r - size / 2)
     i = get_num_str(kind, prms.fi)
     rot = get_num_rotation(orient, prms.fi)
     fact = 6
     return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
-           f'), translate(0, {size/fact})" class="title" fill="{prms.color}" fill-opacity="1" font-size=' \
-           f'"{size*(1+1.0/fact*2)}" font-weight="{weight}" font-family="{font}" ' \
+           f'), translate(0, {size/fact})" class="title" fill="{prms.color}" ' \
+           f'fill-opacity="1" font-size="{size*(1+1.0/fact*2)}" ' \
+           f'font-weight="{weight}" font-family="{font}" ' \
            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 
 
@@ -204,7 +200,7 @@ def get_num_str(kind, deg):
         return deg_to_time(deg, kind)
     if isinstance(kind, list):
         i = deg_to_time(deg, len(kind))
-        return kind[i-1]
+        return kind[i - 1]
     if kind == 'minute':
         return get_minute(deg)
     if kind == 'roman':
@@ -228,7 +224,6 @@ def get_num_rotation(orient, deg):
     else:
         delta = pi if 0 < deg < pi else 0
         return (deg + pi / 2 + delta) / pi * 180
-
 
 
 def get_minute(deg):
