@@ -5,6 +5,9 @@ from numbers import Real
 
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
          8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
+DAYS = {1: "MON", 2: "TUE", 3: "WED", 4: "THU", 5: "FRI", 6: "SAT", 7: "SUN"}
+MONTHS = {1: "JAN", 2: "FEB", 3: "MAR", 4: "APR", 5: "MAY", 6: "JUN", 7: "JUL",
+          8: "AUG", 9: "SEP", 10: "OCT", 11: "NOV", 12: "DEC"}
 
 
 def get_shape(prms):
@@ -21,8 +24,8 @@ def get_border(prms):
     if fi >= 1:
         return _get_circle(r, height, prms.color)
     arcSweep = 0 if fi < 0.5 else 1
-    range = fi * 2*pi / 2
-    d = describeArc(0, 0, r, prms.fi - range, prms.fi + range,
+    rng = fi * 2*pi / 2
+    d = describeArc(0, 0, r, prms.fi - rng, prms.fi + rng,
                     height, arcSweep)
     return f'<g stroke="{prms.color}" fill="none" stroke-width="{height}">' \
         f'<path d="{d}"/></g>'
@@ -207,6 +210,12 @@ def get_num_str(kind, deg):
     if kind == 'roman':
         hour = get_hour(deg)
         return ROMAN[hour]
+    if kind == 'day':
+        day = get_day(deg)
+        return DAYS[day]
+    if kind == 'month':
+        month = get_month(deg)
+        return MONTHS[month]
     else:
         return get_hour(deg)
 
@@ -221,12 +230,21 @@ def get_num_rotation(orient, deg):
         return (deg + pi / 2 + delta) / pi * 180
 
 
+
+def get_minute(deg):
+    return deg_to_time(deg, 60)
+
+
 def get_hour(deg):
     return deg_to_time(deg, 12)
 
 
-def get_minute(deg):
-    return deg_to_time(deg, 60)
+def get_day(deg):
+    return deg_to_time(deg, 7)
+
+
+def get_month(deg):
+    return deg_to_time(deg, 12)
 
 
 def deg_to_time(deg, factor):

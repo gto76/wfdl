@@ -5,7 +5,7 @@
     "sub_1": [
         [
           [0,
-            [7, "number", [13, ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"], "half_rotating"]],
+            [7, "number", [13, "day", "half_rotating"]],
             [14, "circle", [3]]
           ],
           [25,
@@ -17,7 +17,7 @@
     "sub_2": [
         [
           [0,
-            [12, "number", [13, ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"], "half_rotating"]]
+            [12, "number", [13, "month", "half_rotating"]]
           ]
         ]
       ],

@@ -2,14 +2,16 @@
 #
 # Usage: parse.py WATCH_FILE
 # Generates watch face image from passed watch file and saves it to 
-# 'index.html'.
+# 'index.html'. If no argument is specified, then all files in folder 'watches'
+# get parsed.
+
 
 import ast
 import os
 import sys
 from collections import namedtuple
 from enum import Enum, auto
-from math import pi, asin, sin, cos, ceil
+from math import pi, asin, sin, cos, ceil, sqrt
 from numbers import Real
 
 from svg import get_shape
@@ -17,12 +19,12 @@ from util import replace_matched_items, read_file, write_to_file
 
 
 BASE = 0.75
-HEAD = f'<html>\n<svg height=300px width=300px>\n<g transform="translate(150,' \
-       f' 150), scale({BASE})")>\n'
-TAIL = "\n</g>\n</svg>\n</html>"
-WATCHES_DIR = 'watches/'
+HEAD = f'<html>\n'
+TAIL = "\n</html>"
+WATCHES_DIR = 'watches'
 BORDER_FACTOR = 0.1
 VER_BORDER = 2
+ALL_WIDTH = 250
 
 GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
@@ -77,15 +79,49 @@ WIDTH_FORMULA = {
 
 def main():
     if len(sys.argv) < 2:
-        print('Missing watch file argument.', file=sys.stderr)
-        sys.exit(1)
-    watch_file = WATCHES_DIR + sys.argv[1]
-    if not os.path.isfile(watch_file):
-        print(f'File "{watch_file}" does not exist.', file=sys.stderr)
+        svg = parse_all_watches(WATCHES_DIR)
+    else:
+        filename = f'{WATCHES_DIR}/{sys.argv[1]}'
+        svg = parse_single_wathc(filename)
+    write_to_file('index.html', f'{HEAD} {svg} {TAIL}')
+
+
+def parse_single_wathc(filename):
+    watch_str = get_watch_str(filename)
+    print(f'Parsing "{filename}".')
+    out = get_svg(watch_str)
+    return f'<svg height=300px width=300px>\n<g transform=' \
+           f'"translate(150, 150), scale({BASE})")>{out}</g></svg>\n'
+
+
+def parse_all_watches(directory):
+    out = []
+    file_names = os.listdir(directory)
+    file_names = [a for a in file_names if '.txt' in a]
+    no_columns = ceil(sqrt(5))
+    x, y = 0, 0
+    for i, file_name in enumerate(file_names, 1):
+        filename = f'{WATCHES_DIR}/{file_name}'
+        watch_str = get_watch_str(filename)
+        print(f'Parsing "{filename}".')
+        svg = get_svg(watch_str)
+        svg = f'<g transform="translate({x}, {y})">{svg}</g>'
+        out.append(svg)
+        x += ALL_WIDTH
+        if i % no_columns == 0:
+            x = 0
+            y += ALL_WIDTH
+    out = '\n'.join(out)
+    width = no_columns * ALL_WIDTH
+    return f'<svg height={width}px width={width}px>\n<g transform=' \
+           f'"translate(150, 150), scale({BASE})")>{out}</g></svg>\n'
+
+
+def get_watch_str(filename):
+    if not os.path.isfile(filename):
+        print(f'File "{filename}" does not exist.', file=sys.stderr)
         sys.exit(2)
-    watch_str = ''.join(read_file(watch_file))
-    svg = get_svg(watch_str)
-    write_to_file('index.html', HEAD + svg + TAIL)
+    return ''.join(read_file(filename))
 
 
 ###
@@ -302,18 +338,18 @@ def range_occupied(curr_ranges, prms):
 def update_ranges(ranges, curr_ranges, prms):
     new_ranges = get_ranges_prms(prms)
     curr_ranges.extend(new_ranges)
-    range = get_range(ranges, prms)
-    range.extend(new_ranges)
+    rng = get_range(ranges, prms)
+    rng.extend(new_ranges)
     # ranges[-1].ranges.extend(new_ranges)
 
 
 def get_range(ranges, prms):
-    for range in reversed(ranges):
-        if range.r == prms.r:
-            return range.ranges
+    for rng in reversed(ranges):
+        if rng.r == prms.r:
+            return rng.ranges
     out = []
-    range = GrpRanges(prms.r, out)
-    ranges.append(range)
+    rng = GrpRanges(prms.r, out)
+    ranges.append(rng)
     ranges.sort(key=lambda a: a[0])
     return out
 
