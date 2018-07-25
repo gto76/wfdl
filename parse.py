@@ -184,7 +184,10 @@ def get_subgroup(r, subgroup, ranges, curr_ranges):
     if len(shape.split()) == 2:
         shape = shape.split()[0]
         fixed = True
-    shape = Shape[shape]
+    try:
+        shape = Shape[shape]
+    except KeyError:
+        raise ValueError(f'Invalid shape "{shape}" in subgroup "{subgroup}".')
     fia = get_fia(pos)
     return get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color,
                        offset)
@@ -192,7 +195,7 @@ def get_subgroup(r, subgroup, ranges, curr_ranges):
 
 def get_fia(pos):
     if isinstance(pos, set):
-        return pos
+        return set_to_pos(pos)
     elif isinstance(pos, Real):
         return [i / pos for i in range(ceil(pos))]
     elif isinstance(pos, list):
@@ -204,6 +207,15 @@ def get_fia(pos):
             start = pos[1]
             end = pos[2]
         return [i / n for i in range(n) if start <= i / n <= end]
+
+
+def set_to_pos(nums):
+    out = set()
+    for a in nums:
+        if a < 0:
+            a += 1
+        out.add(a)
+    return out
 
 
 def get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color, offset):
@@ -342,7 +354,11 @@ def get_rad(fi):
 
 def pos_occupied(fi, width, occupied_ranges):
     ranges = get_ranges(fi, width)
-    return any(rng_intersects(rng, occupied_ranges) for rng in ranges)
+    # return any(rng_intersects(rng, occupied_ranges) for rng in ranges)
+    for rng in ranges:
+        if rng_intersects(rng, occupied_ranges):
+            return True
+    return False
 
 
 def rng_intersects(rng, filled_ranges):
