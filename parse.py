@@ -159,13 +159,14 @@ def get_group(r, subgroups, ranges):
         return
     out = []
     ranges.append(GrpRanges(r, []))
+    curr_ranges = []
     for subgroup in subgroups:
-        elements = get_subgroup(r, subgroup, ranges)
+        elements = get_subgroup(r, subgroup, ranges, curr_ranges)
         out.extend(elements)
     return out
 
 
-def get_subgroup(r, subgroup, ranges):
+def get_subgroup(r, subgroup, ranges, curr_ranges):
     no_el = len(subgroup)
     if no_el < 3 or no_el > 5:
         msg = f'Number of elements in subgroup "{subgroup}" is {no_el}, but ' \
@@ -185,9 +186,10 @@ def get_subgroup(r, subgroup, ranges):
         fixed = True
     shape = Shape[shape]
     fia = get_fia(pos)
-    return get_objects(ranges, fia, shape, args, r, fixed, color, offset)
+    return get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color,
+                       offset)
 
-# TODO offset
+
 def get_fia(pos):
     if isinstance(pos, set):
         return pos
@@ -204,12 +206,11 @@ def get_fia(pos):
         return [i / n for i in range(n) if start <= i / n <= end]
 
 
-def get_objects(ranges, fia, shape, args, r, fixed, color, offset):
+def get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color, offset):
     out = []
-    curr_ranges = []
     for fi in fia:
         obj = get_object(ranges, curr_ranges,
-                         ObjParams(shape, r, fi, list(args), color),
+                         ObjParams(shape, r - offset, fi, list(args), color),
                          fixed)
         if obj:
             out.append(obj)
@@ -294,7 +295,7 @@ def update_ranges(ranges, curr_ranges, prms):
 def get_range(ranges, prms):
     for range in reversed(ranges):
         if range.r == prms.r:
-            return range.range
+            return range.ranges
     out = []
     range = GrpRanges(prms.r, out)
     ranges.append(range)
