@@ -16,11 +16,20 @@ def get_shape(prms):
 def get_border(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
     height = prms.args[0]
-    range = prms.args[1] * 2*pi / 2
-    d = describeArc(0, 0, prms.r-height/2, prms.fi - range, prms.fi + range, height)
-
+    r = prms.r-height/2
+    fi = 1 if len(prms.args) < 2 else prms.args[1]
+    if fi >= 1:
+        return _get_circle(r, height, prms.color)
+    range = fi * 2*pi / 2
+    d = describeArc(0, 0, r, prms.fi - range, prms.fi + range,
+                    height)
     return f'<g stroke="{prms.color}" fill="none" stroke-width="{height}">' \
         f'<path d="{d}"/></g>'
+
+
+def _get_circle(r, height, color):
+    return f'<circle cx=0 cy=0 r={r} style="stroke-width: {height};' \
+           f' stroke: {color}; fill: rgba(0, 0, 0, 0);"></circle>'
 
 
 def describeArc(x, y, r, start_fi, end_fi, height):
