@@ -20,9 +20,10 @@ def get_border(prms):
     fi = 1 if len(prms.args) < 2 else prms.args[1]
     if fi >= 1:
         return _get_circle(r, height, prms.color)
+    arcSweep = 0 if fi < 0.5 else 1
     range = fi * 2*pi / 2
     d = describeArc(0, 0, r, prms.fi - range, prms.fi + range,
-                    height)
+                    height, arcSweep)
     return f'<g stroke="{prms.color}" fill="none" stroke-width="{height}">' \
         f'<path d="{d}"/></g>'
 
@@ -32,13 +33,13 @@ def _get_circle(r, height, color):
            f' stroke: {color}; fill: rgba(0, 0, 0, 0);"></circle>'
 
 
-def describeArc(x, y, r, start_fi, end_fi, height):
+def describeArc(x, y, r, start_fi, end_fi, height, arcSweep):
     r_b = r - height
     start = polarToCartesian(x, y, r, end_fi)
     end = polarToCartesian(x, y, r, start_fi)
     start_b = polarToCartesian(x, y, r_b, start_fi)
     end_b = polarToCartesian(x, y, r_b, end_fi)
-    arcSweep = 1  # 0 if end_fi - start_fi <= 180 else 1
+    # arcSweep = 0  # 0 if end_fi - start_fi <= 180 else 1
     d = [
         'M', start.x, start.y,
         'A', r, r, 0, arcSweep, 0, end.x, end.y
