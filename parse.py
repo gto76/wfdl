@@ -187,7 +187,10 @@ def get_subgroup(r, subgroup, ranges, curr_ranges):
     try:
         shape = Shape[shape]
     except KeyError:
-        raise ValueError(f'Invalid shape "{shape}" in subgroup "{subgroup}".')
+        shapes = ', '.join([f'"{a.name}"' for a in list(Shape)])
+        msg = f'Invalid shape "{shape}" in subgroup "{subgroup}". Available ' \
+            f'shapes: {shapes}.'
+        raise ValueError(msg)
     fia = get_fia(pos)
     return get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color,
                        offset)
