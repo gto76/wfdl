@@ -82,11 +82,11 @@ def main():
         svg = parse_all_watches(WATCHES_DIR)
     else:
         filename = f'{WATCHES_DIR}/{sys.argv[1]}'
-        svg = parse_single_wathc(filename)
+        svg = parse_single_watch(filename)
     write_to_file('index.html', f'{HEAD} {svg} {TAIL}')
 
 
-def parse_single_wathc(filename):
+def parse_single_watch(filename):
     watch_str = get_watch_str(filename)
     print(f'Parsing "{filename}".')
     out = get_svg(watch_str)
@@ -171,16 +171,16 @@ def get_part_svg(elements):
     if not elements:
         return []
     out = []
-    radia = get_radia(elements)
+    radii = get_radii(elements)
     ranges = []
-    for r, element in zip(reversed(radia), reversed(elements)):
+    for r, element in zip(reversed(radii), reversed(elements)):
         group = get_group(r, element[1:], ranges)
         out.extend(group)
     out.reverse()
     return out
 
 
-def get_radia(elements):
+def get_radii(elements):
     out = []
     r = 100
     offsets = [a[0] for a in elements]
