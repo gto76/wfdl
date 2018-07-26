@@ -1,7 +1,29 @@
 from collections import namedtuple
 from math import cos, sin, pi
 from numbers import Real
+from enum import Enum, auto
 
+from util import no_enum_error
+
+
+class NumberKind(Enum):
+    hour = auto()
+    minute = auto()
+    roman = auto()
+    day = auto()
+    month = auto()
+
+
+class NumberRotation(Enum):
+    half_rotating = auto()
+    horizontal = auto()
+    rotating = auto()
+
+
+NUM_ROTATIONS = {NumberRotation.half_rotating: lambda deg: (deg + pi / 2 + (
+                    pi if 0 < deg < pi else 0)) / pi * 180,
+                 NumberRotation.horizontal: lambda deg: 0,
+                 NumberRotation.rotating: lambda deg: (deg + pi / 2) / pi * 180}
 
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
          8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
@@ -10,13 +32,13 @@ MONTHS = {1: "JAN", 2: "FEB", 3: "MAR", 4: "APR", 5: "MAY", 6: "JUN", 7: "JUL",
           8: "AUG", 9: "SEP", 10: "OCT", 11: "NOV", 12: "DEC"}
 
 
-def get_shape(prms):
+def get_shape(prms, dbg_context):
     fun_name = f'get_{prms.shape.name}'
     fun = globals()[fun_name]
-    return fun(prms)
+    return fun(prms, dbg_context)
 
 
-def get_border(prms):
+def get_border(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
     height = prms.args[0]
     r = prms.r - height / 2
@@ -52,7 +74,7 @@ def polar_to_cartesian(center_x, center_y, radius, fi):
     return Point(x, y)
 
 
-def get_line(prms):
+def get_line(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height, width = prms.args
     x1 = cos(prms.fi) * prms.r
@@ -62,19 +84,19 @@ def get_line(prms):
     return _get_line(x1, y1, x2, y2, width)
 
 
-def get_date(prms):
+def get_date(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
-    bckg = get_line(prms)
+    bckg = get_line(prms, dbg_context)
     height, width = prms.args
     txt_size = width - 3
     Prms = namedtuple('Prms', ['shape', 'r', 'fi', 'args', 'color'])
     prms = Prms(prms.shape, prms.r - height / 2 + txt_size / 2, prms.fi,
                 [txt_size, 31, "horizontal"], "white")
-    txt = get_number(prms)
+    txt = get_number(prms, dbg_context)
     return bckg + txt
 
 
-def get_rounded_line(prms):
+def get_rounded_line(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height, width = prms.args
     rot = (prms.fi - pi / 2) / pi * 180
@@ -83,7 +105,7 @@ def get_rounded_line(prms):
            f'width="{width}"></rect>'
 
 
-def get_two_lines(prms):
+def get_two_lines(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height, width, sep = prms.args
     x1 = cos(prms.fi) * (prms.r - height)
@@ -94,10 +116,10 @@ def get_two_lines(prms):
     dx = sin(prms.fi) * factor
     dy = cos(prms.fi) * factor
     return _get_line(x1 + dx, y1 + dy, x2 + dx, y2 + dy, width) + \
-        _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
+           _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
 
 
-def get_circle(prms):
+def get_circle(prms, dbg_context):
     diameter = prms.args[0]
     cx = cos(prms.fi) * (prms.r - diameter / 2)
     cy = sin(prms.fi) * (prms.r - diameter / 2)
@@ -105,7 +127,7 @@ def get_circle(prms):
            f'"stroke-width: 0; fill: rgb(0, 0, 0);"></circle>'
 
 
-def get_triangle(prms):
+def get_triangle(prms, dbg_context):
     height, width = prms.args
     x1 = (cos(prms.fi) * prms.r) - (sin(prms.fi) * width / 2)
     y1 = (sin(prms.fi) * prms.r) + (cos(prms.fi) * width / 2)
@@ -116,7 +138,7 @@ def get_triangle(prms):
     return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
 
 
-def get_upside_triangle(prms):
+def get_upside_triangle(prms, dbg_context):
     height, width = prms.args
     x1 = cos(prms.fi) * prms.r
     y1 = sin(prms.fi) * prms.r
@@ -128,7 +150,7 @@ def get_upside_triangle(prms):
     return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
 
 
-def get_number(prms):
+def get_number(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     orient = ''
     font = 'arial'
@@ -141,11 +163,14 @@ def get_number(prms):
         size, kind, orient, font = prms.args
     else:
         size, kind, orient, font, weight = prms.args
-    # size_r = size * 2/3
     x = cos(prms.fi) * (prms.r - size / 2)
     y = sin(prms.fi) * (prms.r - size / 2)
-    i = get_num_str(kind, prms.fi)
-    rot = get_num_rotation(orient, prms.fi)
+    i = get_num_str(kind, prms.fi, dbg_context)
+    orient_tokens = orient.split()
+    if len(orient_tokens) == 2 and orient_tokens[1] == 'bent':
+        return _get_bent_num(size, kind, orient_tokens[1], font, weight, x, y,
+                             i)
+    rot = get_num_rotation(orient, prms.fi, dbg_context)
     fact = 6
     return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
            f'), translate(0, {size/fact})" class="title" fill="{prms.color}" ' \
@@ -154,35 +179,39 @@ def get_number(prms):
            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 
 
-def get_square(prms):
+def _get_bent_num(size, kind, orient, font, weight, x, y, i):
+    pass
+
+
+def get_square(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height = prms.args[0]
     ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
     prms = ObjParams(prms.shape, prms.r, prms.fi, [height, height])
-    return get_line(prms)
+    return get_line(prms, dbg_context)
 
 
-def get_octagon(prms):
+def get_octagon(prms, dbg_context):
     height, width, sides_factor = prms.args
 
 
-def get_arrow(prms):
+def get_arrow(prms, dbg_context):
     height, width, angle = prms.args
 
 
-def get_rhombus(prms):
+def get_rhombus(prms, dbg_context):
     height, width = prms.args
 
 
-def get_trapeze(prms):
+def get_trapeze(prms, dbg_context):
     height, width, width_2 = prms.args
 
 
-def get_tear(prms):
+def get_tear(prms, dbg_context):
     height, width = prms.args
 
 
-def get_spear(prms):
+def get_spear(prms, dbg_context):
     height, width, center = prms.args
 
 
@@ -195,35 +224,35 @@ def _get_line(x1, y1, x2, y2, width):
            f'{width}; stroke:#000000"></line>'
 
 
-def get_num_str(kind, deg):
+def get_num_str(kind, deg, dbg_context):
     if isinstance(kind, Real):
         return deg_to_time(deg, kind)
     if isinstance(kind, list):
         i = deg_to_time(deg, len(kind))
         return kind[i - 1]
-    if kind == 'minute':
+    kind_enum = NumberKind.hour
+    if kind:
+        try:
+            kind_enum = NumberKind[kind]
+        except KeyError:
+            no_enum_error(NumberKind, kind, dbg_context)
+    return get_num_str_from_enum(kind_enum, deg)
+
+
+def get_num_str_from_enum(kind, deg):
+    if kind == NumberKind.hour:
+        return get_hour(deg)
+    if kind == NumberKind.minute:
         return get_minute(deg)
-    if kind == 'roman':
+    if kind == NumberKind.roman:
         hour = get_hour(deg)
         return ROMAN[hour]
-    if kind == 'day':
+    if kind == NumberKind.day:
         day = get_day(deg)
         return DAYS[day]
-    if kind == 'month':
+    if kind == NumberKind.month:
         month = get_month(deg)
         return MONTHS[month]
-    else:
-        return get_hour(deg)
-
-
-def get_num_rotation(orient, deg):
-    if orient == "horizontal":
-        return 0
-    elif orient == "rotating":
-        return (deg + pi / 2) / pi * 180
-    else:
-        delta = pi if 0 < deg < pi else 0
-        return (deg + pi / 2 + delta) / pi * 180
 
 
 def get_minute(deg):
@@ -250,3 +279,14 @@ def deg_to_time(deg, factor):
     if i == 0:
         i = factor
     return i
+
+
+def get_num_rotation(orient, deg, dbg_context):
+    orient_enum = NumberRotation.half_rotating
+    if orient:
+        try:
+            orient_enum = NumberRotation[orient]
+        except KeyError:
+            no_enum_error(NumberRotation, orient, dbg_context)
+    fun = NUM_ROTATIONS[orient_enum]
+    return fun(deg)

@@ -62,6 +62,15 @@ def eval_(node):
 ##  UTIL
 #
 
+def no_enum_error(a_enum, name, dbg_context):
+    enum_name_tokens = re.split('([A-Z][a-z]*)', a_enum.__name__)
+    enum_name = ' '.join([a.lower() for a in enum_name_tokens if a])
+    enums = ', '.join([f'"{a.name}"' for a in list(a_enum)])
+    msg = f'Invalid {enum_name} "{name}" in subgroup "{dbg_context}". ' \
+        f'Available {enum_name}s: {enums}.'
+    raise ValueError(msg)
+
+
 def read_file(filename):
     with open(filename, encoding='utf-8') as file:
         return file.readlines()

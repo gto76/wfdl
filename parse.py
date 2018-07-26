@@ -15,7 +15,7 @@ from math import pi, asin, sin, cos, ceil, sqrt
 from numbers import Real
 
 from svg import get_shape
-from util import replace_matched_items, read_file, write_to_file
+from util import replace_matched_items, read_file, write_to_file, no_enum_error
 
 
 BASE = 0.75
@@ -223,13 +223,14 @@ def get_subgroup(r, subgroup, ranges, curr_ranges):
     try:
         shape = Shape[shape]
     except KeyError:
-        shapes = ', '.join([f'"{a.name}"' for a in list(Shape)])
-        msg = f'Invalid shape "{shape}" in subgroup "{subgroup}". Available ' \
-            f'shapes: {shapes}.'
-        raise ValueError(msg)
+        no_enum_error(Shape, shape, subgroup)
+        # shapes = ', '.join([f'"{a.name}"' for a in list(Shape)])
+        # msg = f'Invalid shape "{shape}" in subgroup "{subgroup}". Available ' \
+        #     f'shapes: {shapes}.'
+        # raise ValueError(msg)
     fia = get_fia(pos)
     return get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color,
-                       offset)
+                       offset, subgroup)
 
 
 def get_fia(pos):
@@ -257,12 +258,13 @@ def set_to_pos(nums):
     return out
 
 
-def get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color, offset):
+def get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color, offset,
+                dbg_context):
     out = []
     for fi in fia:
         obj = get_object(ranges, curr_ranges,
                          ObjParams(shape, r - offset, fi, list(args), color),
-                         fixed)
+                         fixed, dbg_context)
         if obj:
             out.append(obj)
     return out
@@ -272,15 +274,15 @@ def get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color, offset):
 ##  OBJECT
 #
 
-def get_object(ranges, curr_ranges, prms, fixed):
+def get_object(ranges, curr_ranges, prms, fixed, dbg_context):
     if prms.shape == Shape.border:
-        return get_svg_el(prms)
+        return get_svg_el(prms, dbg_context)
     if not fixed:
         fix_height(ranges, prms)
     if range_occupied(curr_ranges, prms):
         return None
     update_ranges(ranges, curr_ranges, prms)
-    return get_svg_el(prms)
+    return get_svg_el(prms, dbg_context)
 
 
 def fix_height(ranges, prms):
@@ -354,7 +356,7 @@ def get_range(ranges, prms):
     return out
 
 
-def get_svg_el(prms):
+def get_svg_el(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height = get_height(prms)
     if height == 0:
@@ -366,7 +368,7 @@ def get_svg_el(prms):
     rad = get_rad(prms.fi)
     prms_rad = ObjParams(prms.shape, prms.r, rad, prms.args, prms.color)
     if prms.shape != Shape.face:
-        return get_shape(prms_rad)
+        return get_shape(prms_rad, dbg_context)
     return get_subface(prms_rad)
 
 
