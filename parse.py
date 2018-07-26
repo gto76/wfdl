@@ -15,7 +15,7 @@ from math import pi, asin, sin, cos, ceil, sqrt
 from numbers import Real
 
 from svg import get_shape
-from util import replace_matched_items, read_file, write_to_file, no_enum_error
+from util import replace_matched_items, read_file, write_to_file, get_enum
 
 
 BASE = 0.75
@@ -211,23 +211,16 @@ def get_subgroup(r, subgroup, ranges, curr_ranges):
     offset = 0
     color = "black"
     if no_el == 3:
-        pos, shape, args = subgroup
+        pos, shape_name, args = subgroup
     elif no_el == 4:
-        pos, shape, args, color = subgroup
+        pos, shape_name, args, color = subgroup
     else:
-        pos, shape, args, color, offset = subgroup
+        pos, shape_name, args, color, offset = subgroup
     fixed = False
-    if len(shape.split()) == 2:
-        shape = shape.split()[0]
+    if len(shape_name.split()) == 2:
+        shape_name = shape_name.split()[0]
         fixed = True
-    try:
-        shape = Shape[shape]
-    except KeyError:
-        no_enum_error(Shape, shape, subgroup)
-        # shapes = ', '.join([f'"{a.name}"' for a in list(Shape)])
-        # msg = f'Invalid shape "{shape}" in subgroup "{subgroup}". Available ' \
-        #     f'shapes: {shapes}.'
-        # raise ValueError(msg)
+    shape = get_enum(Shape, shape_name, subgroup)
     fia = get_fia(pos)
     return get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color,
                        offset, subgroup)
@@ -262,9 +255,8 @@ def get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color, offset,
                 dbg_context):
     out = []
     for fi in fia:
-        obj = get_object(ranges, curr_ranges,
-                         ObjParams(shape, r - offset, fi, list(args), color),
-                         fixed, dbg_context)
+        prms =  ObjParams(shape, r - offset, fi, list(args), color)
+        obj = get_object(ranges, curr_ranges, prms, fixed, dbg_context)
         if obj:
             out.append(obj)
     return out
@@ -342,7 +334,6 @@ def update_ranges(ranges, curr_ranges, prms):
     curr_ranges.extend(new_ranges)
     rng = get_range(ranges, prms)
     rng.extend(new_ranges)
-    # ranges[-1].ranges.extend(new_ranges)
 
 
 def get_range(ranges, prms):
@@ -362,14 +353,19 @@ def get_svg_el(prms, dbg_context):
     if height == 0:
         return ''
     if height < 0:
-        args = prms.args
-        args[0] = -args[0]
-        prms = ObjParams(prms.shape, prms.r - height, prms.fi, args, prms.color)
+        prms = transpose_el_with_neg_height(prms)
     rad = get_rad(prms.fi)
     prms_rad = ObjParams(prms.shape, prms.r, rad, prms.args, prms.color)
     if prms.shape != Shape.face:
         return get_shape(prms_rad, dbg_context)
     return get_subface(prms_rad)
+
+
+def transpose_el_with_neg_height(prms):
+    height = get_height(prms)
+    args = prms.args
+    args[0] = -args[0]
+    return ObjParams(prms.shape, prms.r - height, prms.fi, args, prms.color)
 
 
 def get_subface(prms):
@@ -395,7 +391,6 @@ def get_rad(fi):
 
 def pos_occupied(fi, width, occupied_ranges):
     ranges = get_ranges(fi, width)
-    # return any(rng_intersects(rng, occupied_ranges) for rng in ranges)
     for rng in ranges:
         if rng_intersects(rng, occupied_ranges):
             return True

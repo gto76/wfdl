@@ -3,7 +3,7 @@ from math import cos, sin, pi
 from numbers import Real
 from enum import Enum, auto
 
-from util import no_enum_error
+from util import get_enum
 
 
 class NumberKind(Enum):
@@ -14,16 +14,17 @@ class NumberKind(Enum):
     month = auto()
 
 
-class NumberRotation(Enum):
+class NumberOrientation(Enum):
     half_rotating = auto()
     horizontal = auto()
     rotating = auto()
 
 
-NUM_ROTATIONS = {NumberRotation.half_rotating: lambda deg: (deg + pi / 2 + (
-                    pi if 0 < deg < pi else 0)) / pi * 180,
-                 NumberRotation.horizontal: lambda deg: 0,
-                 NumberRotation.rotating: lambda deg: (deg + pi / 2) / pi * 180}
+NUM_ROTATIONS = {NumberOrientation.half_rotating: lambda deg: (deg + pi / 2 + (
+                     pi if 0 < deg < pi else 0)) / pi * 180,
+                 NumberOrientation.horizontal: lambda deg: 0,
+                 NumberOrientation.rotating:
+                     lambda deg: (deg + pi / 2) / pi * 180}
 
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
          8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
@@ -224,19 +225,16 @@ def _get_line(x1, y1, x2, y2, width):
            f'{width}; stroke:#000000"></line>'
 
 
-def get_num_str(kind, deg, dbg_context):
-    if isinstance(kind, Real):
-        return deg_to_time(deg, kind)
-    if isinstance(kind, list):
-        i = deg_to_time(deg, len(kind))
-        return kind[i - 1]
-    kind_enum = NumberKind.hour
-    if kind:
-        try:
-            kind_enum = NumberKind[kind]
-        except KeyError:
-            no_enum_error(NumberKind, kind, dbg_context)
-    return get_num_str_from_enum(kind_enum, deg)
+def get_num_str(kind_name, deg, dbg_context):
+    if isinstance(kind_name, Real):
+        return deg_to_time(deg, kind_name)
+    if isinstance(kind_name, list):
+        i = deg_to_time(deg, len(kind_name))
+        return kind_name[i - 1]
+    kind = NumberKind.hour
+    if kind_name:
+        kind = get_enum(NumberKind, kind_name, dbg_context)
+    return get_num_str_from_enum(kind, deg)
 
 
 def get_num_str_from_enum(kind, deg):
@@ -281,12 +279,9 @@ def deg_to_time(deg, factor):
     return i
 
 
-def get_num_rotation(orient, deg, dbg_context):
-    orient_enum = NumberRotation.half_rotating
-    if orient:
-        try:
-            orient_enum = NumberRotation[orient]
-        except KeyError:
-            no_enum_error(NumberRotation, orient, dbg_context)
-    fun = NUM_ROTATIONS[orient_enum]
+def get_num_rotation(orient_name, deg, dbg_context):
+    orient = NumberOrientation.half_rotating
+    if orient_name:
+        orient = get_enum(NumberOrientation, orient_name, dbg_context)
+    fun = NUM_ROTATIONS[orient]
     return fun(deg)

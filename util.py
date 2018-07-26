@@ -62,6 +62,16 @@ def eval_(node):
 ##  UTIL
 #
 
+
+def get_enum(a_enum, enum_name, dbg_context):
+    try:
+        out = a_enum[enum_name]
+    except KeyError:
+        no_enum_error(a_enum, enum_name, dbg_context)
+    else:
+        return out
+
+
 def no_enum_error(a_enum, name, dbg_context):
     enum_name_tokens = re.split('([A-Z][a-z]*)', a_enum.__name__)
     enum_name = ' '.join([a.lower() for a in enum_name_tokens if a])
