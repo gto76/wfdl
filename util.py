@@ -4,13 +4,13 @@ import re
 from numbers import Number
 
 
-###
-##  DICT SUB
-#
-
 OPERATORS = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
              ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
              ast.USub: op.neg}
+
+###
+##  DICT SUB
+#
 
 
 def replace_matched_items(elements, dictionary):

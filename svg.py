@@ -7,17 +7,21 @@ from util import get_enum
 
 
 class NumberKind(Enum):
-    hour = auto(), lambda deg: get_hour(deg)
-    minute = auto(), lambda deg: get_minute(deg)
-    roman = auto(), lambda deg: ROMAN[get_hour(deg)]
-    day = auto(), lambda deg: DAYS[get_day(deg)]
-    month = auto(), lambda deg: MONTHS[get_month(deg)]
+    """Second element is converter function from fi of numbers position to
+    string with the number."""
+    hour = auto(), lambda fi: get_hour(fi)
+    minute = auto(), lambda fi: get_minute(fi)
+    roman = auto(), lambda fi: ROMAN[get_hour(fi)]
+    day = auto(), lambda fi: DAYS[get_day(fi)]
+    month = auto(), lambda fi: MONTHS[get_month(fi)]
 
 
 class NumberOrientation(Enum):
-    half_rotating = auto(), lambda deg: get_fi_half_rotating(deg)
-    horizontal = auto(), lambda deg: 0
-    rotating = auto(), lambda deg: get_fi_rotating(deg)
+    """Second element is converter function from fi of numbers position to
+    fi of it's rotation."""
+    half_rotating = auto(), lambda fi: get_fi_half_rotating(fi)
+    horizontal = auto(), lambda fi: 0
+    rotating = auto(), lambda fi: get_fi_rotating(fi)
 
 
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
@@ -130,34 +134,45 @@ def get_upside_triangle(prms, dbg_context):
 
 def get_number(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    orient = ''
-    font = 'arial'
-    weight = ''
-    if len(prms.args) == 2:
-        size, kind = prms.args
-    elif len(prms.args) == 3:
-        size, kind, orient = prms.args
-    elif len(prms.args) == 4:
-        size, kind, orient, font = prms.args
-    else:
-        size, kind, orient, font, weight = prms.args
-    x = cos(prms.fi) * (prms.r - size / 2)
-    y = sin(prms.fi) * (prms.r - size / 2)
-    i = get_num_str(kind, prms.fi, dbg_context)
-    orient_tokens = orient.split()
-    if len(orient_tokens) == 2 and orient_tokens[1] == 'bent':
-        return _get_bent_num(size, kind, orient_tokens[1], font, weight, x, y,
-                             i)
-    rot = get_num_rotation(orient, prms.fi, dbg_context)
+    args = get_num_args(prms)
+    x = cos(prms.fi) * (prms.r - args.size / 2)
+    y = sin(prms.fi) * (prms.r - args.size / 2)
+    i = get_num_str(args.kind, prms.fi, dbg_context)
+    if args.bent:
+        return _get_bent_num(args, x, y, i)
+    rot = get_num_rotation(args.orient, prms.fi, dbg_context)
     fact = 6
     return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
-           f'), translate(0, {size/fact})" class="title" fill="{prms.color}" ' \
-           f'fill-opacity="1" font-size="{size*(1+1.0/fact*2)}" ' \
-           f'font-weight="{weight}" font-family="{font}" ' \
+           f'), translate(0, {args.size/fact})" class="title" fill="{prms.color}" ' \
+           f'fill-opacity="1" font-size="{args.size*(1+1.0/fact*2)}" ' \
+           f'font-weight="{args.weight}" font-family="{args.font}" ' \
            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 
 
-def _get_bent_num(size, kind, orient, font, weight, x, y, i):
+def get_num_args(prms):
+    args = prms.args
+    orient, font, weight, bent = '', 'arial', '', False
+    if len(args) == 2:
+        size, kind = args
+    elif len(args) == 3:
+        size, kind, orient = args
+    elif len(args) == 4:
+        size, kind, orient, font = args
+    else:
+        size, kind, orient, font, weight = args
+    tokens = orient.split()
+    if len(tokens) > 2:
+        if tokens[1] == 'bent':
+            bent = True
+        orient = tokens[0]
+    NumParams = namedtuple('NumParams', ['size', 'kind', 'orient', 'font',
+                                         'weight', 'bent'])
+    return NumParams(size, kind, orient, font, weight, bent)
+
+
+# TODO
+def _get_bent_num(args, x, y, i):
+    """namedtuple('NumParams', ['size', 'kind', 'orient', 'font', 'weight'])"""
     pass
 
 
@@ -221,9 +236,9 @@ def _get_line(x1, y1, x2, y2, width):
 
 def get_num_str(kind_name, deg, dbg_context):
     if isinstance(kind_name, Real):
-        return deg_to_time(deg, kind_name)
+        return fi_to_time(deg, kind_name)
     if isinstance(kind_name, list):
-        i = deg_to_time(deg, len(kind_name))
+        i = fi_to_time(deg, len(kind_name))
         return kind_name[i - 1]
     kind = NumberKind.hour
     if kind_name:
@@ -232,24 +247,24 @@ def get_num_str(kind_name, deg, dbg_context):
     return converter(deg)
 
 
-def get_minute(deg):
-    return deg_to_time(deg, 60)
+def get_minute(fi):
+    return fi_to_time(fi, 60)
 
 
-def get_hour(deg):
-    return deg_to_time(deg, 12)
+def get_hour(fi):
+    return fi_to_time(fi, 12)
 
 
-def get_day(deg):
-    return deg_to_time(deg, 7)
+def get_day(fi):
+    return fi_to_time(fi, 7)
 
 
-def get_month(deg):
-    return deg_to_time(deg, 12)
+def get_month(fi):
+    return fi_to_time(fi, 12)
 
 
-def deg_to_time(deg, factor):
-    i = (deg + pi / 2) / (2 * pi) * factor
+def fi_to_time(fi, factor):
+    i = (fi + pi / 2) / (2 * pi) * factor
     if factor < 0:
         i = abs(factor) + i
     i = round(i)
@@ -266,9 +281,9 @@ def get_num_rotation(orient_name, deg, dbg_context):
     return converter(deg)
 
 
-def get_fi_half_rotating(deg):
-    return (deg + pi / 2 + (pi if 0 < deg < pi else 0)) / pi * 180
+def get_fi_half_rotating(fi):
+    return (fi + pi / 2 + (pi if 0 < fi < pi else 0)) / pi * 180
 
 
-def get_fi_rotating(deg):
-    return (deg + pi / 2) / pi * 180
+def get_fi_rotating(fi):
+    return (fi + pi / 2) / pi * 180

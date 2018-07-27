@@ -28,49 +28,30 @@ ALL_WIDTH = 250
 
 GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
+ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
 
 
 class Shape(Enum):
-    border = auto()             # height, fi
-    line = auto()               # height, width
-    rounded_line = auto()       # height, width
-    two_lines = auto()          # height, width, distance_factor
-    circle = auto()             # height
-    triangle = auto()           # height, width
-    number = auto()             # height, kind (minute, roman, hour),
-    # orient (horizontal, rotating, half_rotating) [, font]
-    upside_triangle = auto()    # height, width
-    square = auto()             # height
-    octagon = auto()            # height, width, sides_factor
-    arrow = auto()              # height, width, angle
-    rhombus = auto()            # height, width
-    trapeze = auto()            # height, width, width_2
-    tear = auto()               # height, width
-    spear = auto()              # height, width, center
-    face = auto()               # height, params
-    date = auto()               # height, params
-
-
-ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
-
-WIDTH_FORMULA = {
-        Shape.line: lambda args: args[1],
-        Shape.rounded_line: lambda args: args[1],
-        Shape.two_lines: lambda args: 2*args[1] + args[1]*args[2],
-        Shape.circle: lambda args: args[0],
-        Shape.triangle: lambda args: args[1],
-        Shape.number: lambda args: args[0] * 1.34,
-        Shape.upside_triangle: lambda args: args[1],
-        Shape.square: lambda args: args[0],
-        Shape.octagon: lambda args: args[1],
-        Shape.arrow: lambda args: args[1],
-        Shape.rhombus: lambda args: args[1],
-        Shape.trapeze: lambda args: args[1],
-        Shape.tear: lambda args: args[1],
-        Shape.spear: lambda args: args[1],
-        Shape.face: lambda args: args[0],
-        Shape.date: lambda args: args[1]
-    }
+    """Second element is width formula."""
+    border = auto(), lambda args: args[1]         # height, fi
+    line = auto(), lambda args: args[1]           # height, width
+    rounded_line = auto(), lambda args: args[1]   # height, width
+    two_lines = auto(), lambda args: 2*args[1] + args[1]*args[2]  # height,
+    # width, distance_factor
+    circle = auto(), lambda args: args[0]         # height
+    triangle = auto(), lambda args: args[1]       # height, width
+    number = auto(), lambda args: args[0] * 1.34  # height, kind (minute, roman,
+    # hour), orient (horizontal, rotating, half_rotating) [, font]
+    upside_triangle = auto(), lambda args: args[1]  # height, width
+    square = auto(), lambda args: args[0]         # height
+    octagon = auto(), lambda args: args[1]        # height, width, sides_factor
+    arrow = auto(), lambda args: args[1]          # height, width, angle
+    rhombus = auto(), lambda args: args[1]        # height, width
+    trapeze = auto(), lambda args: args[1]        # height, width, width_2
+    tear = auto(), lambda args: args[1]           # height, width
+    spear = auto(), lambda args: args[1]          # height, width, center
+    face = auto(), lambda args: args[0]           # height, params
+    date = auto(), lambda args: args[1]           # height, params
 
 
 ###
@@ -87,25 +68,19 @@ def main():
 
 
 def parse_single_watch(filename):
-    watch_str = get_watch_str(filename)
-    print(f'Parsing "{filename}".')
-    out = get_svg(watch_str)
+    svg = parse_file(filename)
     return f'<svg height=300px width=300px>\n<g transform=' \
-           f'"translate(150, 150), scale({BASE})")>{out}</g></svg>\n'
+           f'"translate(150, 150), scale({BASE})")>{svg}</g></svg>\n'
 
 
 def parse_all_watches(directory):
     out = []
-    file_names = os.listdir(directory)
-    file_names = [a for a in file_names if '.txt' in a]
-    no_columns = ceil(sqrt(5))
+    filenames = os.listdir(directory)
+    filenames = [a for a in filenames if '.txt' in a]
+    no_columns = ceil(sqrt(len(filenames)))
     x, y = 0, 0
-    for i, file_name in enumerate(file_names, 1):
-        filename = f'{WATCHES_DIR}/{file_name}'
-        watch_str = get_watch_str(filename)
-        print(f'Parsing "{filename}".')
-        svg = get_svg(watch_str)
-        svg = f'<g transform="translate({x}, {y})">{svg}</g>'
+    for i, filename in enumerate(filenames, 1):
+        svg = get_watch_relative(filename, x, y)
         out.append(svg)
         x += ALL_WIDTH
         if i % no_columns == 0:
@@ -117,11 +92,23 @@ def parse_all_watches(directory):
            f'"translate(150, 150), scale({BASE})")>{out}</g></svg>\n'
 
 
-def get_watch_str(filename):
-    if not os.path.isfile(filename):
-        print(f'File "{filename}" does not exist.', file=sys.stderr)
+def get_watch_relative(filename, x, y):
+    path = f'{WATCHES_DIR}/{filename}'
+    svg = parse_file(path)
+    return  f'<g transform="translate({x}, {y})">{svg}</g>'
+
+
+def parse_file(path):
+    watch_str = get_watch_str(path)
+    print(f'Parsing "{path}".')
+    return get_svg(watch_str)
+
+
+def get_watch_str(path):
+    if not os.path.isfile(path):
+        print(f'File "{path}" does not exist.', file=sys.stderr)
         sys.exit(2)
-    return ''.join(read_file(filename))
+    return ''.join(read_file(path))
 
 
 ###
@@ -255,7 +242,7 @@ def get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color, offset,
                 dbg_context):
     out = []
     for fi in fia:
-        prms =  ObjParams(shape, r - offset, fi, list(args), color)
+        prms = ObjParams(shape, r - offset, fi, list(args), color)
         obj = get_object(ranges, curr_ranges, prms, fixed, dbg_context)
         if obj:
             out.append(obj)
@@ -424,7 +411,7 @@ def get_ranges(pos, width):
 
 
 def get_angular_width(shape, args, r):
-    width_formula = WIDTH_FORMULA[shape]
+    width_formula = shape.value[1]
     width = abs(width_formula(args))
     return compute_angular_width(width, r)
 
