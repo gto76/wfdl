@@ -7,24 +7,18 @@ from util import get_enum
 
 
 class NumberKind(Enum):
-    hour = auto()
-    minute = auto()
-    roman = auto()
-    day = auto()
-    month = auto()
+    hour = auto(), lambda deg: get_hour(deg)
+    minute = auto(), lambda deg: get_minute(deg)
+    roman = auto(), lambda deg: ROMAN[get_hour(deg)]
+    day = auto(), lambda deg: DAYS[get_day(deg)]
+    month = auto(), lambda deg: MONTHS[get_month(deg)]
 
 
 class NumberOrientation(Enum):
-    half_rotating = auto()
-    horizontal = auto()
-    rotating = auto()
+    half_rotating = auto(), lambda deg: get_fi_half_rotating(deg)
+    horizontal = auto(), lambda deg: 0
+    rotating = auto(), lambda deg: get_fi_rotating(deg)
 
-
-NUM_ROTATIONS = {NumberOrientation.half_rotating: lambda deg: (deg + pi / 2 + (
-                     pi if 0 < deg < pi else 0)) / pi * 180,
-                 NumberOrientation.horizontal: lambda deg: 0,
-                 NumberOrientation.rotating:
-                     lambda deg: (deg + pi / 2) / pi * 180}
 
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
          8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'}
@@ -234,23 +228,8 @@ def get_num_str(kind_name, deg, dbg_context):
     kind = NumberKind.hour
     if kind_name:
         kind = get_enum(NumberKind, kind_name, dbg_context)
-    return get_num_str_from_enum(kind, deg)
-
-
-def get_num_str_from_enum(kind, deg):
-    if kind == NumberKind.hour:
-        return get_hour(deg)
-    if kind == NumberKind.minute:
-        return get_minute(deg)
-    if kind == NumberKind.roman:
-        hour = get_hour(deg)
-        return ROMAN[hour]
-    if kind == NumberKind.day:
-        day = get_day(deg)
-        return DAYS[day]
-    if kind == NumberKind.month:
-        month = get_month(deg)
-        return MONTHS[month]
+    converter = kind.value[1]
+    return converter(deg)
 
 
 def get_minute(deg):
@@ -283,5 +262,13 @@ def get_num_rotation(orient_name, deg, dbg_context):
     orient = NumberOrientation.half_rotating
     if orient_name:
         orient = get_enum(NumberOrientation, orient_name, dbg_context)
-    fun = NUM_ROTATIONS[orient]
-    return fun(deg)
+    converter = orient.value[1]
+    return converter(deg)
+
+
+def get_fi_half_rotating(deg):
+    return (deg + pi / 2 + (pi if 0 < deg < pi else 0)) / pi * 180
+
+
+def get_fi_rotating(deg):
+    return (deg + pi / 2) / pi * 180
