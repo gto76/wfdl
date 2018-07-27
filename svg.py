@@ -52,23 +52,6 @@ def _get_circle(r, height, color):
            f' stroke: {color}; fill: rgba(0, 0, 0, 0);"></circle>'
 
 
-def describe_arc(x, y, r, start_fi, end_fi, arc_sweep):
-    start = polar_to_cartesian(x, y, r, end_fi)
-    end = polar_to_cartesian(x, y, r, start_fi)
-    d = [
-        'M', start.x, start.y,
-        'A', r, r, 0, arc_sweep, 0, end.x, end.y
-    ]
-    return ' '.join(str(a) for a in d)
-
-
-def polar_to_cartesian(center_x, center_y, radius, fi):
-    Point = namedtuple('Point', list('xy'))
-    x = center_x + (radius * cos(fi))
-    y = center_y + (radius * sin(fi))
-    return Point(x, y)
-
-
 def get_line(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height, width = prms.args
@@ -213,6 +196,23 @@ def get_spear(prms, dbg_context):
 ###
 ##  UTIL
 #
+
+def describe_arc(x, y, r, start_fi, end_fi, arc_sweep):
+    start = polar_to_cartesian(x, y, r, end_fi)
+    end = polar_to_cartesian(x, y, r, start_fi)
+    d = [
+        'M', start.x, start.y,
+        'A', r, r, 0, arc_sweep, 0, end.x, end.y
+    ]
+    return ' '.join(str(a) for a in d)
+
+
+def polar_to_cartesian(center_x, center_y, radius, fi):
+    Point = namedtuple('Point', list('xy'))
+    x = center_x + (radius * cos(fi))
+    y = center_y + (radius * sin(fi))
+    return Point(x, y)
+
 
 def _get_line(x1, y1, x2, y2, width):
     return f'<line x1={x1} y1={y1} x2={x2} y2={y2} style="stroke-width:' \
