@@ -10,12 +10,13 @@ import ast
 import os
 import sys
 from collections import namedtuple
-from enum import Enum, auto
 from math import pi, asin, sin, cos, ceil, sqrt
 from numbers import Real
 
+from shape import Shape
 from svg import get_shape
-from util import replace_matched_items, read_file, write_to_file, get_enum
+from util import replace_matched_items, read_file, write_to_file, get_enum, \
+    check_args
 
 
 BASE = 0.75
@@ -29,29 +30,6 @@ ALL_WIDTH = 250
 GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
 ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
-
-
-class Shape(Enum):
-    """Second element is width formula."""
-    border = auto(), lambda args: args[1]         # height, fi
-    line = auto(), lambda args: args[1]           # height, width
-    rounded_line = auto(), lambda args: args[1]   # height, width
-    two_lines = auto(), lambda args: 2*args[1] + args[1]*args[2]  # height,
-    # width, distance_factor
-    circle = auto(), lambda args: args[0]         # height
-    triangle = auto(), lambda args: args[1]       # height, width
-    number = auto(), lambda args: args[0] * 1.34  # height, kind (minute, roman,
-    # hour), orient (horizontal, rotating, half_rotating) [, font]
-    upside_triangle = auto(), lambda args: args[1]  # height, width
-    square = auto(), lambda args: args[0]         # height
-    octagon = auto(), lambda args: args[1]        # height, width, sides_factor
-    arrow = auto(), lambda args: args[1]          # height, width, angle
-    rhombus = auto(), lambda args: args[1]        # height, width
-    trapeze = auto(), lambda args: args[1]        # height, width, width_2
-    tear = auto(), lambda args: args[1]           # height, width
-    spear = auto(), lambda args: args[1]          # height, width, center
-    face = auto(), lambda args: args[0]           # height, params
-    date = auto(), lambda args: args[1]           # height, params
 
 
 ###
@@ -80,7 +58,7 @@ def parse_all_watches(directory):
     no_columns = ceil(sqrt(len(filenames)))
     x, y = 0, 0
     for i, filename in enumerate(filenames, 1):
-        svg = get_watch_relative(filename, x, y)
+        svg = get_watch_relative(directory, filename, x, y)
         out.append(svg)
         x += ALL_WIDTH
         if i % no_columns == 0:
@@ -92,10 +70,10 @@ def parse_all_watches(directory):
            f'"translate(150, 150), scale({BASE})")>{out}</g></svg>\n'
 
 
-def get_watch_relative(filename, x, y):
-    path = f'{WATCHES_DIR}/{filename}'
+def get_watch_relative(directory, filename, x, y):
+    path = f'{directory}/{filename}'
     svg = parse_file(path)
-    return  f'<g transform="translate({x}, {y})">{svg}</g>'
+    return f'<g transform="translate({x}, {y})">{svg}</g>'
 
 
 def parse_file(path):
@@ -116,11 +94,11 @@ def get_watch_str(path):
 #
 
 def get_svg(watch_str):
-    variables, beasel, face = get_parts(watch_str)
-    beasel = replace_matched_items(beasel, variables)
-    set_negative_height(beasel)
+    variables, bezel, face = get_parts(watch_str)
+    bezel = replace_matched_items(bezel, variables)
+    set_negative_height(bezel)
     face = replace_matched_items(face, variables)
-    out = get_part_svg(beasel)
+    out = get_part_svg(bezel)
     out.extend(get_part_svg(face))
     return ''.join(out)
 
@@ -140,18 +118,18 @@ def set_negative_height(elements):
 def get_parts(watch_str):
     parts = ast.literal_eval(watch_str)
     dictionary = {}
-    beasel = None
+    bezel = None
     if isinstance(parts[0], dict):
         if len(parts) == 3:
-            dictionary, beasel, elements = parts
+            dictionary, bezel, elements = parts
         else:
             dictionary, elements = parts
     else:
         if len(parts) == 2:
-            beasel, elements = parts
+            bezel, elements = parts
         else:
             elements = parts[0]
-    return dictionary, beasel, elements
+    return dictionary, bezel, elements
 
 
 def get_part_svg(elements):
@@ -226,7 +204,26 @@ def get_fia(pos):
         else:
             start = pos[1]
             end = pos[2]
-        return [i / n for i in range(n) if start <= i / n <= end]
+        return [i / n for i in range(n) if is_between(i/n, start, end)]
+
+
+def is_between(fi, fi_start, fi_end):
+    fi, fi_start, fi_end = normalize_fi(fi), normalize_fi(fi_start), \
+                           normalize_fi(fi_end)
+    crosses_zero = fi_start > fi_end
+    if crosses_zero:
+        between_start_and_zero = fi_start <= fi
+        between_zero_and_end = fi <= fi_end
+        return between_start_and_zero or between_zero_and_end
+    return fi_start <= fi <= fi_end
+
+
+def normalize_fi(fi):
+    if -1 <= fi >= 1:
+        fi %= 1
+    if fi < 0:
+        fi += 1
+    return fi
 
 
 def set_to_pos(nums):
@@ -243,6 +240,7 @@ def get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color, offset,
     out = []
     for fi in fia:
         prms = ObjParams(shape, r - offset, fi, list(args), color)
+        check_args(prms, dbg_context)
         obj = get_object(ranges, curr_ranges, prms, fixed, dbg_context)
         if obj:
             out.append(obj)

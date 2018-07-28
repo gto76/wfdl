@@ -3,7 +3,8 @@ from math import cos, sin, pi
 from numbers import Real
 from enum import Enum, auto
 
-from util import get_enum
+from shape import Shape
+from util import get_enum, check_args
 
 
 class NumberKind(Enum):
@@ -37,114 +38,20 @@ def get_shape(prms, dbg_context):
     return fun(prms, dbg_context)
 
 
-def get_border(prms, dbg_context):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
-    height = prms.args[0]
-    r = prms.r - height / 2
-    fi = 1 if len(prms.args) < 2 else prms.args[1]
-    if fi >= 1:
-        return _get_circle(r, height, prms.color)
-    arc_sweep = 0 if fi < 0.5 else 1
-    rng = fi * 2 * pi / 2
-    d = describe_arc(0, 0, r, prms.fi - rng, prms.fi + rng, arc_sweep)
-    return f'<g stroke="{prms.color}" fill="none" stroke-width="{height}">' \
-           f'<path d="{d}"/></g>'
-
-
-def _get_circle(r, height, color):
-    return f'<circle cx=0 cy=0 r={r} style="stroke-width: {height};' \
-           f' stroke: {color}; fill: rgba(0, 0, 0, 0);"></circle>'
-
-
-def get_line(prms, dbg_context):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    height, width = prms.args
-    x1 = cos(prms.fi) * prms.r
-    x2 = cos(prms.fi) * (prms.r - height)
-    y1 = sin(prms.fi) * prms.r
-    y2 = sin(prms.fi) * (prms.r - height)
-    return _get_line(x1, y1, x2, y2, width)
-
-
-def get_date(prms, dbg_context):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
-    bckg = get_line(prms, dbg_context)
-    height, width = prms.args
-    txt_size = width - 3
-    Prms = namedtuple('Prms', ['shape', 'r', 'fi', 'args', 'color'])
-    prms = Prms(prms.shape, prms.r - height / 2 + txt_size / 2, prms.fi,
-                [txt_size, 31, "horizontal"], "white")
-    txt = get_number(prms, dbg_context)
-    return bckg + txt
-
-
-def get_rounded_line(prms, dbg_context):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    height, width = prms.args
-    rot = (prms.fi - pi / 2) / pi * 180
-    return f'<rect rx="{width/2}" y="{prms.r-height}" x="-{width/2}" ry=' \
-           f'"{width/2}" transform="rotate({rot})" height="{abs(height)}" ' \
-           f'width="{width}"></rect>'
-
-
-def get_two_lines(prms, dbg_context):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    height, width, sep = prms.args
-    x1 = cos(prms.fi) * (prms.r - height)
-    x2 = cos(prms.fi) * prms.r
-    y1 = sin(prms.fi) * (prms.r - height)
-    y2 = sin(prms.fi) * prms.r
-    factor = width / 2 * (1 + sep)
-    dx = sin(prms.fi) * factor
-    dy = cos(prms.fi) * factor
-    return _get_line(x1 + dx, y1 + dy, x2 + dx, y2 + dy, width) + \
-           _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
-
-
-def get_circle(prms, dbg_context):
-    diameter = prms.args[0]
-    cx = cos(prms.fi) * (prms.r - diameter / 2)
-    cy = sin(prms.fi) * (prms.r - diameter / 2)
-    return f'<circle cx={cx} cy={cy} r={abs(diameter) / 2} style=' \
-           f'"stroke-width: 0; fill: rgb(0, 0, 0);"></circle>'
-
-
-def get_triangle(prms, dbg_context):
-    height, width = prms.args
-    x1 = (cos(prms.fi) * prms.r) - (sin(prms.fi) * width / 2)
-    y1 = (sin(prms.fi) * prms.r) + (cos(prms.fi) * width / 2)
-    x2 = (cos(prms.fi) * prms.r) + (sin(prms.fi) * width / 2)
-    y2 = (sin(prms.fi) * prms.r) - (cos(prms.fi) * width / 2)
-    x3 = cos(prms.fi) * (prms.r - height)
-    y3 = sin(prms.fi) * (prms.r - height)
-    return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
-
-
-def get_upside_triangle(prms, dbg_context):
-    height, width = prms.args
-    x1 = cos(prms.fi) * prms.r
-    y1 = sin(prms.fi) * prms.r
-    r2 = prms.r - height
-    x2 = (cos(prms.fi) * r2) - (sin(prms.fi) * width / 2)
-    y2 = (sin(prms.fi) * r2) + (cos(prms.fi) * width / 2)
-    x3 = (cos(prms.fi) * r2) + (sin(prms.fi) * width / 2)
-    y3 = (sin(prms.fi) * r2) - (cos(prms.fi) * width / 2)
-    return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
-
-
 def get_number(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     args = get_num_args(prms)
     x = cos(prms.fi) * (prms.r - args.size / 2)
     y = sin(prms.fi) * (prms.r - args.size / 2)
     i = get_num_str(args.kind, prms.fi, dbg_context)
-    if args.bent:
-        return _get_bent_num(args, x, y, i)
+    # if args.bent:
+    #     return _get_bent_num(args, x, y, i)
     rot = get_num_rotation(args.orient, prms.fi, dbg_context)
     fact = 6
     return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
-           f'), translate(0, {args.size/fact})" class="title" fill="{prms.color}" ' \
-           f'fill-opacity="1" font-size="{args.size*(1+1.0/fact*2)}" ' \
+           f'), translate(0, {args.size/fact})" class="title" ' \
+           f'fill="{prms.color}" fill-opacity="1" ' \
+           f'font-size="{args.size*(1+1.0/fact*2)}" ' \
            f'font-weight="{args.weight}" font-family="{args.font}" ' \
            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 
@@ -165,47 +72,156 @@ def get_num_args(prms):
         if tokens[1] == 'bent':
             bent = True
         orient = tokens[0]
-    NumParams = namedtuple('NumParams', ['size', 'kind', 'orient', 'font',
-                                         'weight', 'bent'])
-    return NumParams(size, kind, orient, font, weight, bent)
+    NumArgs = namedtuple('NumArgs', ['size', 'kind', 'orient', 'font',
+                                     'weight', 'bent'])
+    return NumArgs(size, kind, orient, font, weight, bent)
 
 
 # TODO
-def _get_bent_num(args, x, y, i):
-    """namedtuple('NumParams', ['size', 'kind', 'orient', 'font', 'weight'])"""
-    pass
+# def _get_bent_num(args, x, y, i):
+#     pass
+
+
+def get_border(prms, dbg_context):
+    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
+    check_args(prms, dbg_context)
+    height = prms.args[0]
+    r = prms.r - height / 2
+    fi = 1 if len(prms.args) < 2 else prms.args[1]
+    if fi >= 1:
+        return _get_circle(r, height, prms.color)
+    arc_sweep = 0 if fi < 0.5 else 1
+    rng = fi * 2 * pi / 2
+    d = describe_arc(0, 0, r, prms.fi - rng, prms.fi + rng, arc_sweep)
+    return f'<g stroke="{prms.color}" fill="none" stroke-width="{height}">' \
+           f'<path d="{d}"/></g>'
+
+
+def _get_circle(r, height, color):
+    return f'<circle cx=0 cy=0 r={r} style="stroke-width: {height};' \
+           f' stroke: {color}; fill: rgba(0, 0, 0, 0);"></circle>'
+
+
+def get_line(prms, dbg_context):
+    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
+    check_args(prms, dbg_context)
+    height, width = prms.args
+    x1 = cos(prms.fi) * prms.r
+    x2 = cos(prms.fi) * (prms.r - height)
+    y1 = sin(prms.fi) * prms.r
+    y2 = sin(prms.fi) * (prms.r - height)
+    return _get_line(x1, y1, x2, y2, width)
+
+
+def get_date(prms, dbg_context):
+    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
+    check_args(prms, dbg_context)
+    bckg = get_line(prms, dbg_context)
+    height, width = prms.args
+    txt_size = width - 3
+    Prms = namedtuple('Prms', ['shape', 'r', 'fi', 'args', 'color'])
+    prms = Prms(prms.shape, prms.r - height / 2 + txt_size / 2, prms.fi,
+                [txt_size, 31, "horizontal"], "white")
+    txt = get_number(prms, dbg_context)
+    return bckg + txt
+
+
+def get_rounded_line(prms, dbg_context):
+    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
+    check_args(prms, dbg_context)
+    height, width = prms.args
+    rot = (prms.fi - pi / 2) / pi * 180
+    return f'<rect rx="{width/2}" y="{prms.r-height}" x="-{width/2}" ry=' \
+           f'"{width/2}" transform="rotate({rot})" height="{abs(height)}" ' \
+           f'width="{width}"></rect>'
+
+
+def get_two_lines(prms, dbg_context):
+    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
+    check_args(prms, dbg_context)
+    height, width, sep = prms.args
+    x1 = cos(prms.fi) * (prms.r - height)
+    x2 = cos(prms.fi) * prms.r
+    y1 = sin(prms.fi) * (prms.r - height)
+    y2 = sin(prms.fi) * prms.r
+    factor = width / 2 * (1 + sep)
+    dx = sin(prms.fi) * factor
+    dy = cos(prms.fi) * factor
+    return _get_line(x1 + dx, y1 + dy, x2 + dx, y2 + dy, width) + \
+        _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
+
+
+def get_circle(prms, dbg_context):
+    check_args(prms, dbg_context)
+    diameter = prms.args[0]
+    cx = cos(prms.fi) * (prms.r - diameter / 2)
+    cy = sin(prms.fi) * (prms.r - diameter / 2)
+    return f'<circle cx={cx} cy={cy} r={abs(diameter) / 2} style=' \
+           f'"stroke-width: 0; fill: rgb(0, 0, 0);"></circle>'
+
+
+def get_triangle(prms, dbg_context):
+    check_args(prms, dbg_context)
+    height, width = prms.args
+    x1 = (cos(prms.fi) * prms.r) - (sin(prms.fi) * width / 2)
+    y1 = (sin(prms.fi) * prms.r) + (cos(prms.fi) * width / 2)
+    x2 = (cos(prms.fi) * prms.r) + (sin(prms.fi) * width / 2)
+    y2 = (sin(prms.fi) * prms.r) - (cos(prms.fi) * width / 2)
+    x3 = cos(prms.fi) * (prms.r - height)
+    y3 = sin(prms.fi) * (prms.r - height)
+    return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
+
+
+def get_upside_triangle(prms, dbg_context):
+    check_args(prms, dbg_context)
+    height, width = prms.args
+    x1 = cos(prms.fi) * prms.r
+    y1 = sin(prms.fi) * prms.r
+    r2 = prms.r - height
+    x2 = (cos(prms.fi) * r2) - (sin(prms.fi) * width / 2)
+    y2 = (sin(prms.fi) * r2) + (cos(prms.fi) * width / 2)
+    x3 = (cos(prms.fi) * r2) + (sin(prms.fi) * width / 2)
+    y3 = (sin(prms.fi) * r2) - (cos(prms.fi) * width / 2)
+    return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
 
 
 def get_square(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
+    check_args(prms, dbg_context)
     height = prms.args[0]
     ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
-    prms = ObjParams(prms.shape, prms.r, prms.fi, [height, height])
+    prms = ObjParams(Shape.line, prms.r, prms.fi, [height, height])
     return get_line(prms, dbg_context)
 
 
-def get_octagon(prms, dbg_context):
-    height, width, sides_factor = prms.args
-
-
-def get_arrow(prms, dbg_context):
-    height, width, angle = prms.args
-
-
-def get_rhombus(prms, dbg_context):
-    height, width = prms.args
-
-
-def get_trapeze(prms, dbg_context):
-    height, width, width_2 = prms.args
-
-
-def get_tear(prms, dbg_context):
-    height, width = prms.args
-
-
-def get_spear(prms, dbg_context):
-    height, width, center = prms.args
+# def get_octagon(prms, dbg_context):
+#     check_args(prms, dbg_context)
+#     height, width, sides_factor = prms.args
+#
+#
+# def get_arrow(prms, dbg_context):
+#     check_args(prms, dbg_context)
+#     height, width, angle = prms.args
+#
+#
+# def get_rhombus(prms, dbg_context):
+#     check_args(prms, dbg_context)
+#     height, width = prms.args
+#
+#
+# def get_trapeze(prms, dbg_context):
+#     check_args(prms, dbg_context)
+#     height, width, width_2 = prms.args
+#
+#
+# def get_tear(prms, dbg_context):
+#     check_args(prms, dbg_context)
+#     height, width = prms.args
+#
+#
+# def get_spear(prms, dbg_context):
+#     check_args(prms, dbg_context)
+#     height, width, center = prms.args
 
 
 ###
@@ -234,15 +250,19 @@ def _get_line(x1, y1, x2, y2, width):
            f'{width}; stroke:#000000"></line>'
 
 
-def get_num_str(kind_name, deg, dbg_context):
-    if isinstance(kind_name, Real):
-        return fi_to_time(deg, kind_name)
-    if isinstance(kind_name, list):
-        i = fi_to_time(deg, len(kind_name))
-        return kind_name[i - 1]
+def get_num_str(kind_el, deg, dbg_context):
+    if isinstance(kind_el, Real):
+        return fi_to_time(deg, kind_el)
+    if isinstance(kind_el, list):
+        i = fi_to_time(deg, len(kind_el))
+        return kind_el[i - 1]
+    if isinstance(kind_el, dict):
+        no_of_no = kind_el['kind']
+        offset = kind_el['offset']
+        return fi_to_time(deg + offset, no_of_no)
     kind = NumberKind.hour
-    if kind_name:
-        kind = get_enum(NumberKind, kind_name, dbg_context)
+    if kind_el:
+        kind = get_enum(NumberKind, kind_el, dbg_context)
     converter = kind.value[1]
     return converter(deg)
 

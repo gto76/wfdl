@@ -81,6 +81,35 @@ def no_enum_error(a_enum, name, dbg_context):
     raise ValueError(msg)
 
 
+def check_args(prms, dbg_context):
+    check_args_no(prms, dbg_context)
+
+
+def check_args_no(prms, dbg_context):
+    shape = prms.shape
+    if len(shape.value) < 4:
+        return
+    no_args = len(prms.args)
+    min_args = shape.value[2]
+    max_args = len(shape.value[3])
+    if no_args < min_args:
+        not_enough_args_err(shape, min_args, no_args, dbg_context)
+    if no_args > max_args:
+        too_much_args_err(shape, max_args, no_args, dbg_context)
+
+
+def not_enough_args_err(shape, min_args, no_args, subgroup):
+    msg = f'Shape "{shape.name}" needs at least {min_args} arguments, but ' \
+          f'{no_args} were provided in subgroup "{subgroup}".'
+    raise ValueError(msg)
+
+
+def too_much_args_err(shape, max_args, no_args, subgroup):
+    msg = f'Shape "{shape.name}" can have at most {max_args} arguments, but ' \
+          f'{no_args} were provided in subgroup "{subgroup}".'
+    raise ValueError(msg)
+
+
 def read_file(filename):
     with open(filename, encoding='utf-8') as file:
         return file.readlines()
