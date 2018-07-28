@@ -1,7 +1,8 @@
 import ast
 import operator as op
 import re
-from numbers import Number
+from numbers import Number, Real
+
 
 
 OPERATORS = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
@@ -82,13 +83,14 @@ def no_enum_error(a_enum, name, dbg_context):
 
 
 def check_args(prms, dbg_context):
+    if len(prms.shape.value) < 4:
+        return
     check_args_no(prms, dbg_context)
+    check_args_type(prms, dbg_context)
 
 
 def check_args_no(prms, dbg_context):
     shape = prms.shape
-    if len(shape.value) < 4:
-        return
     no_args = len(prms.args)
     min_args = shape.value[2]
     max_args = len(shape.value[3])
@@ -108,6 +110,22 @@ def too_much_args_err(shape, max_args, no_args, subgroup):
     msg = f'Shape "{shape.name}" can have at most {max_args} arguments, but ' \
           f'{no_args} were provided in subgroup "{subgroup}".'
     raise ValueError(msg)
+
+
+def check_args_type(prms, subgroup):
+    for i, arg in enumerate(prms.args):
+        if not isinstance(arg, Real):
+            msg = f'Argument {arg} of shape "{prms.shape.name}" is a number. ' \
+                f'Subgroup "{subgroup}".'
+            raise ValueError(msg)
+        max_arg = prms.shape.value[3][i]
+        if arg > max_arg:
+            msg = f'Argument {arg} of shape "{prms.shape.name}" is larger ' \
+                f'than the maximum alloved value ({max_arg}). ' \
+                f'Subgroup "{subgroup}".'
+            raise ValueError(msg)
+
+
 
 
 def read_file(filename):
