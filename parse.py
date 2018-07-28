@@ -10,13 +10,13 @@ import ast
 import os
 import sys
 from collections import namedtuple
-from math import pi, asin, sin, cos, ceil, sqrt
+from math import pi, asin, sin, cos, ceil, sqrt, floor
 from numbers import Real
 
 from shape import Shape
 from svg import get_shape
 from util import replace_matched_items, read_file, write_to_file, get_enum, \
-    check_args, get_rad
+    check_args, get_rad, get_cent
 
 
 BASE = 0.75
@@ -186,16 +186,28 @@ def get_subgroup(r, subgroup, ranges, curr_ranges):
         shape_name = shape_name.split()[0]
         fixed = True
     shape = get_enum(Shape, shape_name, subgroup)
-    fia = get_fia(pos)
-    return get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color,
+    fii = get_fii(pos)
+    return get_objects(ranges, curr_ranges, fii, shape, args, r, fixed, color,
                        offset, subgroup)
 
 
-def get_fia(pos):
+def get_fii(pos):
     if isinstance(pos, set):
         return set_to_pos(pos)
     elif isinstance(pos, Real):
         return [i / pos for i in range(ceil(pos))]
+    elif isinstance(pos, dict):
+        if 'tachy' in pos:
+            # return pos['tachy']
+            return get_tachy(pos['tachy'])
+        position = pos['pos']
+        if 'offset' in pos:
+            offset = pos['offset']
+            off = 1 / floor(position) * offset
+            return [i/position + off for i in range(ceil(position))]
+        elif 'filter' in pos:
+            filter = pos['filter']
+            return [a/position for a in filter]
     elif isinstance(pos, list):
         n = pos[0]
         start = 0
@@ -205,6 +217,11 @@ def get_fia(pos):
             start = pos[1]
             end = pos[2]
         return [i / n for i in range(n) if is_between(i/n, start, end)]
+
+
+def get_tachy(locations):
+    return [60/a for a in locations]
+    # return [get_rad(a) for a in fii]
 
 
 def is_between(fi, fi_start, fi_end):
@@ -235,10 +252,10 @@ def set_to_pos(nums):
     return out
 
 
-def get_objects(ranges, curr_ranges, fia, shape, args, r, fixed, color, offset,
+def get_objects(ranges, curr_ranges, fii, shape, args, r, fixed, color, offset,
                 dbg_context):
     out = []
-    for fi in fia:
+    for fi in fii:
         prms = ObjParams(shape, r - offset, fi, list(args), color)
         check_args(prms, dbg_context)
         obj = get_object(ranges, curr_ranges, prms, fixed, dbg_context)

@@ -1,14 +1,26 @@
 [
   {"a_len": 2, "a_width": 0.5, "b_off": 2, "b_len": 23, "c_diameter": 3},
-  [
-    [1, 
-      [12, "line", ["a_len", "a_width * 1.5"]], 
-      [60, "line", [11, "a_width"]], 
-      [240, "line", ["a_len", "a_width"]]
+
+    [
+      [3,
+        [{"tachy": [500, 400, 350, 300, 260, 240, 220, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 85, 80, 75, 70, 65, 60]},
+          "circle", ["a_len"]]
+      ],
+      [6,
+        [{"tachy": [500, 400, 350, 300, 260, 240, 220, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 85, 80, 75, 70, 65, 60]},
+          "number", [6, "tachy", "horizontal"]]
+      ]
     ],
-    ["a_len + b_off", 
-      [12, "line", ["b_len", 5]],
-      [{"1/60", "-1/60"}, "circle", ["c_diameter"], "black", "b_len - c_diameter"]
+    [
+      [1,
+        [12, "line", ["a_len", "a_width * 1.5"]],
+        [60, "line", [11, "a_width"]],
+        [240, "line", ["a_len", "a_width"]]
+      ],
+      ["a_len + b_off",
+        [12, "line", ["b_len", 5]],
+        [{"1/60", "-1/60"}, "circle", ["c_diameter"], "black", "b_len - c_diameter"]
+      ]
     ]
-  ]
+
 ]

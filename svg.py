@@ -4,7 +4,7 @@ from numbers import Real
 from enum import Enum, auto
 
 from shape import Shape
-from util import get_enum, check_args, get_rad
+from util import get_enum, check_args, get_cent
 
 
 class NumberKind(Enum):
@@ -15,6 +15,7 @@ class NumberKind(Enum):
     roman = auto(), lambda fi: ROMAN[get_hour(fi)]
     day = auto(), lambda fi: DAYS[get_day(fi)]
     month = auto(), lambda fi: MONTHS[get_month(fi)]
+    tachy = auto(), lambda fi: get_tachy(fi)
 
 
 class NumberOrientation(Enum):
@@ -120,8 +121,8 @@ def get_date(prms, dbg_context):
     height, width = prms.args
     txt_size = width - 3
     Prms = namedtuple('Prms', ['shape', 'r', 'fi', 'args', 'color'])
-    prms = Prms(prms.shape, prms.r - height / 2 + txt_size / 2, prms.fi,
-                [txt_size, 31, "horizontal"], "white")
+    prms = Prms(Shape.number, prms.r - height / 2 + txt_size / 2, prms.fi,
+                [txt_size, "27", "horizontal"], "white")
     txt = get_number(prms, dbg_context)
     return bckg + txt
 
@@ -254,6 +255,8 @@ def get_num_str(kind_el, deg, dbg_context):
     if isinstance(kind_el, Real):
         return fi_to_time(deg, kind_el)
     if isinstance(kind_el, list):
+        # if isinstance(kind_el[0], Real):
+        # else:
         i = fi_to_time(deg, len(kind_el))
         return kind_el[i - 1]
     if isinstance(kind_el, dict):
@@ -264,6 +267,8 @@ def get_num_str(kind_el, deg, dbg_context):
         if out < 0:
             out += abs(no_of_no)
         return out
+    if kind_el and kind_el not in [a.name for a in NumberKind]:
+        return kind_el
     kind = NumberKind.hour
     if kind_el:
         kind = get_enum(NumberKind, kind_el, dbg_context)
@@ -287,6 +292,12 @@ def get_month(fi):
     return fi_to_time(fi, 12)
 
 
+def get_tachy(fi):
+    # if fi == 0:
+    #     fi = 1
+    return int(60 / get_cent(fi))
+
+
 def fi_to_time(fi, factor):
     fi_cents = (fi + pi / 2) / (2 * pi)
     if fi_cents > 1:
@@ -294,7 +305,9 @@ def fi_to_time(fi, factor):
     i = fi_cents * factor
     if factor < 0:
         i = abs(factor) + i
-    i = round(i)
+    i = round(i*10)/10
+    if i % 1 == 0:
+        i = round(i)
     if i == 0:
         i = factor
     return i

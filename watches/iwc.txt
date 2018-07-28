@@ -1,7 +1,21 @@
 [
   {
     "a_len": 3, "a_width": 3, "b_off": 7, "b_len": 2, "c_len": 14,
-    "two_lines_sep": 0.1,
+    "two_lines_sep": 0.1, "_face_d": 68,
+    "sub_0": [
+        {"font_s": 12},
+        [
+          [5,
+            [{"pos": 59, "filter": [4, 8, 12, 20, 24, 29.5]},
+             "number fixed", ["font_s", 59, "rotating"]],
+            [{"pos": 59, "filter": [33.5, 37.5, 41.5, 49.5, 53.5, 59]},
+             "number fixed", ["font_s", {"kind": 59, "offset": 0.5}, "rotating"]]
+          ],
+          [5,
+            [{"pos":2, "offset": 0.5}, "circle", [76]]
+          ]
+        ]
+      ],
     "sub_1": [
         [
           [0,
@@ -47,9 +61,10 @@
       [12, "number fixed", ["c_len", "hour", "horizontal"]]
     ],
     [0,
-      [{0.25}, "face", [68, "sub_1"]],
-      [{0.5}, "face", [68, "sub_2"]],
-      [{0.75}, "face", [68, "sub_3"]]
+      [{0}, "face", ["_face_d", "sub_0"], 'white', 7],
+      [{0.25}, "face", ["_face_d", "sub_1"]],
+      [{0.5}, "face", ["_face_d", "sub_2"]],
+      [{0.75}, "face", ["_face_d", "sub_3"]]
     ]
   ]
 ]

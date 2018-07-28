@@ -25,18 +25,22 @@ def replace_matched_items(elements, dictionary):
         elif type(element) is list:
             out.append(replace_matched_items(element, dictionary))
         elif type(element) is dict:
-            out.append(element)
+            out.append(replace_in_dict(element, dictionary))
         else:
             out.append(get_value_of_exp(element, dictionary))
     return out
 
 
-def replace_in_set(elements, dictionary):
-    return {get_value_of_exp(element, dictionary) for element in elements}
+def replace_in_set(a_set, dictionary):
+    return {get_value_of_exp(element, dictionary) for element in a_set}
+
+
+def replace_in_dict(a_dict, dictionary):
+    return {k: get_value_of_exp(v, dictionary) for k, v in a_dict.items()}
 
 
 def get_value_of_exp(exp, dictionary):
-    if isinstance(exp, Number):
+    if isinstance(exp, Number) or isinstance(exp, list):
         return exp
     for key, value in dictionary.items():
         exp = exp.replace(key, str(value))
@@ -63,6 +67,13 @@ def eval_(node):
 ###
 ##  UTIL
 #
+
+def get_rad(fi):
+    return fi * 2 * pi - pi / 2
+
+
+def get_cent(rad):
+    return (rad + pi / 2) / (2 * pi)
 
 
 def get_enum(a_enum, enum_name, dbg_context):
@@ -137,7 +148,3 @@ def read_file(filename):
 def write_to_file(filename, text):
     with open(filename, 'w', encoding='utf-8') as file:
         file.write(text)
-
-
-def get_rad(fi):
-    return fi * 2 * pi - pi / 2
