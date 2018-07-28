@@ -6,7 +6,7 @@
       [60, "rounded_line", ["_a-2*_b", "_a/8"], "black", "_b"]
     ],
     ["_a*2.5",
-      [[15, -0.35, 0.35], "number", ["_a*1.2", {"kind": -15, "offset": 5}, "rotating"]]
+      [[15, -0.35, 0.35], "number", ["_a*1.2", {"kind": -15, "offset": 0.65}, "rotating"]]
     ]
   ]
 ]

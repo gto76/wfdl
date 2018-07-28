@@ -4,7 +4,7 @@ from numbers import Real
 from enum import Enum, auto
 
 from shape import Shape
-from util import get_enum, check_args
+from util import get_enum, check_args, get_rad
 
 
 class NumberKind(Enum):
@@ -56,6 +56,11 @@ def get_number(prms, dbg_context):
            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 
 
+# TODO
+# def _get_bent_num(args, x, y, i):
+#     pass
+
+
 def get_num_args(prms):
     args = prms.args
     orient, font, weight, bent = '', 'arial', '', False
@@ -75,11 +80,6 @@ def get_num_args(prms):
     NumArgs = namedtuple('NumArgs', ['size', 'kind', 'orient', 'font',
                                      'weight', 'bent'])
     return NumArgs(size, kind, orient, font, weight, bent)
-
-
-# TODO
-# def _get_bent_num(args, x, y, i):
-#     pass
 
 
 def get_border(prms, dbg_context):
@@ -259,7 +259,11 @@ def get_num_str(kind_el, deg, dbg_context):
     if isinstance(kind_el, dict):
         no_of_no = kind_el['kind']
         offset = kind_el['offset']
-        return fi_to_time(deg + offset, no_of_no)
+        offset = offset * 2 * pi
+        out = fi_to_time(deg + offset, no_of_no)
+        if out < 0:
+            out += abs(no_of_no)
+        return out
     kind = NumberKind.hour
     if kind_el:
         kind = get_enum(NumberKind, kind_el, dbg_context)
@@ -284,7 +288,10 @@ def get_month(fi):
 
 
 def fi_to_time(fi, factor):
-    i = (fi + pi / 2) / (2 * pi) * factor
+    fi_cents = (fi + pi / 2) / (2 * pi)
+    if fi_cents > 1:
+        fi_cents %= 1
+    i = fi_cents * factor
     if factor < 0:
         i = abs(factor) + i
     i = round(i)

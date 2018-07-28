@@ -16,7 +16,7 @@ from numbers import Real
 from shape import Shape
 from svg import get_shape
 from util import replace_matched_items, read_file, write_to_file, get_enum, \
-    check_args
+    check_args, get_rad
 
 
 BASE = 0.75
@@ -364,10 +364,6 @@ def get_subface(prms):
     bckg = f'<circle cx={x} cy={y} r={size/2+VER_BORDER} style="stroke-width:' \
         '0; fill: rgb(255, 255, 255);"></circle>'
     return f'{bckg}<g transform="translate({x}, {y}), scale({scale})">{svg}</g>'
-
-
-def get_rad(fi):
-    return fi * 2 * pi - pi / 2
 
 
 ###

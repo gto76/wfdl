@@ -1,6 +1,7 @@
 import ast
 import operator as op
 import re
+from math import pi
 from numbers import Number, Real
 
 
@@ -136,3 +137,7 @@ def read_file(filename):
 def write_to_file(filename, text):
     with open(filename, 'w', encoding='utf-8') as file:
         file.write(text)
+
+
+def get_rad(fi):
+    return fi * 2 * pi - pi / 2
