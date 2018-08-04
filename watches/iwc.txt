@@ -27,7 +27,7 @@
             [{0.5}, "border", [22, 0.875]]
           ],
           [5,
-            [{0}, "number", [12, ["DAYS"]]],
+            [{0}, "bent_number", [12, ["DAYS"]]],
             [[8, 0.1, 0.9], "number", [12, -8, "horizontal"], "white"]
           ]
         ]
@@ -35,7 +35,7 @@
     "sub_2": [
         [
           [0,
-            [12, "number", [13, "month", "half_rotating"]]
+            [12, "bent_number", [13, "month", "half_rotating"]]
           ]
         ]
       ],

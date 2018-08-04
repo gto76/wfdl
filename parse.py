@@ -10,13 +10,13 @@ import ast
 import os
 import sys
 from collections import namedtuple
-from math import pi, asin, sin, cos, ceil, sqrt, floor
+from math import pi, asin, ceil, sqrt, floor
 from numbers import Real
 
 from shape import Shape
 from svg import get_shape
 from util import replace_matched_items, read_file, write_to_file, get_enum, \
-    check_args, get_rad, get_cent
+    check_args, get_rad, get_point
 
 
 BASE = 0.75
@@ -206,8 +206,8 @@ def get_fii(pos):
             off = 1 / floor(position) * offset
             return [i/position + off for i in range(ceil(position))]
         elif 'filter' in pos:
-            filter = pos['filter']
-            return [a/position for a in filter]
+            a_filter = pos['filter']
+            return [a/position for a in a_filter]
     elif isinstance(pos, list):
         n = pos[0]
         start = 0
@@ -375,12 +375,12 @@ def get_subface(prms):
     face_str = str(prms.args[1])
     svg = get_svg(face_str)
     size = prms.args[0]
-    x = cos(prms.fi) * (prms.r - size / 2)
-    y = sin(prms.fi) * (prms.r - size / 2)
+    p = get_point(prms.fi, prms.r - size/2)
     scale = size / 200
-    bckg = f'<circle cx={x} cy={y} r={size/2+VER_BORDER} style="stroke-width:' \
-        '0; fill: rgb(255, 255, 255);"></circle>'
-    return f'{bckg}<g transform="translate({x}, {y}), scale({scale})">{svg}</g>'
+    bckg = f'<circle cx={p.x} cy={p.y} r={size/2+VER_BORDER} ' \
+        f'style="stroke-width:0; fill: rgb(255, 255, 255);"></circle>'
+    return f'{bckg}<g transform="translate({p.x}, {p.y}), scale({scale})">' \
+        f'{svg}</g>'
 
 
 ###

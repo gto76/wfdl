@@ -2,9 +2,13 @@ from collections import namedtuple
 from math import cos, sin, pi
 from numbers import Real
 from enum import Enum, auto
+from random import random
 
 from shape import Shape
-from util import get_enum, check_args, get_cent
+from util import get_enum, check_args, get_cent, get_point
+
+
+NUM_FACT = 6
 
 
 class NumberKind(Enum):
@@ -41,25 +45,41 @@ def get_shape(prms, dbg_context):
 
 def get_number(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
+    # namedtuple('NumArgs', ['size', 'kind', 'orient', 'font', 'weight','bent'])
     args = get_num_args(prms)
-    x = cos(prms.fi) * (prms.r - args.size / 2)
-    y = sin(prms.fi) * (prms.r - args.size / 2)
+    r = prms.r - args.size / 2
+    p = get_point(prms.fi, r)
     i = get_num_str(args.kind, prms.fi, dbg_context)
-    # if args.bent:
-    #     return _get_bent_num(args, x, y, i)
     rot = get_num_rotation(args.orient, prms.fi, dbg_context)
-    fact = 6
-    return f'<g transform="translate({x}, {y})"><text transform="rotate({rot}' \
-           f'), translate(0, {args.size/fact})" class="title" ' \
-           f'fill="{prms.color}" fill-opacity="1" ' \
-           f'font-size="{args.size*(1+1.0/fact*2)}" ' \
+    return f'<g transform="translate({p.x}, {p.y})"><text ' \
+           f'transform="rotate({rot}), translate(0, {args.size/NUM_FACT})" ' \
+           f'class="title" fill="{prms.color}" fill-opacity="1" ' \
+           f'font-size="{get_num_size(args.size)}" ' \
            f'font-weight="{args.weight}" font-family="{args.font}" ' \
            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 
 
-# TODO
-# def _get_bent_num(args, x, y, i):
-#     pass
+def get_bent_number(prms, dbg_context):
+    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
+    namedtuple('NumArgs', ['size', 'kind', 'orient', 'font', 'weight',
+    'bent'])"""
+    args = get_num_args(prms)
+    r = prms.r - args.size
+    fi = prms.fi + pi
+    delta = 0.1
+    p1 = get_point(fi + delta, r)
+    p2 = get_point(fi - delta, r)
+    i = get_num_str(args.kind, prms.fi, dbg_context)
+    a_id = f'path{i}{fi}{r}{random()}'
+    path = f'M {p1.x} {p1.y} A {r} {r} 0 1 1 {p2.x} {p2.y}'
+    ruler = f'<path d="{path}" fill="rgba(0,0,0,0)" stroke="#ddd"/>'
+    return '<defs>' \
+        f'<path id="{a_id}" d="{path}"/></defs>' \
+        f'<text font-size="{get_num_size(args.size)}" ' \
+            f'font-family="{args.font}">' \
+            f'<textPath xlink:href="#{a_id}" startOffset="50%" ' \
+            f'text-anchor="middle">{i}</textPath>' \
+        '</text>'
 
 
 def get_num_args(prms):
@@ -81,6 +101,10 @@ def get_num_args(prms):
     NumArgs = namedtuple('NumArgs', ['size', 'kind', 'orient', 'font',
                                      'weight', 'bent'])
     return NumArgs(size, kind, orient, font, weight, bent)
+
+
+def get_num_size(size):
+    return size*(1 + 1.0 / NUM_FACT*2)
 
 
 def get_border(prms, dbg_context):
@@ -107,11 +131,9 @@ def get_line(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     check_args(prms, dbg_context)
     height, width = prms.args
-    x1 = cos(prms.fi) * prms.r
-    x2 = cos(prms.fi) * (prms.r - height)
-    y1 = sin(prms.fi) * prms.r
-    y2 = sin(prms.fi) * (prms.r - height)
-    return _get_line(x1, y1, x2, y2, width)
+    p1 = get_point(prms.fi, prms.r)
+    p2 = get_point(prms.fi, prms.r - height)
+    return _get_line(p1.x, p1.y, p2.x, p2.y, width)
 
 
 def get_date(prms, dbg_context):
@@ -141,23 +163,20 @@ def get_two_lines(prms, dbg_context):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     check_args(prms, dbg_context)
     height, width, sep = prms.args
-    x1 = cos(prms.fi) * (prms.r - height)
-    x2 = cos(prms.fi) * prms.r
-    y1 = sin(prms.fi) * (prms.r - height)
-    y2 = sin(prms.fi) * prms.r
+    p1 = get_point(prms.fi, prms.r - height)
+    p2 = get_point(prms.fi, prms.r)
     factor = width / 2 * (1 + sep)
     dx = sin(prms.fi) * factor
     dy = cos(prms.fi) * factor
-    return _get_line(x1 + dx, y1 + dy, x2 + dx, y2 + dy, width) + \
-        _get_line(x1 - dx, y1 - dy, x2 - dx, y2 - dy, width)
+    return _get_line(p1.x + dx, p1.y + dy, p2.x + dx, p2.y + dy, width) + \
+        _get_line(p1.x - dx, p1.y - dy, p2.x - dx, p2.y - dy, width)
 
 
 def get_circle(prms, dbg_context):
     check_args(prms, dbg_context)
     diameter = prms.args[0]
-    cx = cos(prms.fi) * (prms.r - diameter / 2)
-    cy = sin(prms.fi) * (prms.r - diameter / 2)
-    return f'<circle cx={cx} cy={cy} r={abs(diameter) / 2} style=' \
+    p = get_point(prms.fi, prms.r - diameter / 2)
+    return f'<circle cx={p.x} cy={p.y} r={abs(diameter) / 2} style=' \
            f'"stroke-width: 0; fill: rgb(0, 0, 0);"></circle>'
 
 

@@ -5,6 +5,7 @@ class Shape(Enum):
     """Second element is width formula. Third no of required arguments. Fourth
     the maximum sizes of the arguments."""
     number = auto(), lambda args: args[0] * 1.34 # height, kind (minute, roman,
+    bent_number = auto(), lambda args: args[0] * 1.34 # height, kind (minute, roman,
     # hour), orient (horizontal, rotating, half_rotating) [, font]
     face = auto(), lambda args: args[0]           # height, params
     border = auto(), lambda args: args[1], 1, (100, 1)         # height, fi

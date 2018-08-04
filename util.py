@@ -1,10 +1,12 @@
 import ast
 import operator as op
 import re
-from math import pi
+from collections import namedtuple
+from math import pi, cos, sin
 from numbers import Number, Real
 
 
+Point = namedtuple('Point', list('xy'))
 
 OPERATORS = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
              ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
@@ -76,6 +78,10 @@ def get_cent(rad):
     return (rad + pi / 2) / (2 * pi)
 
 
+def get_point(fi, r):
+    return Point(cos(fi) * r, sin(fi) * r)
+
+
 def get_enum(a_enum, enum_name, dbg_context):
     try:
         out = a_enum[enum_name]
@@ -136,8 +142,6 @@ def check_args_type(prms, subgroup):
                 f'than the maximum alloved value ({max_arg}). ' \
                 f'Subgroup "{subgroup}".'
             raise ValueError(msg)
-
-
 
 
 def read_file(filename):
