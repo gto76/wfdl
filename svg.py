@@ -9,9 +9,10 @@ from util import get_enum, check_args, get_cent, get_point
 
 
 NUM_FACT = 6
+BENT_DELTA = 0.1
 
 
-class NumberKind(Enum):
+class NumKind(Enum):
     """Second element is converter function from fi of numbers position to
     string with the number."""
     hour = auto(), lambda fi: get_hour(fi)
@@ -22,7 +23,7 @@ class NumberKind(Enum):
     tachy = auto(), lambda fi: get_tachy(fi)
 
 
-class NumberOrientation(Enum):
+class NumOrient(Enum):
     """Second element is converter function from fi of numbers position to
     fi of it's rotation."""
     half_rotating = auto(), lambda fi: get_fi_half_rotating(fi)
@@ -66,27 +67,23 @@ def get_number(prms):
 
 
 def get_bent_number(prms):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
-    namedtuple('NumArgs', ['size', 'kind', 'orient', 'font', 'weight',
-    'bent'])"""
     args = get_num_args(prms)
-    if args.orient == NumberOrientation.horizontal:
+    if args.orient == NumOrient.horizontal:
         return get_number(prms)
-    bottom_half = 0 < prms.fi < pi
-    if args.orient == NumberOrientation.half_rotating and bottom_half:
-        return get_bent_bottom_rotated(prms, args)
     return get_bent_rotated(prms, args)
 
 
 def get_bent_rotated(prms, args):
-    r = prms.r - args.size
+    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
+    namedtuple('NumArgs', ['size', 'kind', 'orient', 'font', 'weight',
+    'bent'])"""
+    r, delta, sweep = get_bent_prms(prms, args)
     fi = prms.fi + pi
-    delta = 0.1
     p1 = get_point(fi + delta, r)
     p2 = get_point(fi - delta, r)
     i = get_num_str(args.kind, prms.fi)
     a_id = f'path{i}{fi}{r}{random()}'
-    path = f'M {p1.x} {p1.y} A {r} {r} 0 1 1 {p2.x} {p2.y}'
+    path = f'M {p1.x} {p1.y} A {r} {r} 0 1 {sweep} {p2.x} {p2.y}'
     # ruler = f'<path d="{path}" fill="rgba(0,0,0,0)" stroke="#ddd"/>'
     return '<defs>' \
         f'<path id="{a_id}" d="{path}"/></defs>' \
@@ -97,25 +94,11 @@ def get_bent_rotated(prms, args):
         '</text>'
 
 
-def get_bent_bottom_rotated(prms, args):
-    r = prms.r  #
-    fi = prms.fi + pi
-    delta = 0.1
-    p1 = get_point(fi - delta, r)
-    p2 = get_point(fi + delta, r)
-    i = get_num_str(args.kind, prms.fi)
-    a_id = f'path{i}{fi}{r}{random()}'
-    path = f'M {p1.x} {p1.y} A {r} {r} 0 1 0 {p2.x} {p2.y}'
-    # ruler = f'<path d="{path}" fill="rgba(0,0,0,0)" stroke="#ddd"/>'
-    return '<defs>' \
-        f'<path id="{a_id}" d="{path}"/></defs>' \
-        f'<text font-size="{get_num_size(args.size)}" ' \
-            f'font-family="{args.font}">' \
-            f'<textPath xlink:href="#{a_id}" startOffset="50%" ' \
-            f'text-anchor="middle">{i}</textPath>' \
-        '</text>'
-
-
+def get_bent_prms(prms, args):
+    bottom_half = 0 < prms.fi < pi
+    if args.orient == NumOrient.half_rotating and bottom_half:
+        return prms.r, -BENT_DELTA, 0
+    return prms.r - args.size, BENT_DELTA, 1
 
 
 def get_num_args(prms):
@@ -309,11 +292,11 @@ def get_num_str(kind_el, deg):
         if out < 0:
             out += abs(no_of_no)
         return out
-    if kind_el and kind_el not in [a.name for a in NumberKind]:
+    if kind_el and kind_el not in [a.name for a in NumKind]:
         return kind_el
-    kind = NumberKind.hour
+    kind = NumKind.hour
     if kind_el:
-        kind = get_enum(NumberKind, kind_el, dbg_context)
+        kind = get_enum(NumKind, kind_el, dbg_context)
     converter = kind.value[1]
     return converter(deg)
 
@@ -361,9 +344,9 @@ def get_num_rotation(orient, deg):
 
 
 def get_orient(orient_name):
-    orient = NumberOrientation.half_rotating
+    orient = NumOrient.half_rotating
     if orient_name:
-        orient = get_enum(NumberOrientation, orient_name, dbg_context)
+        orient = get_enum(NumOrient, orient_name, dbg_context)
     return orient
 
 
