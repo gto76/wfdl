@@ -27,6 +27,7 @@ BORDER_FACTOR = 0.1
 VER_BORDER = 2
 ALL_WIDTH = 250
 
+Range = namedtuple('Range', ['start', 'end'])
 GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
 ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
@@ -221,7 +222,6 @@ def get_fii(pos):
 
 def get_tachy(locations):
     return [60/a for a in locations]
-    # return [get_rad(a) for a in fii]
 
 
 def is_between(fi, fi_start, fi_end):
@@ -345,7 +345,7 @@ def get_range(ranges, prms):
     out = []
     rng = GrpRanges(prms.r, out)
     ranges.append(rng)
-    ranges.sort(key=lambda a: a[0])
+    ranges.sort(key=lambda a: a.r)
     return out
 
 
@@ -396,9 +396,9 @@ def pos_occupied(fi, width, occupied_ranges):
 
 
 def rng_intersects(rng, filled_ranges):
-    start, end = rng
+    start, end = rng.start, rng.end
     for fil_range in filled_ranges:
-        f_start, f_end = fil_range
+        f_start, f_end = fil_range.start, fil_range.end
         if (f_start <= start <= f_end) or (f_start <= end <= f_end) or \
                 (start <= f_start and end >= f_end):
             return True
@@ -415,10 +415,10 @@ def get_ranges(pos, width):
     start = (pos - width / 2) - border
     end = (pos + width / 2) + border
     if start < 0:
-        return [[start + 1, 1], [0, end]]
+        return [Range(start + 1, 1), Range(0, end)]
     if end > 1:
-        return [[start, 1], [0, end - 1]]
-    return [[start, end]]
+        return [Range(start, 1), Range(0, end - 1)]
+    return [Range(start, end)]
 
 
 def get_angular_width(shape, args, r):

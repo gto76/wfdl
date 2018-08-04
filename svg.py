@@ -88,9 +88,9 @@ def get_bent_rotated(prms, args):
     return '<defs>' \
         f'<path id="{a_id}" d="{path}"/></defs>' \
         f'<text font-size="{get_num_size(args.size)}" ' \
-            f'font-family="{args.font}">' \
-            f'<textPath xlink:href="#{a_id}" startOffset="50%" ' \
-            f'text-anchor="middle">{i}</textPath>' \
+        f'font-family="{args.font}">' \
+        f'<textPath xlink:href="#{a_id}" startOffset="50%" ' \
+        f'text-anchor="middle">{i}</textPath>' \
         '</text>'
 
 
