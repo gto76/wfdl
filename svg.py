@@ -36,21 +36,27 @@ DAYS = {1: "MON", 2: "TUE", 3: "WED", 4: "THU", 5: "FRI", 6: "SAT", 7: "SUN"}
 MONTHS = {1: "JAN", 2: "FEB", 3: "MAR", 4: "APR", 5: "MAY", 6: "JUN", 7: "JUL",
           8: "AUG", 9: "SEP", 10: "OCT", 11: "NOV", 12: "DEC"}
 
+# Subgroup string used for error messages.
+dbg_context = None
 
-def get_shape(prms, dbg_context):
+
+def get_shape(prms, _dbg_context):
+    global dbg_context
+    dbg_context = _dbg_context
+    check_args(prms, dbg_context)
     fun_name = f'get_{prms.shape.name}'
     fun = globals()[fun_name]
-    return fun(prms, dbg_context)
+    return fun(prms)
 
 
-def get_number(prms, dbg_context):
+def get_number(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     # namedtuple('NumArgs', ['size', 'kind', 'orient', 'font', 'weight','bent'])
     args = get_num_args(prms)
     r = prms.r - args.size / 2
     p = get_point(prms.fi, r)
-    i = get_num_str(args.kind, prms.fi, dbg_context)
-    rot = get_num_rotation(args.orient, prms.fi, dbg_context)
+    i = get_num_str(args.kind, prms.fi)
+    rot = get_num_rotation(args.orient, prms.fi)
     return f'<g transform="translate({p.x}, {p.y})"><text ' \
            f'transform="rotate({rot}), translate(0, {args.size/NUM_FACT})" ' \
            f'class="title" fill="{prms.color}" fill-opacity="1" ' \
@@ -59,20 +65,29 @@ def get_number(prms, dbg_context):
            f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 
 
-def get_bent_number(prms, dbg_context):
+def get_bent_number(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
     namedtuple('NumArgs', ['size', 'kind', 'orient', 'font', 'weight',
     'bent'])"""
     args = get_num_args(prms)
+    if args.orient == NumberOrientation.horizontal:
+        return get_number(prms)
+    bottom_half = 0 < prms.fi < pi
+    if args.orient == NumberOrientation.half_rotating and bottom_half:
+        return get_bent_bottom_rotated(prms, args)
+    return get_bent_rotated(prms, args)
+
+
+def get_bent_rotated(prms, args):
     r = prms.r - args.size
     fi = prms.fi + pi
     delta = 0.1
     p1 = get_point(fi + delta, r)
     p2 = get_point(fi - delta, r)
-    i = get_num_str(args.kind, prms.fi, dbg_context)
+    i = get_num_str(args.kind, prms.fi)
     a_id = f'path{i}{fi}{r}{random()}'
     path = f'M {p1.x} {p1.y} A {r} {r} 0 1 1 {p2.x} {p2.y}'
-    ruler = f'<path d="{path}" fill="rgba(0,0,0,0)" stroke="#ddd"/>'
+    # ruler = f'<path d="{path}" fill="rgba(0,0,0,0)" stroke="#ddd"/>'
     return '<defs>' \
         f'<path id="{a_id}" d="{path}"/></defs>' \
         f'<text font-size="{get_num_size(args.size)}" ' \
@@ -80,6 +95,27 @@ def get_bent_number(prms, dbg_context):
             f'<textPath xlink:href="#{a_id}" startOffset="50%" ' \
             f'text-anchor="middle">{i}</textPath>' \
         '</text>'
+
+
+def get_bent_bottom_rotated(prms, args):
+    r = prms.r  #
+    fi = prms.fi + pi
+    delta = 0.1
+    p1 = get_point(fi - delta, r)
+    p2 = get_point(fi + delta, r)
+    i = get_num_str(args.kind, prms.fi)
+    a_id = f'path{i}{fi}{r}{random()}'
+    path = f'M {p1.x} {p1.y} A {r} {r} 0 1 0 {p2.x} {p2.y}'
+    # ruler = f'<path d="{path}" fill="rgba(0,0,0,0)" stroke="#ddd"/>'
+    return '<defs>' \
+        f'<path id="{a_id}" d="{path}"/></defs>' \
+        f'<text font-size="{get_num_size(args.size)}" ' \
+            f'font-family="{args.font}">' \
+            f'<textPath xlink:href="#{a_id}" startOffset="50%" ' \
+            f'text-anchor="middle">{i}</textPath>' \
+        '</text>'
+
+
 
 
 def get_num_args(prms):
@@ -93,13 +129,9 @@ def get_num_args(prms):
         size, kind, orient, font = args
     else:
         size, kind, orient, font, weight = args
-    tokens = orient.split()
-    if len(tokens) > 2:
-        if tokens[1] == 'bent':
-            bent = True
-        orient = tokens[0]
-    NumArgs = namedtuple('NumArgs', ['size', 'kind', 'orient', 'font',
-                                     'weight', 'bent'])
+    orient = get_orient(orient)
+    NumArgs = namedtuple('NumArgs', ['size', 'kind', 'orient', 'font', 'weight',
+                                     'bent'])
     return NumArgs(size, kind, orient, font, weight, bent)
 
 
@@ -107,9 +139,8 @@ def get_num_size(size):
     return size*(1 + 1.0 / NUM_FACT*2)
 
 
-def get_border(prms, dbg_context):
+def get_border(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
-    check_args(prms, dbg_context)
     height = prms.args[0]
     r = prms.r - height / 2
     fi = 1 if len(prms.args) < 2 else prms.args[1]
@@ -127,31 +158,28 @@ def _get_circle(r, height, color):
            f' stroke: {color}; fill: rgba(0, 0, 0, 0);"></circle>'
 
 
-def get_line(prms, dbg_context):
+def get_line(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    check_args(prms, dbg_context)
     height, width = prms.args
     p1 = get_point(prms.fi, prms.r)
     p2 = get_point(prms.fi, prms.r - height)
     return _get_line(p1.x, p1.y, p2.x, p2.y, width)
 
 
-def get_date(prms, dbg_context):
+def get_date(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
-    check_args(prms, dbg_context)
-    bckg = get_line(prms, dbg_context)
+    bckg = get_line(prms)
     height, width = prms.args
     txt_size = width - 3
     Prms = namedtuple('Prms', ['shape', 'r', 'fi', 'args', 'color'])
     prms = Prms(Shape.number, prms.r - height / 2 + txt_size / 2, prms.fi,
                 [txt_size, "27", "horizontal"], "white")
-    txt = get_number(prms, dbg_context)
+    txt = get_number(prms)
     return bckg + txt
 
 
-def get_rounded_line(prms, dbg_context):
+def get_rounded_line(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    check_args(prms, dbg_context)
     height, width = prms.args
     rot = (prms.fi - pi / 2) / pi * 180
     return f'<rect rx="{width/2}" y="{prms.r-height}" x="-{width/2}" ry=' \
@@ -159,9 +187,8 @@ def get_rounded_line(prms, dbg_context):
            f'width="{width}"></rect>'
 
 
-def get_two_lines(prms, dbg_context):
+def get_two_lines(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    check_args(prms, dbg_context)
     height, width, sep = prms.args
     p1 = get_point(prms.fi, prms.r - height)
     p2 = get_point(prms.fi, prms.r)
@@ -172,16 +199,14 @@ def get_two_lines(prms, dbg_context):
         _get_line(p1.x - dx, p1.y - dy, p2.x - dx, p2.y - dy, width)
 
 
-def get_circle(prms, dbg_context):
-    check_args(prms, dbg_context)
+def get_circle(prms):
     diameter = prms.args[0]
     p = get_point(prms.fi, prms.r - diameter / 2)
     return f'<circle cx={p.x} cy={p.y} r={abs(diameter) / 2} style=' \
            f'"stroke-width: 0; fill: rgb(0, 0, 0);"></circle>'
 
 
-def get_triangle(prms, dbg_context):
-    check_args(prms, dbg_context)
+def get_triangle(prms):
     height, width = prms.args
     x1 = (cos(prms.fi) * prms.r) - (sin(prms.fi) * width / 2)
     y1 = (sin(prms.fi) * prms.r) + (cos(prms.fi) * width / 2)
@@ -192,8 +217,7 @@ def get_triangle(prms, dbg_context):
     return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
 
 
-def get_upside_triangle(prms, dbg_context):
-    check_args(prms, dbg_context)
+def get_upside_triangle(prms):
     height, width = prms.args
     x1 = cos(prms.fi) * prms.r
     y1 = sin(prms.fi) * prms.r
@@ -205,13 +229,12 @@ def get_upside_triangle(prms, dbg_context):
     return f'<polygon points="{x1},{y1} {x2},{y2} {x3},{y3}" />'
 
 
-def get_square(prms, dbg_context):
+def get_square(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    check_args(prms, dbg_context)
     height = prms.args[0]
     ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
     prms = ObjParams(Shape.line, prms.r, prms.fi, [height, height])
-    return get_line(prms, dbg_context)
+    return get_line(prms)
 
 
 # def get_octagon(prms, dbg_context):
@@ -270,7 +293,7 @@ def _get_line(x1, y1, x2, y2, width):
            f'{width}; stroke:#000000"></line>'
 
 
-def get_num_str(kind_el, deg, dbg_context):
+def get_num_str(kind_el, deg):
     if isinstance(kind_el, Real):
         return fi_to_time(deg, kind_el)
     if isinstance(kind_el, list):
@@ -332,12 +355,16 @@ def fi_to_time(fi, factor):
     return i
 
 
-def get_num_rotation(orient_name, deg, dbg_context):
+def get_num_rotation(orient, deg):
+    converter = orient.value[1]
+    return converter(deg)
+
+
+def get_orient(orient_name):
     orient = NumberOrientation.half_rotating
     if orient_name:
         orient = get_enum(NumberOrientation, orient_name, dbg_context)
-    converter = orient.value[1]
-    return converter(deg)
+    return orient
 
 
 def get_fi_half_rotating(fi):

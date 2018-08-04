@@ -42,7 +42,7 @@
     "sub_3": [
         [
           [0,
-            [7, "number", [13, "day", "half_rotating"]],
+            [7, "bent_number", [13, "day", "half_rotating"]],
             [14, "circle", [3]]
           ],
           [25,
