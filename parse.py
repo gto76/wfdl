@@ -189,7 +189,7 @@ def get_subgroup(r, subgroup, ranges, curr_ranges):
     shape = get_enum(Shape, shape_name, subgroup)
     fii = get_fii(pos)
     return get_objects(ranges, curr_ranges, fii, shape, args, r, fixed, color,
-                       offset, subgroup)
+                       offset, subgroup) # TODO , get_max_height(shape,)
 
 
 def get_fii(pos):
@@ -288,7 +288,8 @@ def fix_height(ranges, prms):
 
 def get_height(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    return prms.args[0]
+    getter = prms.shape.value.get_height
+    return getter(prms.args)
 
 
 def get_max_height(all_ranges, prms):

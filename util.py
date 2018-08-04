@@ -101,7 +101,7 @@ def no_enum_error(a_enum, name, dbg_context):
 
 
 def check_args(prms, dbg_context):
-    if len(prms.shape.value) < 4:
+    if not prms.shape.value.min_no_args:
         return
     check_args_no(prms, dbg_context)
     check_args_type(prms, dbg_context)
@@ -110,8 +110,8 @@ def check_args(prms, dbg_context):
 def check_args_no(prms, dbg_context):
     shape = prms.shape
     no_args = len(prms.args)
-    min_args = shape.value[2]
-    max_args = len(shape.value[3])
+    min_args = shape.value.min_no_args
+    max_args = len(shape.value.max_args)
     if no_args < min_args:
         not_enough_args_err(shape, min_args, no_args, dbg_context)
     if no_args > max_args:
@@ -139,7 +139,7 @@ def check_args_type(prms, subgroup):
         max_arg = prms.shape.value[3][i]
         if arg > max_arg:
             msg = f'Argument {arg} of shape "{prms.shape.name}" is larger ' \
-                f'than the maximum alloved value ({max_arg}). ' \
+                f'than the maximum allowed value ({max_arg}). ' \
                 f'Subgroup "{subgroup}".'
             raise ValueError(msg)
 

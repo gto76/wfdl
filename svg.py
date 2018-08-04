@@ -318,8 +318,6 @@ def get_month(fi):
 
 
 def get_tachy(fi):
-    # if fi == 0:
-    #     fi = 1
     return int(60 / get_cent(fi))
 
 
