@@ -188,27 +188,38 @@ def get_group(r, subgroups, ranges):
 
 
 def get_subgroup(r, subgroup, ranges, curr_ranges):
-    no_el = len(subgroup)
-    if no_el < 3 or no_el > 5:
-        msg = f'Number of elements in subgroup "{subgroup}" is {no_el}, but ' \
-            'it should be between 3 and 5.'
-        raise ValueError(msg)
-    offset = 0
-    color = "black"
+    offset, color = 0, "black"
+    no_el = get_no_el(subgroup)
     if no_el == 3:
         pos, shape_name, args = subgroup
     elif no_el == 4:
         pos, shape_name, args, color = subgroup
     else:
         pos, shape_name, args, color, offset = subgroup
-    fixed = False
-    if len(shape_name.split()) == 2:
-        shape_name = shape_name.split()[0]
-        fixed = True
+
+    shape_name, fixed, centered = parse_shape(shape_name)
     shape = get_enum(Shape, shape_name, subgroup)
     fii = get_fii(pos)
+    if centered:
+        offset -= shape.get_height(args) / 2
     return get_objects(ranges, curr_ranges, fii, shape, args, r - offset, fixed,
                        color, subgroup)
+
+
+def get_no_el(subgroup):
+    no_el = len(subgroup)
+    if no_el < 3 or no_el > 5:
+        msg = f'Number of elements in subgroup "{subgroup}" is {no_el}, but ' \
+            'it should be between 3 and 5.'
+        raise ValueError(msg)
+    return no_el
+
+
+def parse_shape(shape_name):
+    fixed = 'fixed' in shape_name
+    centered = 'centered' in shape_name
+    shape_name = shape_name.split()[0]
+    return shape_name, fixed, centered
 
 
 def get_fii(pos):

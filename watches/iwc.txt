@@ -18,12 +18,12 @@
       ],
     "sub_1": [
         [
-          [0,
-            [{0}, "number", [10, 31, "half_rotating"]],
-            [15.5, "circle", [3]],
-            [31, "number", [10, 31, "half_rotating"]]
+          [5,
+            [{0}, "number centered", [10, 31, "half_rotating"]],
+            [15.5, "circle centered", [3]],
+            [31, "number centered", [10, 31, "half_rotating"]]
           ],
-          [20,
+          [15,
             [{0.5}, "border", [22, 0.875]]
           ],
           [5,
@@ -41,11 +41,11 @@
       ],
     "sub_3": [
         [
-          [0,
-            [7, "bent_number", [13, "day", "half_rotating"]],
-            [14, "circle", [3]]
+          [6.5,
+            [7, "bent_number centered", [13, "day", "half_rotating"]],
+            [14, "circle centered", [3]]
           ],
-          [25,
+          [18.5,
             [12, "line", [20, 3]],
             [60, "line", [10, 1.5]]
           ]
