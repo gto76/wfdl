@@ -99,9 +99,22 @@ def get_svg(watch_str):
     bezel = replace_matched_items(bezel, variables)
     set_negative_height(bezel)
     face = replace_matched_items(face, variables)
-    out = get_part_svg(bezel)
-    out.extend(get_part_svg(face))
-    return ''.join(out)
+    bezel_parts = get_part_svg(bezel)
+    bezel_height = 100
+    if bezel_parts:
+        bezel_svg, bezel_height = bezel_parts
+    else:
+        bezel_svg = bezel_parts
+    face_svg, _ = get_part_svg(face)
+    svg = ''.join(bezel_svg + face_svg)
+    return scale_svg(svg, bezel_height)
+
+
+def scale_svg(svg, bezel_height):
+    if bezel_height == 100:
+        return svg
+    factor = 200 / (2*bezel_height)
+    return f'<g transform="scale({factor})">{svg}</g>'
 
 
 def set_negative_height(elements):
@@ -139,11 +152,14 @@ def get_part_svg(elements):
     out = []
     radii = get_radii(elements)
     ranges = []
+    max_height = 0
     for r, element in zip(reversed(radii), reversed(elements)):
-        group = get_group(r, element[1:], ranges)
+        group, height = get_group(r, element[1:], ranges)
         out.extend(group)
+        if height > max_height:
+            max_height = height
     out.reverse()
-    return out
+    return out, max_height
 
 
 def get_radii(elements):
@@ -160,12 +176,15 @@ def get_group(r, subgroups, ranges):
     if not subgroups:
         return
     out = []
+    max_height = 0
     ranges.append(GrpRanges(r, []))
     curr_ranges = []
     for subgroup in subgroups:
-        elements = get_subgroup(r, subgroup, ranges, curr_ranges)
+        elements, height = get_subgroup(r, subgroup, ranges, curr_ranges)
         out.extend(elements)
-    return out
+        if height > max_height:
+            max_height = height
+    return out, max_height
 
 
 def get_subgroup(r, subgroup, ranges, curr_ranges):
@@ -188,8 +207,8 @@ def get_subgroup(r, subgroup, ranges, curr_ranges):
         fixed = True
     shape = get_enum(Shape, shape_name, subgroup)
     fii = get_fii(pos)
-    return get_objects(ranges, curr_ranges, fii, shape, args, r, fixed, color,
-                       offset, subgroup) # TODO , get_max_height(shape,)
+    return get_objects(ranges, curr_ranges, fii, shape, args, r - offset, fixed,
+                       color, subgroup)
 
 
 def get_fii(pos):
@@ -252,16 +271,20 @@ def set_to_pos(nums):
     return out
 
 
-def get_objects(ranges, curr_ranges, fii, shape, args, r, fixed, color, offset,
+def get_objects(ranges, curr_ranges, fii, shape, args, r, fixed, color,
                 dbg_context):
     out = []
+    height = 0
     for fi in fii:
-        prms = ObjParams(shape, r - offset, fi, list(args), color)
+        prms = ObjParams(shape, r, fi, list(args), color)
         check_args(prms, dbg_context)
         obj = get_object(ranges, curr_ranges, prms, fixed, dbg_context)
-        if obj:
-            out.append(obj)
-    return out
+        if not obj:
+            continue
+        out.append(obj)
+        if height == 0:
+            height = get_height(prms) + r
+    return out, height
 
 
 ###
@@ -288,8 +311,7 @@ def fix_height(ranges, prms):
 
 def get_height(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    getter = prms.shape.value.get_height
-    return getter(prms.args)
+    return prms.shape.get_height(prms.args)
 
 
 def get_max_height(all_ranges, prms):
@@ -423,8 +445,8 @@ def get_ranges(pos, width):
 
 
 def get_angular_width(shape, args, r):
-    width_formula = shape.value[1]
-    width = abs(width_formula(args))
+    width = shape.get_width(args)
+    width = abs(width)
     return compute_angular_width(width, r)
 
 

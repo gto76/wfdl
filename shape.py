@@ -29,3 +29,11 @@ class Shape(Enum):
     tear = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100))            # height, width
     spear = Properties(lambda a: a[0], lambda a: a[1], 3, (100, 100, 1))        # height, width, center
     date = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100))            # height, params
+
+    def get_height(self, args):
+        fun = self.value.get_height
+        return fun(args)
+
+    def get_width(self, args):
+        fun = self.value.get_width
+        return fun(args)
