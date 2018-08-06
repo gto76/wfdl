@@ -11,7 +11,7 @@
     ],
     ["_a*0.5",
       [[15, -0.35, 0.35], "number",
-       ["_a*1.2", {"kind": -15, "offset": "2/3"}, "rotating"]]
+       ["_a*1.2", {"kind": -15, "offset": "2/3", "use_zero": True}, "rotating"]]
     ],
     ["_a*1.5",
       [1, "border", ["_d", "_c"]]

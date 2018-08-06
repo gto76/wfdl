@@ -279,19 +279,23 @@ def _get_line(x1, y1, x2, y2, width):
 
 
 def get_num_str(kind_el, deg):
+    use_zero = False
     if isinstance(kind_el, dict):
         kind = kind_el['kind']
+        use_zero = kind_el.get('use_zero', False)
+        if use_zero in ['True', 'true']:
+            use_zero = True
         offset = kind_el.get('offset', 0) * 2 * pi
         deg += offset
         kind_el = kind
-    return _get_num_str(kind_el, deg)
+    return _get_num_str(kind_el, deg, use_zero)
 
-   
-def _get_num_str(kind_el, deg):
+
+def _get_num_str(kind_el, deg, use_zero=False):
     if isinstance(kind_el, Real):
-        return fi_to_time(deg, kind_el)
+        return fi_to_time(deg, kind_el, use_zero)
     if isinstance(kind_el, list):
-        i = fi_to_time(deg, len(kind_el))
+        i = fi_to_time(deg, len(kind_el), use_zero)
         return kind_el[i - 1]
     if kind_el and kind_el not in [a.name for a in NumKind]:
         return kind_el
@@ -322,7 +326,7 @@ def get_tachy(fi):
     return int(60 / get_cent(fi))
 
 
-def fi_to_time(fi, factor):
+def fi_to_time(fi, factor, use_zero=False):
     fi_cents = (fi + pi / 2) / (2 * pi)
     if fi_cents > 1:
         fi_cents %= 1
@@ -332,10 +336,10 @@ def fi_to_time(fi, factor):
     i = round(i*10)/10
     if i % 1 == 0:
         i = round(i)
-    if i == 0:
-        i = factor
     if i < 0:
         i += abs(factor)
+    if i == 0 and not use_zero:
+        i = abs(factor)
     return i
 
 

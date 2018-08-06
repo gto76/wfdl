@@ -10,7 +10,7 @@ import ast
 import os
 import sys
 from collections import namedtuple
-from math import pi, asin, ceil, sqrt, floor
+from math import pi, asin, ceil, sqrt, floor, isclose
 from numbers import Real
 
 from shape import Shape
@@ -257,6 +257,8 @@ def get_tachy(locations):
 def is_between(fi, fi_start, fi_end):
     fi, fi_start, fi_end = normalize_fi(fi), normalize_fi(fi_start), \
                            normalize_fi(fi_end)
+    if isclose(fi, fi_start) or isclose(fi, fi_end):
+        return True
     crosses_zero = fi_start > fi_end
     if crosses_zero:
         between_start_and_zero = fi_start <= fi
@@ -266,7 +268,7 @@ def is_between(fi, fi_start, fi_end):
 
 
 def normalize_fi(fi):
-    if -1 <= fi >= 1:
+    if -1 >= fi >= 1:
         fi %= 1
     if fi < 0:
         fi += 1
