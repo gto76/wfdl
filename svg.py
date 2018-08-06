@@ -279,21 +279,20 @@ def _get_line(x1, y1, x2, y2, width):
 
 
 def get_num_str(kind_el, deg):
+    if isinstance(kind_el, dict):
+        kind = kind_el['kind']
+        offset = kind_el.get('offset', 0) * 2 * pi
+        deg += offset
+        kind_el = kind
+    return _get_num_str(kind_el, deg)
+
+   
+def _get_num_str(kind_el, deg):
     if isinstance(kind_el, Real):
         return fi_to_time(deg, kind_el)
     if isinstance(kind_el, list):
-        # if isinstance(kind_el[0], Real):
-        # else:
         i = fi_to_time(deg, len(kind_el))
         return kind_el[i - 1]
-    if isinstance(kind_el, dict):
-        no_of_no = kind_el['kind']
-        offset = kind_el['offset']
-        offset = offset * 2 * pi
-        out = fi_to_time(deg + offset, no_of_no)
-        if out < 0:
-            out += abs(no_of_no)
-        return out
     if kind_el and kind_el not in [a.name for a in NumKind]:
         return kind_el
     kind = NumKind.hour
@@ -335,6 +334,8 @@ def fi_to_time(fi, factor):
         i = round(i)
     if i == 0:
         i = factor
+    if i < 0:
+        i += abs(factor)
     return i
 
 
