@@ -1,0 +1,19 @@
+[
+  {"a_len": 10, "a_width": 0.75, "b_off": 2, "b_len": 13, "c_off": 8},
+  [
+    [1,
+      [12, "circle", ["a_len/2"]],
+      [60, "line", ["a_len", "a_width"]],
+      [300, "line", ["a_len/2", "a_width"]]
+    ],
+    ["a_len/2+1",
+      [12, "number", ["a_len/2-1", "minute"]]
+    ],
+    ["a_len + b_off",
+      [12, "number", ["b_len", "hour", "horizontal"]]
+    ],
+    ["b_len + c_off",
+      [12, "number", ["b_len/2", "hour_24", "horizontal"]]
+    ]
+  ]
+]

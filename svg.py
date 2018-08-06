@@ -1,5 +1,5 @@
 from collections import namedtuple
-from math import cos, sin, pi
+from math import cos, sin, pi, degrees
 from numbers import Real
 from enum import Enum, auto
 from random import random
@@ -16,6 +16,7 @@ class NumKind(Enum):
     """Second element is converter function from fi of numbers position to
     string with the number."""
     hour = auto(), lambda fi: get_hour(fi)
+    hour_24 = auto(), lambda fi: get_hour(fi) + 12
     minute = auto(), lambda fi: get_minute(fi)
     roman = auto(), lambda fi: ROMAN[get_hour(fi)]
     day = auto(), lambda fi: DAYS[get_day(fi)]
@@ -29,6 +30,7 @@ class NumOrient(Enum):
     half_rotating = auto(), lambda fi: get_fi_half_rotating(fi)
     horizontal = auto(), lambda fi: 0
     rotating = auto(), lambda fi: get_fi_rotating(fi)
+    perpendicular = auto(), lambda fi: get_fi_perpendicular(fi)
 
 
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IIII', 5: 'V', 6: 'VI', 7: 'VII',
@@ -354,3 +356,8 @@ def get_fi_half_rotating(fi):
 
 def get_fi_rotating(fi):
     return (fi + pi / 2) / pi * 180
+
+
+def get_fi_perpendicular(fi):
+    rad = fi if fi <= pi/2 else fi+pi
+    return degrees(rad)
