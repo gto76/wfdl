@@ -1,6 +1,6 @@
 [
   {
-    "a_len": 3, "a_width": 2, "b_off": 2, "b_len": 6,
+    "a_len": 3, "a_width": 2, "b_off": 2, "b_len": 7,
     "c_len": 4, "c_width": 0.75, "d_len": 14, "d_width": 3,
     "sub_1_len": 70,
     "sub_1": [
@@ -39,7 +39,7 @@
       ]
   },
   [
-    [3,
+    [2,
       [{0.504}, "border", ["a_width/2", 0.709]],
       [{"tachy": [120, 110, 100, 95, 90, 85, 80, 75, 70]},
           "line", ["a_len", "a_width"]],
@@ -51,8 +51,9 @@
           "line", ["a_len*0.6", "a_width*0.3"]]
     ],
     ["a_len+b_off",
-      [1, "bent_number", [7, ["A. LANGE & SOHNE"]], "black", 4],
-      [{"tachy": [70, 80, 90, 100, 110, 120]}, "number", ["b_len", "tachy"]],
+      [1, "bent_number", [7, ["A. LANGE & SOHNE"]], "black", 3],
+      [{"tachy": [70, 80, 90, 100, 110, 120]},
+          "number", ["b_len", "tachy"]],
       [{"tachy": [130, 140, 150, 160, 170, 180, 190, 210, 240]},
           "number", ["b_len*0.7", "tachy", "perpendicular"]],
       [{"tachy": [280, 330, 400]},
@@ -60,7 +61,7 @@
     ]
   ],
   [
-    [1,
+    [0,
       [1, "border", [0.2]],
       [60, "line", ["c_len", "c_width"]],
       [300, "line", ["c_len*0.66", "c_width*0.66"]]
