@@ -155,7 +155,7 @@ def get_date(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
     bckg = get_line(prms)
     height, width = prms.args
-    txt_size = width - 3
+    txt_size = width - 6
     Prms = namedtuple('Prms', ['shape', 'r', 'fi', 'args', 'color'])
     prms = Prms(Shape.number, prms.r - height / 2 + txt_size / 2, prms.fi,
                 [txt_size, "27", "horizontal"], "white")
