@@ -26,6 +26,7 @@ WATCHES_DIR = 'watches'
 BORDER_FACTOR = 0.1
 VER_BORDER = 2
 ALL_WIDTH = 250
+RADIUS_KEY = 'RADIUS'
 
 Range = namedtuple('Range', ['start', 'end'])
 GrpRanges = namedtuple('GrpRanges', ['r', 'ranges'])
@@ -96,9 +97,8 @@ def get_watch_str(path):
 
 def get_svg(watch_str):
     variables, bezel, face = get_parts(watch_str)
-    bezel = replace_matched_items(bezel, variables)
+    bezel, face = sub_variables(variables, bezel, face)
     set_negative_height(bezel)
-    face = replace_matched_items(face, variables)
     bezel_parts = get_part_svg(bezel)
     bezel_height = 100
     if bezel_parts:
@@ -108,6 +108,21 @@ def get_svg(watch_str):
     face_svg, _ = get_part_svg(face)
     svg = ''.join(bezel_svg + face_svg)
     return scale_svg(svg, bezel_height)
+
+
+def sub_variables(variables, bezel, face):
+    # Double pass:
+    variables = var_pass(variables)
+    variables = var_pass(variables)
+    bezel = replace_matched_items(bezel, variables)
+    face = replace_matched_items(face, variables)
+    return bezel, face
+
+
+def var_pass(variables):
+    keys = variables.keys()
+    values = replace_matched_items(variables.values(), variables)
+    return dict(zip(keys, values))
 
 
 def scale_svg(svg, bezel_height):

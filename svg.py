@@ -148,7 +148,7 @@ def get_line(prms):
     height, width = prms.args
     p1 = get_point(prms.fi, prms.r)
     p2 = get_point(prms.fi, prms.r - height)
-    return _get_line(p1.x, p1.y, p2.x, p2.y, width)
+    return _get_line(p1.x, p1.y, p2.x, p2.y, width, prms.color)
 
 
 def get_date(prms):
@@ -156,9 +156,10 @@ def get_date(prms):
     bckg = get_line(prms)
     height, width = prms.args
     txt_size = width - 6
+    color = 'white' if prms.color == 'black' else 'black'
     Prms = namedtuple('Prms', ['shape', 'r', 'fi', 'args', 'color'])
     prms = Prms(Shape.number, prms.r - height / 2 + txt_size / 2, prms.fi,
-                [txt_size, "27", "horizontal"], "white")
+                [txt_size, '27', 'horizontal'], color)
     txt = get_number(prms)
     return bckg + txt
 
@@ -180,8 +181,10 @@ def get_two_lines(prms):
     factor = width / 2 * (1 + sep)
     dx = sin(prms.fi) * factor
     dy = cos(prms.fi) * factor
-    return _get_line(p1.x + dx, p1.y + dy, p2.x + dx, p2.y + dy, width) + \
-        _get_line(p1.x - dx, p1.y - dy, p2.x - dx, p2.y - dy, width)
+    return _get_line(p1.x + dx, p1.y + dy, p2.x + dx, p2.y + dy, width
+                     , prms.color) + \
+        _get_line(p1.x - dx, p1.y - dy, p2.x - dx, p2.y - dy, width
+                  , prms.color)
 
 
 def get_circle(prms):
@@ -217,8 +220,8 @@ def get_upside_triangle(prms):
 def get_square(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height = prms.args[0]
-    ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])
-    prms = ObjParams(Shape.line, prms.r, prms.fi, [height, height])
+    Prms = namedtuple('Prms', ['shape', 'r', 'fi', 'args', 'color'])
+    prms = Prms(Shape.line, prms.r, prms.fi, [height, height], prms.color)
     return get_line(prms)
 
 
@@ -273,9 +276,9 @@ def polar_to_cartesian(center_x, center_y, radius, fi):
     return Point(x, y)
 
 
-def _get_line(x1, y1, x2, y2, width):
+def _get_line(x1, y1, x2, y2, width, color):
     return f'<line x1={x1} y1={y1} x2={x2} y2={y2} style="stroke-width:' \
-           f'{width}; stroke:#000000"></line>'
+           f'{width}" stroke="{color}"></line>'
 
 
 def get_num_str(kind_el, deg):

@@ -1,26 +1,64 @@
 [
-  {"a_len": 2, "a_width": 0.5, "b_off": 2, "b_len": 23, "c_diameter": 3},
-
+  {"UNIT": "0.548",
+  "a_len": "5.35*UNIT", "a_width": "1*UNIT", "b_off": "2*UNIT", "b_len": "23*UNIT",
+  "c_len": "47*UNIT", "c_off": "21*UNIT", "sub_dia": "118*UNIT",
+  "c_diameter": "8*UNIT",
+  "SUBUNI": "1.71",
+  "su_off_a": "SUBUNI*6", "su_len_a": "SUBUNI*8", "su_len_b": "SUBUNI*3",
+  "su_wi_a": 2.5, "su_wi_b": 1.5,
+  "sub_font_size": "SUBUNI*13",
+  "sub_a":
     [
-      [3,
-        [{"tachy": [500, 400, 350, 300, 260, 240, 220, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 85, 80, 75, 70, 65, 60]},
-          "circle", ["a_len"]]
-      ],
-      [6,
-        [{"tachy": [500, 400, 350, 300, 260, 240, 220, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 85, 80, 75, 70, 65, 60]},
-          "number", [6, "tachy", "horizontal"]]
+      [
+        ["su_off_a",
+          [4, "line", ["su_len_a", 3]],
+          [12, "line", ["su_len_a", "su_wi_a"]],
+          [60, "line", ["su_len_b", "su_wi_b"]]
+        ],
+        ["SUBUNI*11",
+          [4, "number", ["sub_font_size", "hour", "horizontal"], "black", "SUBUNI*2"],
+          [12, "line", ["SUBUNI*10", 1.75]]
+        ]
       ]
     ],
+  "sub_b":
     [
-      [1,
-        [12, "line", ["a_len", "a_width * 1.5"]],
-        [60, "line", [11, "a_width"]],
-        [240, "line", ["a_len", "a_width"]]
-      ],
-      ["a_len + b_off",
-        [12, "line", ["b_len", 5]],
-        [{"1/60", "-1/60"}, "circle", ["c_diameter"], "black", "b_len - c_diameter"]
+      [
+        ["su_off_a",
+          [12, "line", ["su_len_a", "su_wi_a"]],
+          [60, "line", ["su_len_b", "su_wi_b"]]
+        ],
+        ["SUBUNI*15",
+          [3, "number", ["sub_font_size", "minute", "horizontal"]]
+        ]
       ]
     ]
+  },
+  [
+    [3,
+      [{"tachy": [500, 400, 350, 300, 260, 240, 220, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 85, 80, 75, 70, 65, 60]},
+        "circle", ["a_len"]]
+    ],
+    [6,
+      [{"tachy": [500, 400, 350, 300, 260, 240, 220, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 85, 80, 75, 70, 65, 60]},
+        "number", [6, "tachy", "horizontal"]]
+    ]
+  ],
+  [
+    [1,
+      [12, "rounded_line", ["a_len", "a_width * 1.5"]],
+      [60, "rounded_line", ["b_len", "a_width"]],
+      [240, "rounded_line", ["a_len", "a_width"]]
+    ],
+    ["a_len + b_off",
+      [12, "line", ["c_len", 5]],
+      [{"0.85/60", "-0.85/60"}, "circle", ["c_diameter"], "black", "c_len - c_diameter-0.3"]
+    ],
+    ["c_off",
+      [{0.25}, "face", ["sub_dia", "sub_a"]],
+      [{0.75}, "face", ["sub_dia", "sub_b"]],
+      [{0.5}, "date", ["35*UNIT", "24*UNIT"], "white", "1*UNIT"]
+    ]
+  ]
 
 ]
