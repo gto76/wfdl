@@ -97,15 +97,19 @@ def get_watch_str(path):
 
 def get_svg(watch_str):
     variables, bezel, face = get_parts(watch_str)
+    r_factor = 1
+    if RADIUS_KEY in variables:
+        r_factor = 200 / variables[RADIUS_KEY]
+        variables.pop(RADIUS_KEY)
     bezel, face = sub_variables(variables, bezel, face)
     set_negative_height(bezel)
-    bezel_parts = get_part_svg(bezel)
+    bezel_parts = get_part_svg(bezel, r_factor)
     bezel_height = 100
     if bezel_parts:
         bezel_svg, bezel_height = bezel_parts
     else:
         bezel_svg = bezel_parts
-    face_svg, _ = get_part_svg(face)
+    face_svg, _ = get_part_svg(face, r_factor)
     svg = ''.join(bezel_svg + face_svg)
     return scale_svg(svg, bezel_height)
 
@@ -161,15 +165,15 @@ def get_parts(watch_str):
     return dictionary, bezel, elements
 
 
-def get_part_svg(elements):
+def get_part_svg(elements, r_factor):
     if not elements:
         return []
     out = []
-    radii = get_radii(elements)
+    radii = get_radii(elements, r_factor)
     ranges = []
     max_height = 0
     for r, element in zip(reversed(radii), reversed(elements)):
-        group, height = get_group(r, element[1:], ranges)
+        group, height = get_group(r, element[1:], ranges, r_factor)
         out.extend(group)
         if height > max_height:
             max_height = height
@@ -177,17 +181,17 @@ def get_part_svg(elements):
     return out, max_height
 
 
-def get_radii(elements):
+def get_radii(elements, r_factor):
     out = []
     r = 100
-    offsets = [a[0] for a in elements]
+    offsets = [a[0]*r_factor for a in elements]
     for offset in offsets:
         r -= offset
         out.append(r)
     return out
 
 
-def get_group(r, subgroups, ranges):
+def get_group(r, subgroups, ranges, r_factor):
     if not subgroups:
         return
     out = []
@@ -195,14 +199,15 @@ def get_group(r, subgroups, ranges):
     ranges.append(GrpRanges(r, []))
     curr_ranges = []
     for subgroup in subgroups:
-        elements, height = get_subgroup(r, subgroup, ranges, curr_ranges)
+        elements, height = get_subgroup(r, subgroup, ranges, curr_ranges,
+                                        r_factor)
         out.extend(elements)
         if height > max_height:
             max_height = height
     return out, max_height
 
 
-def get_subgroup(r, subgroup, ranges, curr_ranges):
+def get_subgroup(r, subgroup, ranges, curr_ranges, r_factor):
     offset, color = 0, "black"
     no_el = get_no_el(subgroup)
     if no_el == 3:
@@ -211,14 +216,22 @@ def get_subgroup(r, subgroup, ranges, curr_ranges):
         pos, shape_name, args, color = subgroup
     else:
         pos, shape_name, args, color, offset = subgroup
+    offset *= r_factor
 
     shape_name, fixed, centered = parse_shape(shape_name)
     shape = get_enum(Shape, shape_name, subgroup)
+    update_lengths(shape, args, r_factor)
     fii = get_fii(pos)
     if centered:
         offset -= shape.get_height(args) / 2
     return get_objects(ranges, curr_ranges, fii, shape, args, r - offset, fixed,
                        color, subgroup)
+
+
+def update_lengths(shape, args, r_factor):
+    no_size_args = shape.value.no_size_args
+    for i in range(no_size_args):
+        args[i] = args[i] * r_factor
 
 
 def get_no_el(subgroup):

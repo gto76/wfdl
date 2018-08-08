@@ -1,30 +1,30 @@
 [
-  {"unit": 0.5714, "a_width": 1.5, "b_off": 2, "b_len": 30,
+  {"RADIUS": 350, "unit": 0.5714, "a_width": 1.5, "b_off": 2, "b_len": 30,
    "c_diameter": 3},
   [
     [0,
-      [1, "border", ["unit*12"]]
+      [1, "border", ["12"]]
     ],
-    ["unit*20",
-      [1, "triangle", ["unit*37", "unit*58"]],
-      [6, "number", ["unit*37", "minute", "rotating"]],
-      [12, "line", ["unit*37", "unit*13"]],
-      [[60, 0.25], "line", ["unit*17", "unit*5.5"]]
+    ["20",
+      [1, "triangle", ["37", "58"]],
+      [6, "number", ["37", "minute", "rotating"]],
+      [12, "line", ["37", "13"]],
+      [[60, 0.25], "line", ["17", "5.5"]]
     ],
-    ["unit*45",
-      [1, "border", ["unit*2"]]
+    ["45",
+      [1, "border", ["2"]]
     ]
   ],
   [
     [0,
-      [12, "rounded_line", ["unit*9", "unit*2"]],
-      [60, "rounded_line", ["unit*9", "unit*1.5"]]
+      [12, "rounded_line", ["9", "2"]],
+      [60, "rounded_line", ["9", "1.5"]]
     ],
-    ["unit*13",
-      [1, "triangle", ["unit*55", "unit*45"]],
-      [{0.25}, "date", ["unit*52.8", "unit*33.6"], "black", "unit*6"],
-      [4, "line", ["unit*55", "unit*23"]],
-      [12, "circle", ["unit*33"]]
+    ["13",
+      [1, "triangle", ["55", "45"]],
+      [{0.25}, "date", ["52.8", "33.6"], "black", "6"],
+      [4, "line", ["55", "23"]],
+      [12, "circle", ["33"]]
     ]
   ]
 ]
