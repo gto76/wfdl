@@ -3,10 +3,9 @@
   "a_len": 5, "a_width": 1, "b_off": 2, "b_len": 23,
   "c_len": 47, "c_width": 11, "c_off": 21, "sub_dia": 118,
   "c_diameter": "8",
-  "SUBUNI": "1.71",
-  "su_off_a": "SUBUNI*6", "su_len_a": "SUBUNI*8", "su_len_b": "SUBUNI*3",
+  "su_off_a": "6", "su_len_a": "8", "su_len_b": "3",
   "su_wi_a": 2.5, "su_wi_b": 1.5,
-  "sub_font_size": "SUBUNI*13",
+  "sub_font_size": "13",
   "sub_a":
     [
       [
@@ -15,9 +14,9 @@
           [12, "line", ["su_len_a", "su_wi_a"]],
           [60, "line", ["su_len_b", "su_wi_b"]]
         ],
-        ["SUBUNI*11",
-          [4, "number", ["sub_font_size", "hour", "horizontal"], "black", "SUBUNI*2"],
-          [12, "line", ["SUBUNI*10", 1.75]]
+        ["11",
+          [4, "number", ["sub_font_size", "hour", "horizontal"], "black", "2"],
+          [12, "line", ["10", 1.75]]
         ]
       ]
     ],
@@ -28,7 +27,7 @@
           [12, "line", ["su_len_a", "su_wi_a"]],
           [60, "line", ["su_len_b", "su_wi_b"]]
         ],
-        ["SUBUNI*15",
+        ["15",
           [3, "number", ["sub_font_size", "minute", "horizontal"]]
         ]
       ]
