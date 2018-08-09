@@ -95,9 +95,8 @@ def get_watch_str(path):
 ##  GROUPS
 #
 
-def get_svg(watch_str):
+def get_svg(watch_str, r_factor=1):
     variables, bezel, face = get_parts(watch_str)
-    r_factor = 1
     if RADIUS_KEY in variables:
         r_factor = 200 / variables[RADIUS_KEY]
         variables.pop(RADIUS_KEY)
@@ -225,7 +224,7 @@ def get_subgroup(r, subgroup, ranges, curr_ranges, r_factor):
     if centered:
         offset -= shape.get_height(args) / 2
     return get_objects(ranges, curr_ranges, fii, shape, args, r - offset, fixed,
-                       color, subgroup)
+                       color, subgroup, r_factor)
 
 
 def update_lengths(shape, args, r_factor):
@@ -258,7 +257,7 @@ def get_fii(pos):
     elif isinstance(pos, dict):
         if 'tachy' in pos:
             # return pos['tachy']
-            return get_tachy(pos['tachy'])
+            return get_tachy(pos) #pos['tachy'])
         position = pos['pos']
         if 'offset' in pos:
             offset = pos['offset']
@@ -278,8 +277,10 @@ def get_fii(pos):
         return [i / n for i in range(n) if is_between(i/n, start, end)]
 
 
-def get_tachy(locations):
-    return [60/a for a in locations]
+def get_tachy(pos):
+    locations = pos['tachy']
+    offset = pos.get('offset', 0)
+    return [(60/a)+offset for a in locations]
 
 
 def is_between(fi, fi_start, fi_end):
@@ -313,13 +314,13 @@ def set_to_pos(nums):
 
 
 def get_objects(ranges, curr_ranges, fii, shape, args, r, fixed, color,
-                dbg_context):
+                dbg_context, r_factor):
     out = []
     height = 0
     for fi in fii:
         prms = ObjParams(shape, r, fi, list(args), color)
         check_args(prms, dbg_context)
-        obj = get_object(ranges, curr_ranges, prms, fixed, dbg_context)
+        obj = get_object(ranges, curr_ranges, prms, fixed, dbg_context, r_factor)
         if not obj:
             continue
         out.append(obj)
@@ -332,15 +333,15 @@ def get_objects(ranges, curr_ranges, fii, shape, args, r, fixed, color,
 ##  OBJECT
 #
 
-def get_object(ranges, curr_ranges, prms, fixed, dbg_context):
+def get_object(ranges, curr_ranges, prms, fixed, dbg_context, r_factor):
     if prms.shape == Shape.border:
-        return get_svg_el(prms, dbg_context)
+        return get_svg_el(prms, dbg_context, r_factor)
     if not fixed:
         fix_height(ranges, prms)
     if range_occupied(curr_ranges, prms):
         return None
     update_ranges(ranges, curr_ranges, prms)
-    return get_svg_el(prms, dbg_context)
+    return get_svg_el(prms, dbg_context, r_factor)
 
 
 def fix_height(ranges, prms):
@@ -413,7 +414,7 @@ def get_range(ranges, prms):
     return out
 
 
-def get_svg_el(prms, dbg_context):
+def get_svg_el(prms, dbg_context, r_factor):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     height = get_height(prms)
     if height == 0:
@@ -424,7 +425,7 @@ def get_svg_el(prms, dbg_context):
     prms_rad = ObjParams(prms.shape, prms.r, rad, prms.args, prms.color)
     if prms.shape != Shape.face:
         return get_shape(prms_rad, dbg_context)
-    return get_subface(prms_rad)
+    return get_subface(prms_rad, r_factor)
 
 
 def transpose_el_with_neg_height(prms):
@@ -434,11 +435,11 @@ def transpose_el_with_neg_height(prms):
     return ObjParams(prms.shape, prms.r - height, prms.fi, args, prms.color)
 
 
-def get_subface(prms):
+def get_subface(prms, r_factor):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     face_str = str(prms.args[1])
-    svg = get_svg(face_str)
     size = prms.args[0]
+    svg = get_svg(face_str, (100/size)/r_factor)
     p = get_point(prms.fi, prms.r - size/2)
     scale = size / 200
     bckg = f'<circle cx={p.x} cy={p.y} r={size/2+VER_BORDER} ' \
