@@ -125,6 +125,14 @@ def get_num_size(size):
 
 
 def get_border(prms):
+    return _get_border(prms)
+
+
+def get_shifted_border(prms):
+    return _get_border(prms, True)
+
+
+def _get_border(prms, shifted=False):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
     height = prms.args[0]
     r = prms.r - height / 2
@@ -133,7 +141,8 @@ def get_border(prms):
         return _get_circle(r, height, prms.color)
     arc_sweep = 0 if fi < 0.5 else 1
     rng = fi * 2 * pi / 2
-    d = describe_arc(0, 0, r, prms.fi - rng, prms.fi + rng, arc_sweep)
+    d = describe_arc(0, 0, r, prms.fi, prms.fi + 2*rng, arc_sweep) if shifted \
+        else describe_arc(0, 0, r, prms.fi - rng, prms.fi + rng, arc_sweep)
     return f'<g stroke="{prms.color}" fill="none" stroke-width="{height}">' \
            f'<path d="{d}"/></g>'
 

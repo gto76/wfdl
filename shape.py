@@ -16,6 +16,7 @@ class Shape(Enum):
     # hour), orient (horizontal, rotating, half_rotating) [, font]
     face = Properties(lambda a: a[0], lambda a: a[0], None, None, 1)               # height, params
     border = Properties(lambda a: a[0], lambda a: a[1], 1, (100, 1), 1)            # height, fi
+    shifted_border = Properties(lambda a: a[0], lambda a: a[1], 1, (100, 1), 1)            # height, fi
     line = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100), 2)            # height, width
     rounded_line = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100), 2)    # height, width
     two_lines = Properties(lambda a: a[0], lambda a: 2*a[1] + a[1]*a[2], 3, (100, 100, 10), 2) # height, width, distance_factor
