@@ -1,0 +1,39 @@
+[
+  {"RADIUS": 234,
+  "sub_a": [
+      [
+        [0,
+          [4, "number", [9, "hour", "horizontal"]],
+          [12, "rounded_line", [9, 1.5]]
+        ]
+      ]
+    ],
+  "sub_b": [
+      [
+        [4,
+          [4, "rounded_line centered", [8, 4]],
+          [12, "rounded_line centered", [6, 1.25]]
+        ]
+      ]
+    ]
+  },
+  [
+    [0,
+      [1, "border", [0.6]],
+      [12, "line", [7, 1.65]],
+      [60, "line", [7, 0.6]],
+      [300, "line", [3.4, 0.6]],
+    ],
+    [7,
+      [1, "border", [0.6]]
+    ],
+    [6,
+      [2, "number", [30, "hour", "horizontal"]],
+      [12, "rounded_line", [28, 3.55]]
+    ],
+    [22,
+      [{0.25}, "face", [57, "sub_a"]],
+      [{0.75}, "face", [57, "sub_b"]]
+    ]
+  ]
+]

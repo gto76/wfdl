@@ -8,7 +8,7 @@
           [1, "border", [1]]
         ],
         [8,
-          [6, "number centered", [8, "minute", "rotating"]],
+          [6, "bent_number centered", [8, "minute", "rotating"]],
           [12, "line centered", [8, 1]]
         ],
         [8,
