@@ -439,7 +439,8 @@ def get_subface(prms, r_factor):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     face_str = str(prms.args[1])
     size = prms.args[0]
-    svg = get_svg(face_str, (100/size)/r_factor)
+    r_factor_sub = 1 if r_factor == 1 else (100/size)/r_factor
+    svg = get_svg(face_str, r_factor_sub)
     p = get_point(prms.fi, prms.r - size/2)
     scale = size / 200
     bckg = f'<circle cx={p.x} cy={p.y} r={size/2+VER_BORDER} ' \
