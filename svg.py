@@ -292,30 +292,39 @@ def _get_line(x1, y1, x2, y2, width, color):
 
 def get_num_str(kind_el, deg):
     use_zero = False
+    countdown = False
     if isinstance(kind_el, dict):
         kind = kind_el['kind']
         use_zero = kind_el.get('use_zero', False)
         if use_zero in ['True', 'true']:
             use_zero = True
+        countdown = kind_el.get('countdown', False)
+        if countdown in ['True', 'true']:
+            countdown = True
         offset = kind_el.get('offset', 0) * 2 * pi
         deg += offset
         kind_el = kind
-    return _get_num_str(kind_el, deg, use_zero)
+    return _get_num_str(kind_el, deg, use_zero, countdown)
 
 
-def _get_num_str(kind_el, deg, use_zero=False):
+def _get_num_str(kind_el, deg, use_zero=False, countdown=False):
+    out = ''
     if isinstance(kind_el, Real):
-        return fi_to_time(deg, kind_el, use_zero)
-    if isinstance(kind_el, list):
+        out = fi_to_time(deg, kind_el, use_zero)
+    elif isinstance(kind_el, list):
         i = fi_to_time(deg, len(kind_el), use_zero)
-        return kind_el[i - 1]
-    if kind_el and kind_el not in [a.name for a in NumKind]:
-        return kind_el
-    kind = NumKind.hour
-    if kind_el:
-        kind = get_enum(NumKind, kind_el, dbg_context)
-    converter = kind.value[1]
-    return converter(deg)
+        out = kind_el[i - 1]
+    elif kind_el and kind_el not in [a.name for a in NumKind]:
+        out = kind_el
+    else:
+        kind = NumKind.hour
+        if kind_el:
+            kind = get_enum(NumKind, kind_el, dbg_context)
+        converter = kind.value[1]
+        out = converter(deg)
+    if countdown:
+        out = f'-{out}'
+    return out
 
 
 def get_minute(fi):

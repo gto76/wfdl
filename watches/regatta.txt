@@ -1,5 +1,5 @@
 [
-  {"RADIUS": 234,
+  {"RADIUS": 269,
   "len_a": 7, "width_a": 0.6,
   "sub_a": [
       [
@@ -19,7 +19,13 @@
     ]
   },
   [
-    [0,
+    [4,
+      [[12, 0.75, 1], "number", [4.5, {"kind": -60, "countdown": True}]]
+    ],
+    [5,
+      [{0.75}, "shifted_border", ["width_a", "10/60"]]
+    ],
+    [7,
       [1, "shifted_border", ["width_a", "11/12"]],
       [[12, "1/12", "10/12"], "line", ["len_a+width_a", 1.65]],
       [[60, "11/12"], "line", ["len_a+width_a", "width_a"]],
