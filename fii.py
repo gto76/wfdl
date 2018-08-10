@@ -23,7 +23,7 @@ def get_fii_set(nums):
 
 
 def get_fii_real(pos):
-    return [i / pos for i in range(ceil(pos))]
+    return [(i/pos) for i in range(ceil(pos))]
 
 
 def get_fii_dict(pos):
@@ -32,11 +32,12 @@ def get_fii_dict(pos):
     position = pos['pos']
     if 'offset' in pos:
         offset = pos['offset']
-        off = 1 / floor(position) * offset
-        return [i/position + off for i in range(ceil(position))]
+        out = get_fii(position)
+        return [a+offset for a in out]
     elif 'filter' in pos:
         a_filter = pos['filter']
-        return [a/position for a in a_filter]
+        return [a / position for a in a_filter]
+    return get_fii(position)
 
 
 def get_tachy(pos):

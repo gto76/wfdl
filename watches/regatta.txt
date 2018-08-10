@@ -1,5 +1,6 @@
 [
   {"RADIUS": 234,
+  "len_a": 7, "width_a": 0.6,
   "sub_a": [
       [
         [0,
@@ -19,13 +20,14 @@
   },
   [
     [0,
-      [1, "shifted_border", [0.6, "11/12"]],
-      [[12, "11/12"], "line", [7, 1.65]],
-      [[60, "11/12"], "line", [7, 0.6]],
-      [[300, 0.75], "line", [3.4, 0.6]],
+      [1, "shifted_border", ["width_a", "11/12"]],
+      [[12, "1/12", "10/12"], "line", ["len_a+width_a", 1.65]],
+      [[60, "11/12"], "line", ["len_a+width_a", "width_a"]],
+      [[300, 0.75], "line", [3.4, "width_a"]],
+      [{"pos": [60, 0.916, 1], "offset": "1/120"}, "border", ["len_a+width_a", "0.88/60"]]
     ],
     [7,
-      [1, "shifted_border", [0.6, "11/12"]]
+      [1, "shifted_border", ["width_a", "11/12"]]
     ],
     [6,
       [2, "number", [30, "hour", "horizontal"]],

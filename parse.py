@@ -168,6 +168,7 @@ def scale_svg(svg, bezel_height):
 #
 
 def get_part_svg(elements, r_factor):
+    """Part is either face or bezel."""
     if not elements:
         return []
     out = []
@@ -193,14 +194,15 @@ def get_radii(elements, r_factor):
     return out
 
 
-def get_group(r, subgroups, ranges, r_factor):
-    if not subgroups:
+def get_group(r, group, ranges, r_factor):
+    """Group consists of subgroups with same radius."""
+    if not group:
         return
     out = []
     max_height = 0
     ranges.append(GrpRanges(r, []))
     curr_ranges = []
-    for subgroup in subgroups:
+    for subgroup in group:
         elements, height = get_subgroup(r, subgroup, ranges, curr_ranges,
                                         r_factor)
         out.extend(elements)
@@ -210,10 +212,11 @@ def get_group(r, subgroups, ranges, r_factor):
 
 
 ###
-##  GET SUBGROUP (Objects with same shape and radial)
+##  GET SUBGROUP (Objects with same shape and radius)
 #
 
 def get_subgroup(r, subgroup, ranges, curr_ranges, r_factor):
+    """Subgroup consists of objects with same properties except for fi."""
     pos, shape_name, args, color, offset = get_subgroup_prms(subgroup)
     offset *= r_factor
     shape_name, fixed, centered = parse_shape(shape_name)
@@ -282,7 +285,7 @@ def get_objects(ranges, curr_ranges, prmii, fixed, dbg_context, r_factor):
 
 def get_object(ranges, curr_ranges, prms, fixed, dbg_context, r_factor):
     """prms = ObjParams(shape, r, fi, args, color)"""
-    if prms.shape == Shape.border:
+    if prms.shape in [Shape.border, Shape.shifted_border]:
         return get_svg_el(prms, dbg_context, r_factor)
     if not fixed:
         fix_height(ranges, prms)

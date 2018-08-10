@@ -12,7 +12,7 @@
              "bent_number fixed", ["font_s", {"kind": 59, "offset": 0.5}, "rotating"]]
           ],
           [5,
-            [{"pos":2, "offset": 0.5}, "circle", [76]]
+            [{"pos":2, "offset": 0.25}, "circle", [76]]
           ]
         ]
       ],
