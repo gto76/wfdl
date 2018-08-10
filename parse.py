@@ -214,6 +214,20 @@ def get_group(r, subgroups, ranges, r_factor):
 #
 
 def get_subgroup(r, subgroup, ranges, curr_ranges, r_factor):
+    pos, shape_name, args, color, offset = get_subgroup_prms(subgroup)
+    offset *= r_factor
+    shape_name, fixed, centered = parse_shape(shape_name)
+    shape = get_enum(Shape, shape_name, subgroup)
+    update_lengths(shape, args, r_factor)
+    fii = get_fii(pos)
+    if centered:
+        offset -= shape.get_height(args) / 2
+    r -= offset
+    prmii = (ObjParams(shape, r, fi, list(args), color) for fi in fii)
+    return get_objects(ranges, curr_ranges, prmii, fixed, subgroup, r_factor)
+
+
+def get_subgroup_prms(subgroup):
     offset, color = 0, "black"
     no_el = get_no_el(subgroup)
     if no_el == 3:
@@ -222,16 +236,7 @@ def get_subgroup(r, subgroup, ranges, curr_ranges, r_factor):
         pos, shape_name, args, color = subgroup
     else:
         pos, shape_name, args, color, offset = subgroup
-    offset *= r_factor
-
-    shape_name, fixed, centered = parse_shape(shape_name)
-    shape = get_enum(Shape, shape_name, subgroup)
-    update_lengths(shape, args, r_factor)
-    fii = get_fii(pos)
-    if centered:
-        offset -= shape.get_height(args) / 2
-    return get_objects(ranges, curr_ranges, fii, shape, args, r - offset, fixed,
-                       color, subgroup, r_factor)
+    return pos, shape_name, args, color, offset
 
 
 def get_no_el(subgroup):
@@ -260,12 +265,10 @@ def update_lengths(shape, args, r_factor):
 ##  GET OBJECTS
 #
 
-def get_objects(ranges, curr_ranges, fii, shape, args, r, fixed, color,
-                dbg_context, r_factor):
+def get_objects(ranges, curr_ranges, prmii, fixed, dbg_context, r_factor):
     out = []
     height = 0
-    for fi in fii:
-        prms = ObjParams(shape, r, fi, list(args), color)
+    for prms in prmii:
         check_args(prms, dbg_context)
         obj = get_object(ranges, curr_ranges, prms, fixed, dbg_context,
                          r_factor)
@@ -273,11 +276,12 @@ def get_objects(ranges, curr_ranges, fii, shape, args, r, fixed, color,
             continue
         out.append(obj)
         if height == 0:
-            height = get_height(prms) + r
+            height = get_height(prms) + prms.r
     return out, height
 
 
 def get_object(ranges, curr_ranges, prms, fixed, dbg_context, r_factor):
+    """prms = ObjParams(shape, r, fi, args, color)"""
     if prms.shape == Shape.border:
         return get_svg_el(prms, dbg_context, r_factor)
     if not fixed:
@@ -288,20 +292,20 @@ def get_object(ranges, curr_ranges, prms, fixed, dbg_context, r_factor):
     return get_svg_el(prms, dbg_context, r_factor)
 
 
+###
+##  FIX HEIGHT
+#
+
 def fix_height(ranges, prms):
+    """prms = ObjParams(shape, r, fi, args, color)"""
     height = get_height(prms)
     max_height = get_max_height(ranges, prms)
     if abs(height) > abs(max_height):
         update_height(prms.shape, prms.args, max_height)
 
 
-def get_height(prms):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    return prms.shape.get_height(prms.args)
-
-
 def get_max_height(all_ranges, prms):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
+    """prms = ObjParams(shape, r, fi, args, color)"""
     if len(all_ranges) <= 1:
         return 100
     for grp_ranges in reversed(all_ranges[:-1]):
@@ -313,6 +317,7 @@ def get_max_height(all_ranges, prms):
 
 
 def calculate_max_height(prms, r):
+    """prms = ObjParams(shape, r, fi, args, color)"""
     out = prms.r - r
     height = get_height(prms)
     border = VER_BORDER if height < 0 else -VER_BORDER
@@ -334,8 +339,12 @@ def update_height(shape, args, height):
         args[0] = height
 
 
+###
+##  GET SVG EL
+#
+
 def get_svg_el(prms, dbg_context, r_factor):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
+    """prms = ObjParams(shape, r, fi, args, color)"""
     height = get_height(prms)
     if height == 0:
         return ''
@@ -349,6 +358,7 @@ def get_svg_el(prms, dbg_context, r_factor):
 
 
 def transpose_el_with_neg_height(prms):
+    """prms = ObjParams(shape, r, fi, args, color)"""
     height = get_height(prms)
     args = prms.args
     args[0] = -args[0]
@@ -356,7 +366,7 @@ def transpose_el_with_neg_height(prms):
 
 
 def get_subface(prms, r_factor):
-    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
+    """prms = ObjParams(shape, r, fi, args, color)"""
     face_str = str(prms.args[1])
     size = prms.args[0]
     r_factor_sub = 1 if r_factor == 1 else 200/(size/r_factor)
@@ -367,6 +377,15 @@ def get_subface(prms, r_factor):
         f'style="stroke-width:0; fill: rgb(255, 255, 255);"></circle>'
     return f'{bckg}<g transform="translate({p.x}, {p.y}), scale({scale})">' \
         f'{svg}</g>'
+
+
+###
+##  UTIL
+#
+
+def get_height(prms):
+    """prms = ObjParams(shape, r, fi, args, color)"""
+    return prms.shape.get_height(prms.args)
 
 
 if __name__ == '__main__':
