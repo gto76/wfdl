@@ -2,9 +2,9 @@
   {
     "a_len": 3, "a_width": 2, "b_off": 2, "b_len": 7,
     "c_len": 4, "c_width": 0.75, "d_len": 14, "d_width": 3,
-    "sub_1_len": 70,
+    "sub_1_len": 70, "num_len": 13,
     "sub_1": [
-        {"num_len": 13, "_b": 3,
+        {"_b": 3,
         "subsub_face": [
               [
                 [0,
@@ -34,6 +34,28 @@
           ["2*num_len+4",
             [6, "bent_number centered", ["num_len", {"kind": "month", "offset": "1/12"}]],
             [12, "circle centered", [4]]
+          ]
+        ]
+      ],
+    "sub_2": [
+        [
+          [0,
+            [1, "border", [1]]
+          ],
+          [4,
+            [6, "line", [7, 3]],
+            [12, "line", [14, 1.5]],
+            [60, "line", [7, 1.5]]
+          ],
+          [11,
+            [6, "number", ["num_len", "minute"]]
+          ],
+          ["num_len+4",
+            [1, "border", [1]]
+          ],
+          ["num_len",
+            [{"pos": 7, "offset": "1/14"}, "bent_number centered",
+              ["num_len",  {"kind": "day", "offset": "1/14"}]]
           ]
         ]
       ]
@@ -71,7 +93,8 @@
       [12, "line", ["d_len", "d_width"]]
     ],
     [4,
-      [{0.3135}, "face", ["sub_1_len", "sub_1"]]
+      [{0.3135}, "face", ["sub_1_len", "sub_1"]],
+      [{0.6865}, "face", ["sub_1_len", "sub_2"]]
     ]
   ]
 ]

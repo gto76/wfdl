@@ -54,7 +54,7 @@ def get_fii_list(pos):
     else:
         start = pos[1]
         end = pos[2]
-    return [i / n for i in range(n) if is_between(i/n, start, end)]
+    return [i / n for i in range(n+1) if is_between(i/n, start, end)]
 
 
 def is_between(fi, fi_start, fi_end):

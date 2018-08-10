@@ -90,6 +90,7 @@ def get_bent_rotated(prms, args):
     return '<defs>' \
         f'<path id="{a_id}" d="{path}"/></defs>' \
         f'<text font-size="{get_num_size(args.size)}" ' \
+        f'fill = "{prms.color}" ' \
         f'font-family="{args.font}">' \
         f'<textPath xlink:href="#{a_id}" startOffset="50%" ' \
         f'text-anchor="middle">{i}</textPath>' \
@@ -322,7 +323,7 @@ def _get_num_str(kind_el, deg, use_zero=False, countdown=False):
             kind = get_enum(NumKind, kind_el, dbg_context)
         converter = kind.value[1]
         out = converter(deg)
-    if countdown:
+    if countdown and out:
         out = f'-{out}'
     return out
 
@@ -336,7 +337,7 @@ def get_hour(fi):
 
 
 def get_day(fi):
-    return fi_to_time(fi, 7)
+    return fi_to_time(fi, 7, whole_nums=True)
 
 
 def get_month(fi):
@@ -347,14 +348,17 @@ def get_tachy(fi):
     return int(60 / get_cent(fi))
 
 
-def fi_to_time(fi, factor, use_zero=False):
+def fi_to_time(fi, factor, use_zero=False, whole_nums=False):
     fi_cents = (fi + pi / 2) / (2 * pi)
     if fi_cents > 1:
         fi_cents %= 1
     i = fi_cents * factor
     if factor < 0:
         i = abs(factor) + i
-    i = round(i*10)/10
+    if whole_nums:
+        i = round(i)
+    else:
+        i = round(i*10)/10
     if i % 1 == 0:
         i = round(i)
     if i < 0:

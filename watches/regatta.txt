@@ -1,6 +1,6 @@
 [
   {"RADIUS": 269,
-  "len_a": 7, "width_a": 0.6,
+  "len_a": 7, "width_a": 0.6, "width_b": 1.65, "len_c": 2.5,
   "sub_a": [
       [
         [0,
@@ -19,18 +19,27 @@
     ]
   },
   [
+    [0,
+      [1, "border", ["width_a"]]
+    ],
     [4,
-      [[12, 0.75, 1], "number", [4.5, {"kind": -60, "countdown": True}]]
+      [[12, 0.75, 1], "number",
+          [4.5, {"kind": -60, "countdown": True, "use_zero": True}]]
     ],
     [5,
-      [{0.75}, "shifted_border", ["width_a", "10/60"]]
+      [{0.75}, "shifted_border", ["width_a", "10/60"]],
+      [{"11.5/12"}, "bent_number fixed", [3.5, "START"], "white"],
+      [{"11/12"}, "shifted_border", [4, "1/12"]],
+      [{"9/12", "10/12"}, "line", ["len_c", "width_b"]],
+      [[60, 0.75, 0.91666], "line", ["len_c", "width_a"]]
     ],
     [7,
       [1, "shifted_border", ["width_a", "11/12"]],
-      [[12, "1/12", "10/12"], "line", ["len_a+width_a", 1.65]],
+      [[12, "1/12", "10/12"], "line", ["len_a+width_a", "width_b"]],
       [[60, "11/12"], "line", ["len_a+width_a", "width_a"]],
       [[300, 0.75], "line", [3.4, "width_a"]],
-      [{"pos": [60, 0.916, 1], "offset": "1/120"}, "border", ["len_a+width_a", "0.88/60"]]
+      [{"pos": [60, 0.916, 0.99], "offset": "1/120"}, "border",
+          ["len_a+width_a", "0.88/60"]]
     ],
     [7,
       [1, "shifted_border", ["width_a", "11/12"]]
