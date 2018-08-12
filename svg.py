@@ -1,5 +1,5 @@
 from collections import namedtuple
-from math import cos, sin, pi, degrees
+from math import cos, sin, pi, degrees, atan, sqrt
 from numbers import Real
 from enum import Enum, auto
 from random import random
@@ -233,6 +233,48 @@ def get_square(prms):
     Prms = namedtuple('Prms', ['shape', 'r', 'fi', 'args', 'color'])
     prms = Prms(Shape.line, prms.r, prms.fi, [height, height], prms.color)
     return get_line(prms)
+
+
+def get_moonphase(prms):
+    """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
+    height = prms.args[0]
+    stroke_width = 1
+
+    delta = 0.1*pi
+
+    r1, r2, r3, r4 = 5, 20, 47.5, 115
+
+    t1 = _get_triangle(r3+r1, r1+r2, r2+r3)
+    p1_a_y = t1.a * sin(t1.fi_b)
+    p1_a_x = sqrt((t1.b**2) - (p1_a_y**2))
+
+    t2 = _get_triangle(r3+r1, r4-r1, r2+r3)
+    p1_b_y = t2.a * sin(t2.fi_b)
+    p1_b_x = sqrt((t2.b**2) - (p1_b_y**2))
+
+    arc_4 = describe_arc(0, 0, r4, -pi+delta, -t2.fi_a, 0)
+    arc_3 = describe_arc(r2+r3, 0, r3, -pi+t1.fi_b, -pi+t2.fi_b, 0)
+    arc_1_a = describe_arc(p1_a_x, -p1_a_y, r1, t1.fi_b, -pi-t1.fi_a, 0)
+    arc_1_b = describe_arc(p1_b_x, -p1_b_y, r1, -t2.fi_a, t2.fi_b, 0)
+    arc_2 = describe_arc(0, 0, r2, -pi+t1.fi_a, -t1.fi_a, 0)
+
+    arc = arc_4 + arc_3 + arc_2 + arc_1_a + arc_1_b
+    # d =  describe_arc(0, 0, r, prms.fi - rng, prms.fi + rng, arc_sweep)
+    return f'<g transform="translate(0, 0), scale(0.5)" stroke="{prms.color}" fill="none" stroke-width="{stroke_width}">' \
+           f'<path d="{arc}"/></g>'
+
+
+def _get_triangle(a, b, c):
+    fi_a, fi_b, fi_c = _get_angles(a, b, c)
+    Triangle = namedtuple('Triangle', ['a', 'b', 'c', 'fi_a', 'fi_b', 'fi_c'])
+    return Triangle(a, b, c, fi_a, fi_b, fi_c)
+
+
+def _get_angles(a, b, c):
+    z_alpha = (a ** 2 - (b - c) ** 2) / ((b + c) ** 2 - a ** 2)
+    z_beta = (b ** 2 - (c - a) ** 2) / ((c + a) ** 2 - b ** 2)
+    z_delta = (c ** 2 - (a - b) ** 2) / ((a + b) ** 2 - c ** 2)
+    return 2*atan(sqrt(z_alpha)), 2*atan(sqrt(z_beta)), 2*atan(sqrt(z_delta))
 
 
 # def get_octagon(prms, dbg_context):

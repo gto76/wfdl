@@ -6,15 +6,15 @@
     "sub_1": [
         {"_b": 3,
         "subsub_face": [
-              [
-                [0,
-                  [1, "border", [1]]
-                ],
-                [10,
-                  [4, "number", [27, {"kind": -4, "offset": 0.5}, "horizontal"]]
-                ]
+            [
+              [0,
+                [1, "border", [1]]
+              ],
+              [10,
+                [4, "number", [27, {"kind": -4, "offset": 0.5}, "horizontal"]]
               ]
             ]
+          ]
         },
         [
           [0,
@@ -38,6 +38,25 @@
         ]
       ],
     "sub_2": [
+        {"_b": 3,
+        "subsub_face_1": [
+            [
+              [0,
+                [1, "border", [1, 0.7]]
+              ],
+              [15,
+                [1, "border centered", [10, 0.5]]
+              ]
+            ]
+          ],
+        "subsub_face_2": [
+            [
+              [0,
+                [1, "border", [1]]
+              ]
+            ]
+          ]
+        },
         [
           [0,
             [1, "border", [1]]
@@ -50,12 +69,21 @@
           [11,
             [6, "number", ["num_len", "minute"]]
           ],
+          [0,
+            [1, "face fixed centered", [90, "subsub_face_1"]]
+          ],
           ["num_len+4",
             [1, "border", [1]]
           ],
           ["num_len",
             [{"pos": 7, "offset": "1/14"}, "bent_number centered",
               ["num_len",  {"kind": "day", "offset": "1/14"}]]
+          ],
+          [0,
+            [1, "face fixed centered", [60, "subsub_face_2"], "black", "-(2*num_len+4)"]
+          ],
+          [0,
+            [1, "upside_triangle", [33, 14], "black", "-(2*num_len+4+14)"]
           ]
         ]
       ]
@@ -95,6 +123,9 @@
     [4,
       [{0.3135}, "face", ["sub_1_len", "sub_1"]],
       [{0.6865}, "face", ["sub_1_len", "sub_2"]]
+    ],
+    [10,
+      [{0.5}, "moonphase", [10]]
     ]
   ]
 ]

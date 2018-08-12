@@ -31,6 +31,8 @@ class Shape(Enum):
     tear = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100), 2)            # height, width
     spear = Properties(lambda a: a[0], lambda a: a[1], 3, (100, 100, 1), 2)        # height, width, center
     date = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100), 2)            # height, width, params
+    moonphase = Properties(lambda a: a[0], lambda a: 2*a[0], 1, (100,), 1)            # height
+
 
     def get_height(self, args):
         fun = self.value.get_height
