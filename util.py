@@ -82,6 +82,10 @@ def get_point(fi, r):
     return Point(cos(fi) * r, sin(fi) * r)
 
 
+def get_point_xy(x, y):
+    return Point(x, y)
+
+
 def get_enum(a_enum, enum_name, dbg_context):
     try:
         out = a_enum[enum_name]

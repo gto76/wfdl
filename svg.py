@@ -5,7 +5,7 @@ from enum import Enum, auto
 from random import random
 
 from shape import Shape
-from util import get_enum, check_args, get_cent, get_point
+from util import get_enum, check_args, get_cent, get_point, get_point_xy
 
 
 NUM_FACT = 6
@@ -240,28 +240,33 @@ def get_moonphase(prms):
     height = prms.args[0]
     stroke_width = 1
 
-    delta = 0.1*pi
-
+    # r1, r2, r3, r4 = 5, 20, 47.5, 115
     r1, r2, r3, r4 = 5, 20, 47.5, 115
 
     t1 = _get_triangle(r3+r1, r1+r2, r2+r3)
-    p1_a_y = t1.a * sin(t1.fi_b)
-    p1_a_x = sqrt((t1.b**2) - (p1_a_y**2))
-
+    p1_a = _get_point(t1)
     t2 = _get_triangle(r3+r1, r4-r1, r2+r3)
-    p1_b_y = t2.a * sin(t2.fi_b)
-    p1_b_x = sqrt((t2.b**2) - (p1_b_y**2))
+    p1_b = _get_point(t2)
 
-    arc_4 = describe_arc(0, 0, r4, -pi+delta, -t2.fi_a, 0)
-    arc_3 = describe_arc(r2+r3, 0, r3, -pi+t1.fi_b, -pi+t2.fi_b, 0)
-    arc_1_a = describe_arc(p1_a_x, -p1_a_y, r1, t1.fi_b, -pi-t1.fi_a, 0)
-    arc_1_b = describe_arc(p1_b_x, -p1_b_y, r1, -t2.fi_a, t2.fi_b, 0)
+    arc_1_a = describe_arc(p1_a.x, -p1_a.y, r1, t1.fi_b, -pi-t1.fi_a, 0)
+    arc_1_b = describe_arc(p1_b.x, -p1_b.y, r1, -t2.fi_a, t2.fi_b, 0)
+    arc_1_c = describe_arc(-p1_a.x, -p1_a.y, r1, t1.fi_a, -pi-t1.fi_b, 0)
+    arc_1_d = describe_arc(-p1_b.x, -p1_b.y, r1, pi-t2.fi_b, pi+t2.fi_a, 0)
     arc_2 = describe_arc(0, 0, r2, -pi+t1.fi_a, -t1.fi_a, 0)
+    arc_3_a = describe_arc(r2+r3, 0, r3, -pi+t1.fi_b, -pi+t2.fi_b, 0)
+    arc_3_b = describe_arc(-(r2+r3), 0, r3, -t2.fi_b, -t1.fi_b, 0)
+    arc_4 = describe_arc(0, 0, r4, -pi+t2.fi_a, -t2.fi_a, 0)
 
-    arc = arc_4 + arc_3 + arc_2 + arc_1_a + arc_1_b
-    # d =  describe_arc(0, 0, r, prms.fi - rng, prms.fi + rng, arc_sweep)
-    return f'<g transform="translate(0, 0), scale(0.5)" stroke="{prms.color}" fill="none" stroke-width="{stroke_width}">' \
+    arc = arc_1_a + arc_1_b + arc_1_c + arc_1_d + arc_2 + arc_3_a + arc_3_b + \
+          arc_4
+    return f'<g transform="translate(0, 0), scale(1)" stroke="{prms.color}" fill="none" stroke-width="{stroke_width}">' \
            f'<path d="{arc}"/></g>'
+
+
+def _get_point(t):
+    y = t.a * sin(t.fi_b)
+    x = sqrt(t.b**2 - y**2)
+    return get_point_xy(x, y)
 
 
 def _get_triangle(a, b, c):
@@ -351,7 +356,6 @@ def get_num_str(kind_el, deg):
 
 
 def _get_num_str(kind_el, deg, use_zero=False, countdown=False):
-    out = ''
     if isinstance(kind_el, Real):
         out = fi_to_time(deg, kind_el, use_zero)
     elif isinstance(kind_el, list):
