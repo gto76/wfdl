@@ -1,7 +1,10 @@
 [
   {"a_len": 10, "a_width": 0.75, "b_off": 2, "b_len": 13, "c_off": 8},
   [
-    [1,
+    [0,
+      [1, "border", [0.5]]
+    ],
+    [4,
       [12, "circle", ["a_len/2"]],
       [60, "line", ["a_len", "a_width"]],
       [300, "line", ["a_len/2", "a_width"]]

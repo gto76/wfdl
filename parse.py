@@ -28,6 +28,8 @@ WATCHES_DIR = 'watches'
 VER_BORDER = 2
 ALL_WIDTH = 250
 RADIUS_KEY = 'RADIUS'
+DIAMETER_KEY = 'DIAMETER'
+UNIT_KEY = 'UNIT'
 
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
 ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
@@ -97,8 +99,12 @@ def get_watch_str(path):
 def get_watch(watch_str, r_factor=1):
     variables, bezel, face = get_parts(watch_str)
     if RADIUS_KEY in variables:
-        r_factor = 200 / variables[RADIUS_KEY]
-        variables.pop(RADIUS_KEY)
+        radius = variables[RADIUS_KEY]
+        r_factor = 100 / radius
+    elif DIAMETER_KEY in variables:
+        diameter = variables[DIAMETER_KEY]
+        r_factor = 200 / diameter
+    variables[UNIT_KEY] = 1 / r_factor
     bezel, face = sub_variables(variables, bezel, face)
     set_negative_height(bezel)
     bezel_parts = get_part_svg(bezel, r_factor)

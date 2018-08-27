@@ -1,5 +1,5 @@
 [
-  {"RADIUS": 269,
+  {"DIAMETER": 269,
   "len_a": 7, "width_a": 0.6, "width_b": 1.65, "len_c": 2.5,
   "sub_a": [
       [

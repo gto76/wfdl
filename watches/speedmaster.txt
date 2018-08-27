@@ -1,5 +1,5 @@
 [
-  {"RADIUS": 365,
+  {"DIAMETER": 365,
   "a_len": 5, "a_width": 1, "b_off": 2, "b_len": 23,
   "c_len": 47, "c_width": 11, "c_off": 21, "sub_dia": 118,
   "c_diameter": "8",

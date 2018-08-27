@@ -165,7 +165,11 @@ def get_date(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])"""
     bckg = get_line(prms)
     height, width = prms.args
-    txt_size = width - 6
+    if prms.fi in [0, pi]:
+        txt_size = height - 2
+    else:
+        txt_size = width - 6
+
     color = 'white' if prms.color == 'black' else 'black'
     Prms = namedtuple('Prms', ['shape', 'r', 'fi', 'args', 'color'])
     prms = Prms(Shape.number, prms.r - height / 2 + txt_size / 2, prms.fi,
@@ -237,11 +241,9 @@ def get_square(prms):
 
 def get_moonphase(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
-    height = prms.args[0]
-    stroke_width = 1
-
-    # r1, r2, r3, r4 = 5, 20, 47.5, 115
-    r1, r2, r3, r4 = 5, 20, 47.5, 115
+    stroke_width = 1.7
+    height, r1, r2, r3, r4 = get_moonphase_args(prms)
+    pos = get_point(prms.fi, prms.r-height/2)
 
     t1 = _get_triangle(r3+r1, r1+r2, r2+r3)
     p1_a = _get_point(t1)
@@ -259,8 +261,19 @@ def get_moonphase(prms):
 
     arc = arc_1_a + arc_1_b + arc_1_c + arc_1_d + arc_2 + arc_3_a + arc_3_b + \
           arc_4
-    return f'<g transform="translate(0, 0), scale(1)" stroke="{prms.color}" fill="none" stroke-width="{stroke_width}">' \
+    return f'<g transform="translate({pos.x}, {pos.y}), scale({height/100})" ' \
+           f'stroke="{prms.color}" fill="none" stroke-width="{stroke_width}">' \
            f'<path d="{arc}"/></g>'
+
+
+def get_moonphase_args(prms):
+    args = prms.args
+    r1, r2, r3, r4 = 5 * (100 / 115), 20 * (100 / 115), 47.5 * (100 / 115), 100
+    if len(args) == 1:
+        height = args[0]
+    else:
+        height, r1, r2, r3 = args
+    return height, r1, r2, r3, r4
 
 
 def _get_point(t):
