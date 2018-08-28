@@ -28,7 +28,7 @@
     ],
     [5,
       [{0.75}, "shifted_border", ["width_a", "10/60"]],
-      [{"11.5/12"}, "bent_number fixed", [3.5, "START"], "white"],
+      [{"11.5/12"}, "bent_number fixed", [3.5, "START"], 0, "white"],
       [{"11/12"}, "shifted_border", [4, "1/12"]],
       [{"9/12", "10/12"}, "line", ["len_c", "width_b"]],
       [[60, 0.75, 0.91666], "line", ["len_c", "width_a"]]

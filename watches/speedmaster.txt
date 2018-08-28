@@ -15,7 +15,7 @@
           [60, "line", ["su_len_b", "su_wi_b"]]
         ],
         ["11",
-          [4, "number", ["sub_font_size", "hour", "horizontal"], "black", "2"],
+          [4, "number", ["sub_font_size", "hour", "horizontal"], 2],
           [12, "line", ["10", 1.75]]
         ]
       ]
@@ -52,10 +52,10 @@
       [{"tachy": [170, 160, 150, 140, 130, 120, 110, 100, 90, 85, 80, 75, 70, 65, 60]},
         "number", [13, "tachy", "horizontal"]],
       [{"tachy": [500, 400, 350, 300, 260], "offset": -0.007},
-        "number", [13, {"kind": "tachy", "offset": 0.007}, "horizontal"], "black", 4],
+        "number", [13, {"kind": "tachy", "offset": 0.007}, "horizontal"], 4],
       [{"tachy": [240, 220, 200, 190, 180], "offset": 0.007},
-        "number", [13, {"kind": "tachy", "offset": -0.007}, "horizontal"], "black", 4],
-      [{0.06}, "bent_number", [9.5, "TACHYMETRE"], "black", 2.5]
+        "number", [13, {"kind": "tachy", "offset": -0.007}, "horizontal"], 4],
+      [{0.06}, "bent_number", [9.5, "TACHYMETRE"], 2.5]
     ],
     [21,
       [1, "border", [1]]
@@ -69,12 +69,12 @@
     ],
     ["a_len + b_off",
       [12, "line", ["c_len", "c_width"]],
-      [{"0.85/60", "-0.85/60"}, "circle", ["c_diameter"], "black", "c_len - c_diameter-0.3"]
+      [{"0.85/60", "-0.85/60"}, "circle", ["c_diameter"], "c_len - c_diameter-0.3"]
     ],
     ["c_off",
       [{0.25}, "face", ["sub_dia", "sub_a"]],
       [{0.75}, "face", ["sub_dia", "sub_b"]],
-      [{0.5}, "date", ["35", "24"], "white", "1"]
+      [{0.5}, "date", ["35", "24"], 1, "white"]
     ]
   ]
 

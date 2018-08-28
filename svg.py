@@ -5,7 +5,8 @@ from enum import Enum, auto
 from random import random
 
 from shape import Shape
-from util import get_enum, check_args, get_cent, get_point, get_point_xy
+from util import get_enum, check_args, get_cent, get_point, get_point_xy, \
+    add_defaults
 
 
 NUM_FACT = 6
@@ -105,20 +106,11 @@ def get_bent_prms(prms, args):
 
 
 def get_num_args(prms):
-    args = prms.args
-    orient, font, weight, bent = '', 'arial', '', False
-    if len(args) == 2:
-        size, kind = args
-    elif len(args) == 3:
-        size, kind, orient = args
-    elif len(args) == 4:
-        size, kind, orient, font = args
-    else:
-        size, kind, orient, font, weight = args
-    orient = get_orient(orient)
+    size, kind, orient, font, weight, bent = \
+        add_defaults(prms.args, [None, 'hour', '', 'arial', '', False])
     NumArgs = namedtuple('NumArgs', ['size', 'kind', 'orient', 'font', 'weight',
                                      'bent'])
-    return NumArgs(size, kind, orient, font, weight, bent)
+    return NumArgs(size, kind, get_orient(orient), font, weight, bent)
 
 
 def get_num_size(size):

@@ -1,0 +1,33 @@
+[
+  {
+    "DIAMETER": 529, "line_a_length": 14, "width": 2.5, "inner_length": 55,
+    "sub_1": [
+      [
+        [0,
+          [1, "border", [0.5], 0, "lightgrey"]
+        ],
+        [6,
+          [1, "border", [0.5], 0, "lightgrey"]
+        ],
+        [5,
+          [4, "line", ["line_a_length", "width"]],
+          [12, "line", ["line_a_length", 1.25]]
+        ]
+      ]
+    ]
+  },
+  [
+    [15,
+      [12, "line", ["line_a_length", "width"]],
+      [60, "line", ["line_a_length", 0.75]]
+    ],
+    [25,
+      [{0.5}, "circle", [0]],
+      [6, "number", ["inner_length"]],
+      [12, "line fixed", ["inner_length", "width"]]
+    ],
+    [32,
+      [{0.5}, "face", [164, "sub_1"]]
+    ]
+  ]
+]

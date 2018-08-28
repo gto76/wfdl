@@ -45,11 +45,11 @@
     [7,
       [[15, -0.35, 0.35], "number",
        [14, {"kind": -15, "offset": "2/3", "use_zero": True}, "rotating"]],
-      [[30, -0.35, 0.35], "upside_triangle", [4, 8], "black", 10]
+      [[30, -0.35, 0.35], "upside_triangle", [4, 8], 10]
     ],
     [18,
       [1, "border", ["line_w", "_fi"]],
-      [{0.5}, "face", [92, "sub_a"], "black", -23]
+      [{0.5}, "face", [92, "sub_a"], -23]
     ]
   ]
 ]

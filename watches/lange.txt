@@ -19,10 +19,10 @@
         [
           [0,
             [1, "border", [1]],
-            [1, "border", [1], "black", "num_len+19"]
+            [1, "border", [1], "num_len+19"]
           ],
           [0,
-            [{0.5}, "face fixed centered", [90, "subsub_face"], "black", 30]
+            [{0.5}, "face fixed centered", [90, "subsub_face"], 30]
           ],
           [4,
             [6, "line", [7, 3]],
@@ -80,10 +80,10 @@
               ["num_len",  {"kind": "day", "offset": "1/14"}]]
           ],
           [0,
-            [1, "face fixed centered", [60, "subsub_face_2"], "black", "-(2*num_len+4)"]
+            [1, "face fixed centered", [60, "subsub_face_2"], "-(2*num_len+4)"]
           ],
           [0,
-            [1, "upside_triangle", [33, 14], "black", "-(2*num_len+4+14)"]
+            [1, "upside_triangle", [33, 14], "-(2*num_len+4+14)"]
           ]
         ]
       ]
@@ -101,13 +101,13 @@
           "line", ["a_len*0.6", "a_width*0.3"]]
     ],
     ["a_len+b_off",
-      [1, "bent_number", [7, ["A. LANGE & SOHNE"]], "black", 3],
+      [1, "bent_number", [7, ["A. LANGE & SOHNE"]], 3],
       [{"tachy": [70, 80, 90, 100, 110, 120]},
           "number", ["b_len", "tachy"]],
       [{"tachy": [130, 140, 150, 160, 170, 180, 190, 210, 240]},
           "number", ["b_len*0.7", "tachy", "perpendicular"]],
       [{"tachy": [280, 330, 400]},
-          "number", ["b_len*0.5", "tachy"], "black", 1]
+          "number", ["b_len*0.5", "tachy"], 1]
     ],
     [10,
       [1, "border", [0.45]]
@@ -124,7 +124,7 @@
       [12, "line", ["d_len", "d_width"]]
     ],
     [4,
-      [1, "date", [29, 48], "black", 14],
+      [1, "date", [29, 48], 14],
       [{0.3135}, "face", ["sub_1_len", "sub_1"]],
       [{0.6865}, "face", ["sub_1_len", "sub_2"]]
     ],

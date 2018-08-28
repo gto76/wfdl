@@ -28,7 +28,7 @@
           ],
           [5,
             [{0}, "bent_number", [12, ["DAYS"]]],
-            [[8, 0.1, 0.9], "number", [12, -8, "horizontal"], "white"]
+            [[8, 0.1, 0.9], "number", [12, -8, "horizontal"], 0, "white"]
           ]
         ]
       ],
@@ -64,7 +64,7 @@
       [12, "number fixed", ["c_len", "hour", "horizontal"]]
     ],
     [0,
-      [{0}, "face", ["_face_d", "sub_0"], 'white', 7],
+      [{0}, "face", ["_face_d", "sub_0"], 7, "white"],
       [{0.25}, "face", ["_face_d", "sub_1"]],
       [{0.5}, "face", ["_face_d", "sub_2"]],
       [{0.75}, "face", ["_face_d", "sub_3"]]

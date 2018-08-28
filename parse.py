@@ -18,7 +18,7 @@ from ranges import GrpRanges, range_occupied, update_ranges, pos_occupied, \
 from shape import Shape
 from svg import get_shape
 from util import replace_matched_items, read_file, write_to_file, get_enum, \
-    check_args, get_rad, get_point
+    check_args, get_rad, get_point, add_defaults
 
 
 BASE = 0.75
@@ -223,7 +223,8 @@ def get_group(r, group, ranges, r_factor):
 
 def get_subgroup(r, subgroup, ranges, curr_ranges, r_factor):
     """Subgroup consists of objects with same properties except for fi."""
-    pos, shape_name, args, color, offset = get_subgroup_prms(subgroup)
+    pos, shape_name, args, offset, color = \
+        add_defaults(subgroup, [None, None, None, 0, 'black'])
     offset *= r_factor
     shape_name, fixed, centered = parse_shape(shape_name)
     shape = get_enum(Shape, shape_name, subgroup)
@@ -234,18 +235,6 @@ def get_subgroup(r, subgroup, ranges, curr_ranges, r_factor):
     r -= offset
     prmii = (ObjParams(shape, r, fi, list(args), color) for fi in fii)
     return get_objects(ranges, curr_ranges, prmii, fixed, subgroup, r_factor)
-
-
-def get_subgroup_prms(subgroup):
-    offset, color = 0, "black"
-    no_el = get_no_el(subgroup)
-    if no_el == 3:
-        pos, shape_name, args = subgroup
-    elif no_el == 4:
-        pos, shape_name, args, color = subgroup
-    else:
-        pos, shape_name, args, color, offset = subgroup
-    return pos, shape_name, args, color, offset
 
 
 def get_no_el(subgroup):

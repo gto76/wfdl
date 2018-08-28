@@ -156,3 +156,8 @@ def read_file(filename):
 def write_to_file(filename, text):
     with open(filename, 'w', encoding='utf-8') as file:
         file.write(text)
+
+
+def add_defaults(a_list, defaults):
+    for i, default in enumerate(defaults):
+        yield a_list[i] if i < len(a_list) else default
