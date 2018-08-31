@@ -3,9 +3,10 @@ import sys
 from collections import namedtuple
 
 
-OptInfo = namedtuple('OptInfo', ['long', 'short', 'requires_arg', 'default'])
+OptInfo = namedtuple('OptInfo', ['long', 'short', 'requires_arg', 'arg_type',
+                                 'default'])
 
-HELP_OPT = OptInfo('help', 'h', False, False)
+HELP_OPT = OptInfo('help', 'h', False, bool, False)
 
 #
 # def get_option_values(options, argv):
@@ -32,7 +33,7 @@ def get_option(opt, opts_dict):
     flag_present = not opt.requires_arg and out == ''
     if flag_present:
         return True
-    return out
+    return opt.arg_type(out)
 
 
 def parse_options(options, argv):

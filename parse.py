@@ -36,7 +36,7 @@ ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
 ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
 
 OPTIONS = (
-    OptInfo('max_lines', 'l', True, None)
+    OptInfo('max_lines', 'l', True, int, None)
 )
 
 
