@@ -1,0 +1,17 @@
+[
+  {
+    "DIAMETER": 210
+  },
+  [
+    [0,
+      [1, "border", ["0.5 * UNIT"]]
+    ],
+    [10,
+      [4, "number", [30, "hour", "horizontal"]],
+      [12, "rounded_line", [28, 4]]
+    ],
+    [42,
+      [1, "number", [10, ["LUMINOR"]]]
+    ]
+  ]
+]

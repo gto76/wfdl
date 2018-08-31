@@ -13,6 +13,7 @@ from collections import namedtuple
 from math import ceil, sqrt
 
 from fii import get_fii
+from options import OptInfo, get_option_values
 from ranges import GrpRanges, range_occupied, update_ranges, pos_occupied, \
     get_angular_width
 from shape import Shape
@@ -34,16 +35,21 @@ UNIT_KEY = 'UNIT'
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
 ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
 
+OPTIONS = (
+    OptInfo('max_lines', 'l', True, None)
+)
+
 
 ###
 ##  MAIN
 #
 
 def main():
-    if len(sys.argv) < 2:
-        svg = parse_all_watches(WATCHES_DIR)
+    max_lines, args = get_option_values(OPTIONS, sys.argv)
+    if len(args) < 1:
+        svg = parse_all_watches(WATCHES_DIR, max_lines)
     else:
-        filename = f'{WATCHES_DIR}/{sys.argv[1]}'
+        filename = f'{WATCHES_DIR}/{args[0]}'
         svg = parse_single_watch(filename)
     write_to_file('index.html', f'{HEAD} {svg} {TAIL}')
 
@@ -54,11 +60,13 @@ def parse_single_watch(filename):
            f'"translate(150, 150), scale({BASE})")>{svg}</g></svg>\n'
 
 
-def parse_all_watches(directory):
+def parse_all_watches(directory, max_lines=None):
     out = []
     filenames = os.listdir(directory)
     filenames = [a for a in filenames if '.txt' in a]
-    no_columns = ceil(sqrt(len(filenames)))
+    no_watches = len(filenames)
+    no_columns = ceil(sqrt(no_watches)) if not max_lines else \
+        ceil(no_watches / max_lines)
     x, y = 0, 0
     for i, filename in enumerate(filenames, 1):
         svg = get_watch_relative(directory, filename, x, y)
