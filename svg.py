@@ -63,12 +63,6 @@ def get_number(prms):
     rot = get_num_rotation(args.orient, prms.fi)
     return _get_text(text=i, point=p, size=args.size, rotation=rot,
                      color=prms.color, weight=args.weight, font=args.font)
-    # return f'<g transform="translate({p.x}, {p.y})"><text ' \
-    #        f'transform="rotate({rot}), translate(0, {args.size/NUM_FACT})" ' \
-    #        f'class="title" fill="{prms.color}" fill-opacity="1" ' \
-    #        f'font-size="{get_num_size(args.size)}" ' \
-    #        f'font-weight="{args.weight}" font-family="{args.font}" ' \
-    #        f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
 
 
 def _get_text(text, point, size, rotation, color, weight, font):
@@ -145,8 +139,12 @@ def _get_border(prms, shifted=False):
         return _get_circle(r, height, prms.color)
     arc_sweep = 0 if fi < 0.5 else 1
     rng = fi * 2 * pi / 2
-    d = describe_arc(0, 0, r, prms.fi, prms.fi + 2*rng, arc_sweep) if shifted \
-        else describe_arc(0, 0, r, prms.fi - rng, prms.fi + rng, arc_sweep)
+    if not shifted:
+        start_fi, end_fi = prms.fi - rng, prms.fi + rng
+    else:
+        start_fi, end_fi = prms.fi, prms.fi + (2 * rng)
+    d = describe_arc(x=0, y=0, r=r, start_fi=start_fi, end_fi=end_fi,
+                     arc_sweep=arc_sweep)
     return f'<g stroke="{prms.color}" fill="none" stroke-width="{height}">' \
            f'<path d="{d}"/></g>'
 
@@ -186,17 +184,23 @@ def get_lange_date(prms):
     width = height * (122/74)
     line_width = height * (8/74)
     text_size = height * (46/74)
+    text_1x = height * (-28.5/74)
+    text_2x = -text_1x
     surface = _get_line(-width/2, 0, width/2, 0, height, 'white')
     line_1 = _get_line(-width/2, (-height/2)+line_width/2, width/2, (-height/2)+line_width/2, line_width, 'black')
     line_2 = _get_line(-width/2, (height/2)-line_width/2, width/2, (height/2)-line_width/2, line_width, 'black')
     line_3 = _get_line(-width/2+line_width/2, -height/2, -width/2+line_width/2, height/2, line_width, 'black')
     line_4 = _get_line(0, -height/2, 0, height/2, line_width, 'black')
     line_5 = _get_line(width/2-line_width/2, -height/2, width/2-line_width/2, height/2, line_width, 'black')
+    num_1 = get_lange_number(text='2', x=text_1x, size=text_size)
+    num_2 = get_lange_number(text='5', x=text_2x, size=text_size)
     pos = get_point(prms.fi, prms.r - height / 2)
+    return f'<g transform="translate({pos.x}, {pos.y})">{surface}{line_1}{line_2}{line_3}{line_4}{line_5}{num_1}{num_2}</g>'
 
 
-
-    return f'<g transform="translate({pos.x}, {pos.y})">{surface}{line_1}{line_2}{line_3}{line_4}{line_5}</g>'
+def get_lange_number(text, x, size):
+    return _get_text(text=text, point=get_point_xy(x, 0), size=size, rotation=0,
+                     color='black', weight='', font='')
 
 
 def get_rounded_line(prms):
