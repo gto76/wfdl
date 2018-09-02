@@ -20,7 +20,7 @@ class Shape(Enum):
     line = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100), 2)            # height, width
     rounded_line = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100), 2)    # height, width
     two_lines = Properties(lambda a: a[0], lambda a: 2*a[1] + a[1]*a[2], 3, (100, 100, 10), 2) # height, width, distance_factor
-    circle = Properties(lambda a: a[0], lambda a: a[0], 1, (100, ), 1)             # height
+    circle = Properties(lambda a: a[0], lambda a: a[0], 1, (200, ), 1)             # height
     triangle = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100), 2)        # height, width
     upside_triangle = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100), 2) # height, width
     square = Properties(lambda a: a[0], lambda a: a[0], 1, (100, ), 1)             # height
@@ -31,7 +31,8 @@ class Shape(Enum):
     tear = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100), 2)            # height, width
     spear = Properties(lambda a: a[0], lambda a: a[1], 3, (100, 100, 1), 2)        # height, width, center
     date = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100), 2)            # height, width, params
-    moonphase = Properties(lambda a: a[0], lambda a: 2*a[0], 1, (100,), 1)            # height
+    lange_date = Properties(lambda a: a[0], lambda a: a[0]*(122/74), 1, (100, ), 1)      # height
+    moonphase = Properties(lambda a: a[0], lambda a: 2*a[0], 1, (100,), 1)         # height
 
 
     def get_height(self, args):

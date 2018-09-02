@@ -1,5 +1,5 @@
 from collections import namedtuple
-from math import asin, pi
+from math import asin, pi, sqrt
 
 
 BORDER_FACTOR = 0.1
@@ -72,5 +72,10 @@ def get_angular_width(shape, args, r):
 
 
 def compute_angular_width(width, r):
-    a_sin = width / r
-    return asin(a_sin) / (2 * pi)
+    tg = sqrt((width/2)**2 + r**2)
+    a_sin = (width/2) / tg
+    return (asin(a_sin) / (2 * pi)) * 2
+
+    # old:
+    # a_sin = width / r
+    # return asin(a_sin) / (2 * pi)

@@ -22,6 +22,8 @@ from util import replace_matched_items, read_file, write_to_file, get_enum, \
     check_args, get_rad, get_point, add_defaults
 
 
+INVERT_COLOR = False
+
 BASE = 0.75
 HEAD = f'<html>\n'
 TAIL = "\n</html>"
@@ -123,6 +125,13 @@ def get_watch(watch_str, r_factor=1):
         bezel_svg = bezel_parts
     face_svg, _ = get_part_svg(face, r_factor)
     svg = ''.join(bezel_svg + face_svg)
+
+    # Move the background here (from get_subface)
+    # bckg = f'<circle cx={p.x} cy={p.y} r={size/2+VER_BORDER} ' \
+    #        f'style="stroke-width:0; fill: {fill_color};"></circle>'
+    # return f'{bckg}<g transform="translate({p.x}, {p.y}), scale({scale})">' \
+    #        f'{svg}</g>'
+
     return scale_svg(svg, bezel_height)
 
 
@@ -359,8 +368,17 @@ def get_svg_el(prms, dbg_context, r_factor):
     rad = get_rad(prms.fi)
     prms_rad = ObjParams(prms.shape, prms.r, rad, prms.args, prms.color)
     if prms.shape != Shape.face:
+        if INVERT_COLOR:
+            prms_rad = invert_color(prms_rad)
         return get_shape(prms_rad, dbg_context)
     return get_subface(prms_rad, r_factor)
+
+
+def invert_color(prms):
+    new_color = prms.color
+    if prms.color in ('black', 'white', ''):
+        new_color = 'black' if prms.color == 'white' else 'white'
+    return ObjParams(prms.shape, prms.r, prms.fi, prms.args, new_color)
 
 
 def transpose_el_with_neg_height(prms):
@@ -379,8 +397,9 @@ def get_subface(prms, r_factor):
     svg = get_watch(face_str, r_factor_sub)
     p = get_point(prms.fi, prms.r - size/2)
     scale = size / 200
+    fill_color = 'black' if INVERT_COLOR else 'white'
     bckg = f'<circle cx={p.x} cy={p.y} r={size/2+VER_BORDER} ' \
-        f'style="stroke-width:0; fill: rgb(255, 255, 255);"></circle>'
+        f'style="stroke-width:0; fill: {fill_color};"></circle>'
     return f'{bckg}<g transform="translate({p.x}, {p.y}), scale({scale})">' \
         f'{svg}</g>'
 

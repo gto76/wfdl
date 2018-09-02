@@ -61,12 +61,23 @@ def get_number(prms):
     p = get_point(prms.fi, r)
     i = get_num_str(args.kind, prms.fi)
     rot = get_num_rotation(args.orient, prms.fi)
-    return f'<g transform="translate({p.x}, {p.y})"><text ' \
-           f'transform="rotate({rot}), translate(0, {args.size/NUM_FACT})" ' \
-           f'class="title" fill="{prms.color}" fill-opacity="1" ' \
-           f'font-size="{get_num_size(args.size)}" ' \
-           f'font-weight="{args.weight}" font-family="{args.font}" ' \
-           f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
+    return _get_text(text=i, point=p, size=args.size, rotation=rot,
+                     color=prms.color, weight=args.weight, font=args.font)
+    # return f'<g transform="translate({p.x}, {p.y})"><text ' \
+    #        f'transform="rotate({rot}), translate(0, {args.size/NUM_FACT})" ' \
+    #        f'class="title" fill="{prms.color}" fill-opacity="1" ' \
+    #        f'font-size="{get_num_size(args.size)}" ' \
+    #        f'font-weight="{args.weight}" font-family="{args.font}" ' \
+    #        f'alignment-baseline="middle" text-anchor="middle">{i}</text></g>'
+
+
+def _get_text(text, point, size, rotation, color, weight, font):
+    return f'<g transform="translate({point.x}, {point.y})"><text ' \
+           f'transform="rotate({rotation}), translate(0, {size/NUM_FACT})" ' \
+           f'class="title" fill="{color}" fill-opacity="1" ' \
+           f'font-size="{get_num_size(size)}" ' \
+           f'font-weight="{weight}" font-family="{font}" ' \
+           f'alignment-baseline="middle" text-anchor="middle">{text}</text></g>'
 
 
 def get_bent_number(prms):
@@ -168,6 +179,24 @@ def get_date(prms):
                 [txt_size, '27', 'horizontal'], color)
     txt = get_number(prms)
     return bckg + txt
+
+
+def get_lange_date(prms):
+    height = prms.args[0]
+    width = height * (122/74)
+    line_width = height * (8/74)
+    text_size = height * (46/74)
+    surface = _get_line(-width/2, 0, width/2, 0, height, 'white')
+    line_1 = _get_line(-width/2, (-height/2)+line_width/2, width/2, (-height/2)+line_width/2, line_width, 'black')
+    line_2 = _get_line(-width/2, (height/2)-line_width/2, width/2, (height/2)-line_width/2, line_width, 'black')
+    line_3 = _get_line(-width/2+line_width/2, -height/2, -width/2+line_width/2, height/2, line_width, 'black')
+    line_4 = _get_line(0, -height/2, 0, height/2, line_width, 'black')
+    line_5 = _get_line(width/2-line_width/2, -height/2, width/2-line_width/2, height/2, line_width, 'black')
+    pos = get_point(prms.fi, prms.r - height / 2)
+
+
+
+    return f'<g transform="translate({pos.x}, {pos.y})">{surface}{line_1}{line_2}{line_3}{line_4}{line_5}</g>'
 
 
 def get_rounded_line(prms):
