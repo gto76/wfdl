@@ -13,6 +13,7 @@ from collections import namedtuple
 from math import ceil, sqrt
 
 from fii import get_fii
+from fonts import get_font_def
 from options import OptInfo, get_option_values
 from ranges import GrpRanges, range_occupied, update_ranges, pos_occupied, \
     get_angular_width
@@ -34,6 +35,8 @@ RADIUS_KEY = 'RADIUS'
 DIAMETER_KEY = 'DIAMETER'
 UNIT_KEY = 'UNIT'
 
+INCLUDED_FONTS = 'lange',
+
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
 ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
 
@@ -53,7 +56,13 @@ def main():
     else:
         filename = f'{WATCHES_DIR}/{args[0]}'
         svg = parse_single_watch(filename)
-    write_to_file('index.html', f'{HEAD} {svg} {TAIL}')
+    write_to_file('index.html', f'{get_head()} {svg} {TAIL}')
+
+
+def get_head():
+    fonts_defs = [get_font_def(a) for a in INCLUDED_FONTS]
+    fonts_css = '\n'.join(fonts_defs)
+    return f'{HEAD}\n<style type="text/css">\n{fonts_css}\n</style>'
 
 
 def parse_single_watch(filename):

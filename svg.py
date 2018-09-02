@@ -200,7 +200,7 @@ def get_lange_date(prms):
 
 def get_lange_number(text, x, size):
     return _get_text(text=text, point=get_point_xy(x, 0), size=size, rotation=0,
-                     color='black', weight='', font='')
+                     color='black', weight='', font='lange')
 
 
 def get_rounded_line(prms):
