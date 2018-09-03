@@ -66,6 +66,7 @@ def get_number(prms):
 
 
 def _get_text(text, point, size, rotation, color, weight, font):
+    """Point denotes the center of the text."""
     return f'<g transform="translate({point.x}, {point.y})"><text ' \
            f'transform="rotate({rotation}), translate(0, {size/NUM_FACT})" ' \
            f'class="title" fill="{color}" fill-opacity="1" ' \
@@ -181,10 +182,11 @@ def get_date(prms):
 
 def get_lange_date(prms):
     height = prms.args[0]
-    width = height * (122/74)
-    line_width = height * (8/74)
-    text_size = height * (46/74)
-    text_1x = height * (-28.5/74)
+    orig_height = 74
+    width = height * (122/orig_height)
+    line_width = height * (8/orig_height)
+    text_size = height * (46/orig_height)
+    text_1x = height * (-28.5/orig_height)
     text_2x = -text_1x
     surface = _get_line(-width/2, 0, width/2, 0, height, 'white')
     line_1 = _get_line(-width/2, (-height/2)+line_width/2, width/2, (-height/2)+line_width/2, line_width, 'black')
@@ -201,6 +203,60 @@ def get_lange_date(prms):
 def get_lange_number(text, x, size):
     return _get_text(text=text, point=get_point_xy(x, 0), size=size, rotation=0,
                      color='black', weight='', font='lange_thin')
+
+
+def get_patek_date(prms):
+    height = prms.args[0]
+    orig_height = 47
+    width_all = height * (125/orig_height)
+    width_single = height * (60/orig_height)
+    line_width = height * (1/orig_height)
+    border_width = height * (9/orig_height)
+    text_size = height * (22/orig_height)
+    left_window = _get_patek_window('MON', height, width_single, line_width,
+                                 border_width, text_size)
+    right_window = _get_patek_window('JUL', height, width_single, line_width,
+                                 border_width, text_size)
+    win_l = f'<g transform="translate({-width_all/2}, 0)">{left_window}</g>'
+    win_r = f'<g transform="translate({(width_all-2*width_single)/2}, 0)">{right_window}</g>'
+    p = get_point(prms.fi, prms.r)
+    return f'<g transform="translate({p.x}, {p.y})">{win_l}{win_r}</g>'
+
+
+def _get_patek_window(text, height, width_single, line_width, border_width,
+                      text_size):
+    outer_rect = _get_rectangle(width=width_single, height=height,
+                                stroke_width=line_width, fill='white',
+                                stroke='black')
+    inner_rect = _get_rectangle(width=width_single - 2 * border_width,
+                                height=height - 2 * border_width,
+                                stroke_width=line_width, fill='white',
+                                stroke='black',
+                                additional_attr=f'transform="translate({border_width}, {border_width})"')
+    # outer_rect = _get_rectangle_b(width=width_single,
+    #                             height=height,
+    #                             line_width=line_width)
+    # inner_rect = _get_rectangle_b(width=width_single - 2 * border_width,
+    #                             height=height - 2 * border_width,
+    #                             line_width=line_width,
+    #                             additional_attr=f'transform="translate({border_width}, {border_width})"')
+    text = _get_text(text=text,
+                     point=get_point_xy(width_single/2, height/2),
+                     size=text_size, rotation=0, color='black', weight='',
+                     font='patek_date')
+    return f'{outer_rect}{inner_rect}{text}'
+
+
+def _get_rectangle(width, height, stroke_width, fill, stroke, additional_attr=''):
+    return f'<rect width="{width}" height="{height}" style="fill:{fill};stroke-width:{stroke_width};stroke:{stroke}" {additional_attr}/>'
+
+
+def _get_rectangle_b(width, height, line_width, color='black', additional_attr=''):
+    hor_line_1 = _get_line(0, 0, width, 0, line_width, color)
+    hor_line_2 = _get_line(0, height, width, height, line_width, color)
+    ver_line_1 = _get_line(0, 0, 0, height, line_width, color)
+    ver_line_2 = _get_line(width, 0, width, height, line_width, color)
+    return f'<g {additional_attr}>{hor_line_1}{hor_line_2}{ver_line_1}{ver_line_2}</g>'
 
 
 def get_rounded_line(prms):

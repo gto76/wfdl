@@ -13,7 +13,7 @@ from collections import namedtuple
 from math import ceil, sqrt
 
 from fii import get_fii
-from fonts import get_font_def
+from fonts import get_font_def, FONTS_ALIASES
 from options import OptInfo, get_option_values
 from ranges import GrpRanges, range_occupied, update_ranges, pos_occupied, \
     get_angular_width
@@ -60,7 +60,8 @@ def main():
 
 
 def get_head():
-    fonts_defs = [get_font_def(a) for a in INCLUDED_FONTS]
+    # fonts_defs = [get_font_def(a) for a in INCLUDED_FONTS]
+    fonts_defs = [get_font_def(a) for a in FONTS_ALIASES]
     fonts_css = '\n'.join(fonts_defs)
     return f'{HEAD}\n<style type="text/css">\n{fonts_css}\n</style>'
 

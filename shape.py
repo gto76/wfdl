@@ -35,6 +35,7 @@ class Shape(Enum):
     spear = Properties(lambda a: a[0], lambda a: a[1], 3, (100, 100, 1), 2)        # height, width, center
     date = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100), 2)            # height, width, params
     lange_date = Properties(lambda a: a[0], lambda a: a[0]*(122/74), 1, (100, ), 1)      # height
+    patek_date = Properties(lambda a: a[0], lambda a: a[0]*(125/47), 1, (100, ), 1)      # height
     moonphase = Properties(lambda a: a[0], lambda a: 2*a[0], 1, (100, 10, 40, 80), 1)         # height
 
 

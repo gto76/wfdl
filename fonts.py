@@ -2,7 +2,8 @@ from genericpath import isfile
 
 
 FONTS_FOLDER = 'fonts'
-FONTS_ALIASES = {'lange': 'engraversmtbold', 'lange_thin': 'engr'}
+FONTS_ALIASES = {'lange': 'engraversmtbold', 'lange_thin': 'engr',
+                 'patek_date': 'steelfish.regular'}
 
 
 def get_font_def(font_name):
