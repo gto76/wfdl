@@ -7,9 +7,9 @@
         [
           [5,
             [{"pos": 59, "filter": [4, 8, 12, 20, 24, 29.5]},
-             "bent_number fixed", ["font_s", 59, "rotating"]],
+             "bent_number fixed", ["font_s", 59, "arial", "rotating"]],
             [{"pos": 59, "filter": [33.5, 37.5, 41.5, 49.5, 53.5, 59]},
-             "bent_number fixed", ["font_s", {"kind": 59, "offset": 0.5}, "rotating"]]
+             "bent_number fixed", ["font_s", {"kind": 59, "offset": 0.5}, "arial", "rotating"]]
           ],
           [5,
             [{"pos":2, "offset": 0.25}, "circle", [76]]
@@ -19,30 +19,30 @@
     "sub_1": [
         [
           [5,
-            [{0}, "number centered", [10, 31, "half_rotating"]],
+            [{0}, "number centered", [10, 31, "arial", "half_rotating"]],
             [15.5, "circle centered", [3]],
-            [31, "number centered", [10, 31, "half_rotating"]]
+            [31, "number centered", [10, 31, "arial", "half_rotating"]]
           ],
           [15,
             [{0.5}, "border", [22, 0.875]]
           ],
           [5,
-            [{0}, "bent_number", [12, ["DAYS"]]],
-            [[8, 0.1, 0.9], "number", [12, -8, "horizontal"], 0, "white"]
+            [{0}, "bent_number", [12, ["DAYS"], "arial"]],
+            [[8, 0.1, 0.9], "number", [12, -8, "arial", "horizontal"], 0, "white"]
           ]
         ]
       ],
     "sub_2": [
         [
           [0,
-            [12, "bent_number", [13, "month", "half_rotating"]]
+            [12, "bent_number", [13, "month", "arial" "half_rotating"]]
           ]
         ]
       ],
     "sub_3": [
         [
           [6.5,
-            [7, "bent_number centered", [13, "day", "half_rotating"]],
+            [7, "bent_number centered", [13, "day", "arial", "half_rotating"]],
             [14, "circle centered", [3]]
           ],
           [18.5,
@@ -61,7 +61,7 @@
       [60, "circle", ["b_len"]]
     ],
     ["b_off",
-      [12, "number fixed", ["c_len", "hour", "horizontal"]]
+      [12, "number fixed", ["c_len", "hour", "arial", "horizontal"]]
     ],
     [0,
       [{0}, "face", ["_face_d", "sub_0"], 7, "white"],

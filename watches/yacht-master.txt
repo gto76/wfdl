@@ -8,7 +8,7 @@
           [1, "border", [1]]
         ],
         [8,
-          [6, "bent_number centered", [8, "minute", "rotating"]],
+          [6, "bent_number centered", [8, "minute", "arial", "rotating"]],
           [12, "line centered", [8, 1]]
         ],
         [8,
@@ -26,8 +26,8 @@
     ],
     [17.5,
       [[15, -0.35, 0.35], "number centered",
-          [25, {"kind": -15, "offset": "2/3", "use_zero": True}, "rotating"]],
-      [{0.5}, "bent_number centered", [20, "YACHT-MASTER II"]]
+          [25, {"kind": -15, "offset": "2/3", "use_zero": True}, "arial", "rotating"]],
+      [{0.5}, "bent_number centered", [20, "YACHT-MASTER II", "arial"]]
     ],
     [17.5,
       [1, "border", [1]]
@@ -44,7 +44,7 @@
     ],
     [7,
       [[15, -0.35, 0.35], "number",
-       [14, {"kind": -15, "offset": "2/3", "use_zero": True}, "rotating"]],
+       [14, {"kind": -15, "offset": "2/3", "use_zero": True}, "arial", "rotating"]],
       [[30, -0.35, 0.35], "upside_triangle", [4, 8], 10]
     ],
     [18,

@@ -10,7 +10,7 @@
     ],
     [8,
       [1, "triangle", ["37", "58"]],
-      [6, "number", ["37", "minute", "rotating"]],
+      [6, "number", ["37", "minute", "arial", "rotating"]],
       [12, "line", ["37", "13"]],
       [[60, 0.25], "line", ["17", "5.5"]]
     ],

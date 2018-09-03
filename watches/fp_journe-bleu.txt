@@ -13,7 +13,7 @@
           ],
           [12,
             [1, "border", [2.5]],
-            [6, "number", [22, "minute", "rotating"], 11],
+            [6, "number", [22, "minute", "arial", "rotating"], 11],
             [12, "line", [40, 2.5]]
           ]
         ]
@@ -32,7 +32,7 @@
       [1, "border", [3]]
     ],
     [22,
-      [12, "number", [97, "hour", "rotating"]]
+      [12, "number", [97, "hour", "arial", "rotating"]]
     ],
     [129,
       [1, "border", [3.5]]

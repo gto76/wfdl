@@ -23,7 +23,7 @@
     ],
     [25,
       [{0.5}, "circle", [0]],
-      [6, "number", ["inner_length"]],
+      [6, "number", ["inner_length", "hour", "arial"]],
       [12, "line fixed", ["inner_length", "width"]]
     ],
     [32,

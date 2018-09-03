@@ -7,11 +7,11 @@
       [1, "border", ["0.5 * UNIT"]]
     ],
     [10,
-      [4, "number", [30, "hour", "horizontal"]],
+      [4, "number", [30, "hour", "arial", "horizontal"]],
       [12, "rounded_line", [28, 4]]
     ],
     [42,
-      [1, "number", [10, ["LUMINOR"]]]
+      [1, "number", [10, ["LUMINOR"], "arial"]]
     ]
   ]
 ]

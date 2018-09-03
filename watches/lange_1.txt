@@ -12,7 +12,7 @@
             [60, "line", ["s1_line_h", 2]],
           ],
           [14,
-            [4, "number", [32, "roman", "rotating", "lange_thin"]],
+            [4, "number", [32, "roman", "times", "rotating"]],
             [12, "square", [24]]
           ]
         ]
@@ -35,7 +35,7 @@
       [1, "border", [2]]
     ],
     [19,
-      [1, "bent_number", [18, ["A. LANGE & SOHNE"], "rotating", "lange"], 3],
+      [1, "bent_number", [18, ["A. LANGE & SOHNE"], "lange_thin", "rotating"], 3],
       [{"2/12", "2.5/12", "3/12", "3.33/12", "3.5/12"}, "triangle", [8, 8]],
       [{"9/12"}, "face fixed", [338, "sub_1"]]
     ],

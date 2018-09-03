@@ -11,7 +11,7 @@
                 [1, "border", [1]]
               ],
               [10,
-                [4, "number", [27, {"kind": -4, "offset": 0.5}, "horizontal", "lange"]]
+                [4, "number", [27, {"kind": -4, "offset": 0.5}, "lange", "horizontal"]]
               ]
             ]
           ]
@@ -29,10 +29,10 @@
             [30, "line", [10, 1.5]]
           ],
           [11,
-            [[6, "-2/6", "2/6"], "number", ["num_len", 30, "half_rotating", "lange"]]
+            [[6, "-2/6", "2/6"], "number", ["num_len", 30, "lange", "half_rotating"]]
           ],
           ["2*num_len+4",
-            [6, "bent_number centered", ["num_len", {"kind": "month", "offset": "1/12"}]],
+            [6, "bent_number centered", ["num_len", {"kind": "month", "offset": "1/12"}, "times"]],
             [12, "circle centered", [4]]
           ]
         ]
@@ -67,7 +67,7 @@
             [60, "line", [7, 1.5]]
           ],
           [11,
-            [6, "number", ["num_len", "minute"]]
+            [6, "number", ["num_len", "minute", "lange"]]
           ],
           [0,
             [1, "face fixed centered", [90, "subsub_face_1"]]
@@ -77,7 +77,7 @@
           ],
           ["num_len",
             [{"pos": 7, "offset": "1/14"}, "bent_number centered",
-              ["num_len",  {"kind": "day", "offset": "1/14"}]]
+              ["num_len",  {"kind": "day", "offset": "1/14"}, "times"]]
           ],
           [0,
             [1, "face fixed centered", [60, "subsub_face_2"], "-(2*num_len+4)"]
@@ -101,13 +101,13 @@
           "line", ["a_len*0.6", "a_width*0.3"]]
     ],
     ["a_len+b_off",
-      [1, "bent_number", [7, ["A. LANGE & SOHNE"]], 3],
+      [1, "bent_number", [7, ["A. LANGE & SOHNE"], "lange_thin"], 3],
       [{"tachy": [70, 80, 90, 100, 110, 120]},
-          "number", ["b_len", "tachy"]],
+          "number", ["b_len", "tachy", "lange_thin"]],
       [{"tachy": [130, 140, 150, 160, 170, 180, 190, 210, 240]},
-          "number", ["b_len*0.7", "tachy", "perpendicular"]],
+          "number", ["b_len*0.7", "tachy", "lange_thin", "perpendicular"]],
       [{"tachy": [280, 330, 400]},
-          "number", ["b_len*0.5", "tachy"], 1]
+          "number", ["b_len*0.5", "tachy", "lange_thin"], 1]
     ],
     [10,
       [1, "border", [0.45]]

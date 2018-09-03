@@ -8,7 +8,7 @@
             [1, "border", [6]]
           ],
           [10,
-            [6, "number", [25, 30, "half_rotating", "arial", "normal"]],
+            [6, "number", [25, 30, "arial", "half_rotating"]],
             [30, "rounded_line", [10, 1.5]]
           ]
         ]
@@ -20,7 +20,7 @@
             [1, "border", [6]]
           ],
           [10,
-            [6, "number", [25, "hour", "half_rotating", "arial", "normal"]],
+            [6, "number", [25, "hour", "arial", "half_rotating"]],
             [12, "rounded_line", [20, 3]],
             [24, "rounded_line", [10, 1.5]]
           ]
@@ -33,19 +33,19 @@
             [60, "rounded_line", [13, 1.5]]
           ],
           [40,
-            [1, "number", [35, "minute", "horizontal", "arial", "normal"]]
+            [1, "number", [35, "minute", "arial", "horizontal"]]
           ]
         ]
       ]
   },
   [
     [0,
-      [12, "number", [7.2, "minute", "rotating", "arial", "normal"]],
+      [12, "number", [7.2, "minute", "arial", "rotating"]],
       [60, "rounded_line", ["_a", "_b"]],
       [240, "rounded_line", ["_a / 2", "_b / 2"]]
     ],
     ["_a + 2",
-      [2, "number fixed", [35, "roman", "horizontal", "arial", "normal"]],
+      [2, "number fixed", [35, "roman", "arial", "horizontal"]],
       [12, "rounded_line", [28, 3]]
     ],
     [20,

@@ -35,13 +35,13 @@ RADIUS_KEY = 'RADIUS'
 DIAMETER_KEY = 'DIAMETER'
 UNIT_KEY = 'UNIT'
 
-INCLUDED_FONTS = 'lange',
+INCLUDED_FONTS = 'lange', 'lange_thin'
 
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
 ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
 
 OPTIONS = (
-    OptInfo('max_lines', 'l', True, int, None)
+    OptInfo('max_lines', 'l', True, int, 10000)
 )
 
 

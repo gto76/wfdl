@@ -4,7 +4,7 @@
   "sub_a": [
       [
         [0,
-          [4, "number", [9, "hour", "horizontal"]],
+          [4, "number", [9, "hour", "arial", "horizontal"]],
           [12, "rounded_line", [9, 1.5]]
         ]
       ]
@@ -24,11 +24,11 @@
     ],
     [4,
       [[12, 0.75, 1], "number",
-          [4.5, {"kind": -60, "countdown": True, "use_zero": True}]]
+          [4.5, {"kind": -60, "countdown": True, "use_zero": True}, "arial"]]
     ],
     [5,
       [{0.75}, "shifted_border", ["width_a", "10/60"]],
-      [{"11.5/12"}, "bent_number fixed", [3.5, "START"], 0, "white"],
+      [{"11.5/12"}, "bent_number fixed", [3.5, "START", "arial"], 0, "white"],
       [{"11/12"}, "shifted_border", [4, "1/12"]],
       [{"9/12", "10/12"}, "line", ["len_c", "width_b"]],
       [[60, 0.75, 0.91666], "line", ["len_c", "width_a"]]
@@ -45,7 +45,7 @@
       [1, "shifted_border", ["width_a", "11/12"]]
     ],
     [6,
-      [2, "number", [30, "hour", "horizontal"]],
+      [2, "number", [30, "hour", "arial", "horizontal"]],
       [12, "rounded_line", [28, 3.55]]
     ],
     [22,

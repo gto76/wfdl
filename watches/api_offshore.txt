@@ -7,7 +7,7 @@
     ],
     [1.5,
       [1, "triangle", ["10", "10"]],
-      [[6, 0.25, 1], "bent_number", [10, "minute", "rotating"]],
+      [[6, 0.25, 1], "bent_number", [10, "minute", "arial", "rotating"]],
       [12, "line", [10, "2"]],
       [[60, 0.25], "line", ["a_len", "a_width"]]
     ],

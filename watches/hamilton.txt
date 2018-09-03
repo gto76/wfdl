@@ -10,13 +10,13 @@
       [300, "line", ["a_len/2", "a_width"]]
     ],
     ["a_len/2+1",
-      [12, "number", ["a_len/2-1", "minute"]]
+      [12, "number", ["a_len/2-1", "minute", "arial"]]
     ],
     ["a_len + b_off",
-      [12, "number", ["b_len", "hour", "horizontal"]]
+      [12, "number", ["b_len", "hour", "arial", "horizontal"]]
     ],
     ["b_len + c_off",
-      [12, "number", ["b_len/2", "hour_24", "horizontal"]]
+      [12, "number", ["b_len/2", "hour_24", "arial", "horizontal"]]
     ]
   ]
 ]

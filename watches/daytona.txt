@@ -9,7 +9,7 @@
             [1, "border", [1]]
           ],
           [2,
-            [3, "number", ["subdial_font_size", 30, "horizontal"], 7],
+            [3, "number", ["subdial_font_size", 30, "arial", "horizontal"], 7],
             [6, "line", ["subdial_font_size", "subdial_line_width"]],
             [30, "line", [22, "subdial_line_width"]]
           ],
@@ -25,7 +25,7 @@
             [1, "border", [1]]
           ],
           [2,
-            [4, "number", ["subdial_font_size", "hour", "horizontal"], 10],
+            [4, "number", ["subdial_font_size", "hour", "arial", "horizontal"], 10],
             [12, "line", ["subdial_font_size", "subdial_line_width"]]
           ],
           ["subdial_font_size",
@@ -40,7 +40,7 @@
             [1, "border", [1]]
           ],
           [2,
-            [4, "number", ["subdial_font_size", "minute", "horizontal"], 10],
+            [4, "number", ["subdial_font_size", "minute", "arial", "horizontal"], 10],
             [12, "line", ["subdial_font_size", "subdial_line_width"]]
           ],
           ["subdial_font_size",
@@ -68,7 +68,7 @@
       [{0.75}, "face", ["subdial_diameter", "sub_3"]]
     ],
     [9,
-      [1, "number", [18, ["ROLEX"]]],
+      [1, "number", [18, ["ROLEX"], "arial"]],
     ]
   ]
 ]

@@ -111,11 +111,11 @@ def get_bent_prms(prms, args):
 
 
 def get_num_args(prms):
-    size, kind, orient, font, weight, bent = \
-        add_defaults(prms.args, [None, 'hour', '', 'arial', '', False])
-    NumArgs = namedtuple('NumArgs', ['size', 'kind', 'orient', 'font', 'weight',
+    size, kind, font, orient, weight, bent = \
+        add_defaults(prms.args, [None, 'hour', 'arial', '', '', False])
+    NumArgs = namedtuple('NumArgs', ['size', 'kind', 'font', 'orient', 'weight',
                                      'bent'])
-    return NumArgs(size, kind, get_orient(orient), font, weight, bent)
+    return NumArgs(size, kind, font, get_orient(orient), weight, bent)
 
 
 def get_num_size(size):
@@ -200,7 +200,7 @@ def get_lange_date(prms):
 
 def get_lange_number(text, x, size):
     return _get_text(text=text, point=get_point_xy(x, 0), size=size, rotation=0,
-                     color='black', weight='', font='lange')
+                     color='black', weight='', font='lange_thin')
 
 
 def get_rounded_line(prms):

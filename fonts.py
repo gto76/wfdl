@@ -16,5 +16,5 @@ def get_font_def(font_name):
            f'    src: url({font_path}) format("truetype");' \
            '}' \
            'p.customfont {' \
-           '    font-family: "{font_name}", Arial;' \
+           f'    font-family: "{font_name}", Arial;' \
            '}'
