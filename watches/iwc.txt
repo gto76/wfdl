@@ -19,9 +19,9 @@
     "sub_1": [
         [
           [5,
-            [{0}, "number centered", [10, 31, "arial", "half_rotating"]],
+            [{0}, "number centered", [10, 31, "arial"]],
             [15.5, "circle centered", [3]],
-            [31, "number centered", [10, 31, "arial", "half_rotating"]]
+            [31, "number centered", [10, 31, "arial"]]
           ],
           [15,
             [{0.5}, "border", [22, 0.875]]
@@ -35,14 +35,14 @@
     "sub_2": [
         [
           [0,
-            [12, "bent_number", [13, "month", "arial" "half_rotating"]]
+            [12, "bent_number", [13, "month", "arial"]]
           ]
         ]
       ],
     "sub_3": [
         [
           [6.5,
-            [7, "bent_number centered", [13, "day", "arial", "half_rotating"]],
+            [7, "bent_number centered", [13, "day", "arial"]],
             [14, "circle centered", [3]]
           ],
           [18.5,

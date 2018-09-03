@@ -7,9 +7,12 @@ Properties = namedtuple('Properties', ['get_height', 'get_width', 'min_no_args',
 
 
 class Shape(Enum):
-    """First property is the height formula. Second the is width formula. Third
-    has number of required arguments and fourth the maximum sizes of the
-    arguments. Fifth defines number of arguments that determine size."""
+    """First property is the height formula.
+    Second the is width formula.
+    Third has number of required arguments.
+    Fourth the maximum sizes of the arguments.
+    Fifth defines number of arguments that determine size."""
+
     number = Properties(lambda a: a[0], lambda a: a[0] * 1.34, None, None, 1)      # height, kind (minute, roman,
     # hour), orient (horizontal, rotating, half_rotating) [, font]
     bent_number = Properties(lambda a: a[0], lambda a: a[0] * 1.34, None, None, 1) # height, kind (minute, roman,
@@ -32,7 +35,7 @@ class Shape(Enum):
     spear = Properties(lambda a: a[0], lambda a: a[1], 3, (100, 100, 1), 2)        # height, width, center
     date = Properties(lambda a: a[0], lambda a: a[1], 2, (100, 100), 2)            # height, width, params
     lange_date = Properties(lambda a: a[0], lambda a: a[0]*(122/74), 1, (100, ), 1)      # height
-    moonphase = Properties(lambda a: a[0], lambda a: 2*a[0], 1, (100,), 1)         # height
+    moonphase = Properties(lambda a: a[0], lambda a: 2*a[0], 1, (100, 10, 40, 80), 1)         # height
 
 
     def get_height(self, args):
