@@ -1,0 +1,88 @@
+[
+  {"DIAMETER": 365,
+  "a_len": 7.6, "ta_circle_size": 5, "a_width": 1.2, "b_off": 2, "b_len": 32,
+  "c_len": 47, "c_width": 8, "c_off": 21, "sub_dia": 110,
+  "c_diameter": 10,
+  "su_off_a": 6, "su_len_a": 12, "su_len_b": 18.5,
+  "su_wi_a": 2.5, "su_wi_b": 1.5,
+  "sub_font_size": 13,
+  "sub_a":
+    [
+      [
+        [0,
+          [6, "line", ["su_len_b", 2.1]],
+          [30, "line", ["su_len_a", 1.4]]
+        ],
+        ["su_len_a+4",
+          [3, "number", [10.5, 30, "arial", "horizontal"]]
+        ]
+      ]
+    ],
+  "sub_b":
+    [
+      [
+        [0,
+          [4, "line", ["su_len_a", 2.5]],
+          [12, "line", ["su_len_a", 1.6]]
+        ],
+        ["(su_len_a/2)+2",
+          [4, "number", [11, "hour", "arial", "horizontal"], 2]
+        ]
+      ]
+    ],
+  "sub_c":
+    [
+      [
+        [0,
+          [3, "line", ["su_len_a", 2.7]],
+          [12, "line", ["su_len_a", 1.4]]
+        ],
+        ["(su_len_a/2)+2",
+          [3, "number", [11, "minute", "arial", "horizontal"]]
+        ]
+      ]
+    ]
+  },
+  [
+    [4,
+      [1, "border", [1]]
+    ],
+    [21,
+      [1, "border", [1]]
+    ],
+    [5,
+      [{"tachy": [60, 65, 70, 75, 80, 85, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 225, 250, 275, 300, 350, 400, 500]},
+        "circle", ["ta_circle_size"]],
+      [{"tachy": [95, 105, 115, 125, 135]},
+        "rounded_line", [14, 2.5]],
+      [{"tachy": [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100]},
+        "rounded_line", [9, 2.5]]
+    ],
+    [11,
+      [{"tachy": [60, 65, 70, 75, 80, 85, 90, 100, 110, 120, 130, 140, 150, 160, 170]},
+        "number", [13, "tachy", "arial", "horizontal"]],
+      [{"tachy": [250, 275, 300, 350, 400, 500], "offset": -0.007},
+        "number", [13, {"kind": "tachy", "offset": 0.007}, "arial", "horizontal"], 4],
+      [{"tachy": [180, 190, 200, 225], "offset": 0.007},
+        "number", [13, {"kind": "tachy", "offset": -0.007}, "arial", "horizontal"], 4],
+      [{0.06}, "bent_number", [9.5, "TACHYMETRE", "arial"], 2.5]
+    ],
+    [21,
+      [1, "border", [1]]
+    ]
+  ],
+  [
+    [0,
+      [12, "line fixed", ["c_len", "c_width"]],
+      [60, "rounded_line", ["b_len", "a_width"]],
+      [300, "rounded_line", ["a_len", "a_width"]]
+    ],
+    ["c_len",
+      [{"0.7/60", "-0.7/60"}, "circle", ["c_diameter"], "-(c_diameter+0.3)"],
+      [{0.25}, "face", ["sub_dia", "sub_a"]],
+      [{0.50}, "face", ["sub_dia", "sub_b"]],
+      [{0.75}, "face", ["sub_dia", "sub_c"]]
+    ]
+  ]
+
+]
