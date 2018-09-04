@@ -35,8 +35,6 @@ RADIUS_KEY = 'RADIUS'
 DIAMETER_KEY = 'DIAMETER'
 UNIT_KEY = 'UNIT'
 
-INCLUDED_FONTS = 'lange', 'lange_thin'
-
 ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
 ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
 
@@ -60,7 +58,6 @@ def main():
 
 
 def get_head():
-    # fonts_defs = [get_font_def(a) for a in INCLUDED_FONTS]
     fonts_defs = [get_font_def(a) for a in FONTS_ALIASES]
     fonts_css = '\n'.join(fonts_defs)
     return f'{HEAD}\n<style type="text/css">\n{fonts_css}\n</style>'

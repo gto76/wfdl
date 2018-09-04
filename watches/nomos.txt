@@ -17,6 +17,9 @@
     ]
   },
   [
+    [0,
+      [1, "border", [1.5]],
+    ],
     [15,
       [12, "line", ["line_a_length", "width"]],
       [60, "line", ["line_a_length", 0.75]]

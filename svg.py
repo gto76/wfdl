@@ -223,40 +223,45 @@ def get_patek_date(prms):
     return f'<g transform="translate({p.x}, {p.y})">{win_l}{win_r}</g>'
 
 
-def _get_patek_window(text, height, width_single, line_width, border_width,
+def _get_patek_window(text, height, width, line_width, border_width,
                       text_size):
-    outer_rect = _get_rectangle(width=width_single, height=height,
-                                stroke_width=line_width, fill='white',
+    outer_rect = _get_rectangle_l(width=width,
+                                height=height,
+                                stroke_width=line_width,
+                                fill='white',
                                 stroke='black')
-    inner_rect = _get_rectangle(width=width_single - 2 * border_width,
+    inner_rect = _get_rectangle_l(width=width - 2 * border_width,
                                 height=height - 2 * border_width,
-                                stroke_width=line_width, fill='white',
+                                stroke_width=line_width,
+                                fill='white',
                                 stroke='black',
                                 additional_attr=f'transform="translate({border_width}, {border_width})"')
-    # outer_rect = _get_rectangle_b(width=width_single,
-    #                             height=height,
-    #                             line_width=line_width)
-    # inner_rect = _get_rectangle_b(width=width_single - 2 * border_width,
-    #                             height=height - 2 * border_width,
-    #                             line_width=line_width,
-    #                             additional_attr=f'transform="translate({border_width}, {border_width})"')
+    diagonals = _get_patek_date_diagonals(width, height, border_width, line_width, 'lightgrey')
     text = _get_text(text=text,
-                     point=get_point_xy(width_single/2, height/2),
+                     point=get_point_xy(width/2, height/2),
                      size=text_size, rotation=0, color='black', weight='',
                      font='patek_date')
-    return f'{outer_rect}{inner_rect}{text}'
+    return f'{outer_rect}{inner_rect}{diagonals}{text}'
 
 
 def _get_rectangle(width, height, stroke_width, fill, stroke, additional_attr=''):
     return f'<rect width="{width}" height="{height}" style="fill:{fill};stroke-width:{stroke_width};stroke:{stroke}" {additional_attr}/>'
 
 
-def _get_rectangle_b(width, height, line_width, color='black', additional_attr=''):
-    hor_line_1 = _get_line(0, 0, width, 0, line_width, color)
-    hor_line_2 = _get_line(0, height, width, height, line_width, color)
-    ver_line_1 = _get_line(0, 0, 0, height, line_width, color)
-    ver_line_2 = _get_line(width, 0, width, height, line_width, color)
+def _get_rectangle_l(width, height, stroke_width, fill, stroke='black', additional_attr=''):
+    hor_line_1 = _get_line(0, 0, width, 0, stroke_width, stroke)
+    hor_line_2 = _get_line(0, height, width, height, stroke_width, stroke)
+    ver_line_1 = _get_line(0, 0, 0, height, stroke_width, stroke)
+    ver_line_2 = _get_line(width, 0, width, height, stroke_width, stroke)
     return f'<g {additional_attr}>{hor_line_1}{hor_line_2}{ver_line_1}{ver_line_2}</g>'
+
+
+def _get_patek_date_diagonals(width, height, border, line_width, color):
+    nw_line = _get_line(0, 0, border, border, line_width, color)
+    ne_line = _get_line(width, 0, width-border, border, line_width, color)
+    sw_line = _get_line(0, height, border, height-border, line_width, color)
+    se_line = _get_line(width, height, width-border, height-border, line_width, color)
+    return f'{nw_line}{ne_line}{sw_line}{se_line}'
 
 
 def get_rounded_line(prms):
