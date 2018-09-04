@@ -44,11 +44,26 @@ def replace_in_dict(a_dict, dictionary):
 def get_value_of_exp(exp, dictionary):
     if isinstance(exp, Number) or isinstance(exp, list):
         return exp
-    for key, value in dictionary.items():
-        exp = exp.replace(key, str(value))
+    tokens = [a for a in re.split('([ +\\-/*()])', exp) if a]
+    tokens_out = []
+    for token in tokens:
+        token_out = sub_exp(token, dictionary)
+        tokens_out.append(token_out)
+    exp = ''.join(tokens_out)
+
+    # for key, value in dictionary.items():
+        # exp = exp.replace(key, str(value))  #!!!!! more specific
+
     if re.search('[a-zA-Z]', exp):
         return exp
     return eval_expr(exp)
+
+
+def sub_exp(exp, dictionary):
+    for key, value in dictionary.items():
+        if exp == key:
+            return str(value)
+    return exp
 
 
 def eval_expr(expr):
