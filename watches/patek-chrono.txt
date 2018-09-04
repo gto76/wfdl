@@ -1,0 +1,72 @@
+[
+  {
+    "outline_offset": 5,
+    "line_width": 1,
+    "short_line_len": 3,
+    "long_line_len": 10,
+    "minute_offset": 0.5,
+    "hour_size": 15,
+    "hour_offset": 5,
+    "subdial_diameter": 70,
+    "sub_offset": 4,
+    "sub_line_width": 3,
+    "sub_wide_line_width": 6,
+    "sub_line_len": 15,
+    "sub_text_size": 20,
+    "sub_text_off": 10,
+    "right_sub":
+      [
+        [
+          [0,
+            [1, "border", ["sub_line_width"]],
+            [6, "line", ["sub_line_len", "sub_wide_line_width",]],
+            [30, "line", ["sub_line_len", "sub_line_width"]]
+          ],
+          ["sub_line_len",
+            [1, "border", ["sub_line_width"]],
+            [6, "number", ["sub_text_size", 30, "arial"], "sub_text_off"]
+          ]
+        ]
+      ],
+    "left_sub":
+      [
+        [
+          [0,
+            [1, "border", ["sub_line_width"]],
+            [6, "line", ["sub_line_len", "sub_wide_line_width"]],
+            [60, "line", ["sub_line_len", "sub_line_width"]]
+          ],
+          ["sub_line_len",
+            [1, "border", ["sub_line_width"]],
+            [6, "number", ["sub_text_size", "minute", "arial"], "sub_text_off"],
+            [12, "line", ["(sub_text_off*2)+sub_text_size", "sub_line_width"]]
+          ]
+        ]
+      ]
+  },
+  [
+    ["outline_offset",
+      [1, "border", [1]]
+    ]
+  ],
+  [
+    [0,
+      [1, "border", ["line_width"]],
+      [12, "line", ["short_line_len", "line_width"]],
+      [60, "line", ["long_line_len", "line_width"]],
+      [300, "line", ["short_line_len", "line_width"]]
+    ],
+    [0,
+      [12, "number", ["long_line_len - short_line_len - 2 * minute_offset", "minute", "arial"],
+        "short_line_len + minute_offset"]
+    ],
+    ["long_line_len",
+      [1, "border", ["line_width"]]
+    ],
+    [0,
+      [{"17/60"}, "face", ["subdial_diameter", "right_sub"], "sub_offset"],
+      [{"43/60"}, "face", ["subdial_diameter", "left_sub"], "sub_offset"],
+      [12, "number", ["hour_size", "hour", "arial", "horizontal"], "hour_offset"]
+    ]
+  ]
+]
