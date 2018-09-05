@@ -1,4 +1,4 @@
-from math import ceil, floor, isclose
+from math import ceil, isclose, log10
 from numbers import Real
 
 
@@ -29,6 +29,8 @@ def get_fii_real(pos):
 def get_fii_dict(pos):
     if 'tachy' in pos:
         return get_tachy(pos)
+    if 'log' in pos:
+        return get_log(pos)
     position = pos['pos']
     if 'offset' in pos:
         offset = pos['offset']
@@ -44,6 +46,12 @@ def get_tachy(pos):
     locations = pos['tachy']
     offset = pos.get('offset', 0)
     return [(60 / a) + offset for a in locations]
+
+
+def get_log(pos):
+    locations = pos['log']
+    offset = pos.get('offset', 1-(log10(60)-1))
+    return [(log10(a)-1 + offset) % 1 for a in locations]
 
 
 def get_fii_list(pos):
