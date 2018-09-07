@@ -1,5 +1,14 @@
+from enum import Enum, auto
 from math import ceil, isclose, log10
 from numbers import Real
+
+from util import get_enum
+
+
+class FiiType(Enum):
+    linear = auto()
+    tachy = auto()
+    log = auto()
 
 
 def get_fii(pos):
@@ -27,9 +36,10 @@ def get_fii_real(pos):
 
 
 def get_fii_dict(pos):
-    if 'tachy' in pos:
+    fii_type = get_type(pos)
+    if fii_type == FiiType.tachy:
         return get_tachy(pos)
-    if 'log' in pos:
+    if fii_type == FiiType.log:
         return get_log(pos)
     position = pos['pos']
     if 'offset' in pos:
@@ -42,16 +52,24 @@ def get_fii_dict(pos):
     return get_fii(position)
 
 
+def get_type(pos):
+    type_str = pos.get('type', 'linear')
+    return get_enum(FiiType, type_str, pos)
+
+
 def get_tachy(pos):
-    locations = pos['tachy']
+    # locations = pos['tachy']
+    locations = pos['pos']
     offset = pos.get('offset', 0)
     return [(60 / a) + offset for a in locations]
 
 
 def get_log(pos):
-    locations = pos['log']
-    offset = pos.get('offset', 1-(log10(60)-1))
-    return [(log10(a)-1 + offset) % 1 for a in locations]
+    # locations = pos['log']
+    locations = pos['pos']
+    offset = 1 - log10(6)
+    offset += pos.get('offset', 0)
+    return [(log10(a) - 1 + offset) % 1 for a in locations]
 
 
 def get_fii_list(pos):
@@ -62,7 +80,7 @@ def get_fii_list(pos):
     else:
         start = pos[1]
         end = pos[2]
-    return [i / n for i in range(n+1) if is_between(i/n, start, end)]
+    return [i/n for i in range(n+1) if is_between(i/n, start, end)]
 
 
 def is_between(fi, fi_start, fi_end):

@@ -1,5 +1,5 @@
 from collections import namedtuple
-from math import cos, sin, pi, degrees, atan, sqrt
+from math import cos, sin, pi, degrees, atan, sqrt, log10
 from numbers import Real
 from enum import Enum, auto
 from random import random
@@ -23,6 +23,8 @@ class NumKind(Enum):
     day = auto(), lambda fi: DAYS[get_day(fi)]
     month = auto(), lambda fi: MONTHS[get_month(fi)]
     tachy = auto(), lambda fi: get_tachy(fi)
+    log_100 = auto(), lambda fi: get_log(fi, max=100)
+    log_60 = auto(), lambda fi: get_log(fi, max=60)
 
 
 class NumOrient(Enum):
@@ -491,6 +493,18 @@ def get_month(fi):
 
 def get_tachy(fi):
     return int(60 / get_cent(fi))
+
+
+def get_log(fi, max):
+    offset = 1 - log10(6)
+    fi_cent = get_cent(fi) - offset
+    fi_cent %= 1
+    out = 10 ** (fi_cent + 1)
+    if out >= max:
+        out /= 10
+    # if out == 100:
+    #     out = 10
+    return round(out)
 
 
 def fi_to_time(fi, factor, use_zero=False, whole_nums=False):
