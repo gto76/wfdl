@@ -36,10 +36,12 @@ def get_fii_real(pos):
 
 
 def get_fii_dict(pos):
-    fii_type = get_type(pos)
-    if fii_type == FiiType.tachy:
+    # fii_type = get_type(pos)
+    # if fii_type == FiiType.tachy:
+    if 'tachy' in pos:
         return get_tachy(pos)
-    if fii_type == FiiType.log:
+    # if fii_type == FiiType.log:
+    if 'log' in pos:
         return get_log(pos)
     position = pos['pos']
     if 'offset' in pos:
@@ -58,15 +60,15 @@ def get_type(pos):
 
 
 def get_tachy(pos):
-    # locations = pos['tachy']
-    locations = pos['pos']
+    locations = pos['tachy']
+    # locations = pos['pos']
     offset = pos.get('offset', 0)
     return [(60 / a) + offset for a in locations]
 
 
 def get_log(pos):
-    # locations = pos['log']
-    locations = pos['pos']
+    locations = pos['log']
+    # locations = pos['pos']
     offset = 1 - log10(6)
     offset += pos.get('offset', 0)
     return [(log10(a) - 1 + offset) % 1 for a in locations]
