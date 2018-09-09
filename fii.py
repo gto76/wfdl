@@ -1,14 +1,5 @@
-from enum import Enum, auto
 from math import ceil, isclose, log10
 from numbers import Real
-
-from util import get_enum
-
-
-class FiiType(Enum):
-    linear = auto()
-    tachy = auto()
-    log = auto()
 
 
 def get_fii(pos):
@@ -35,47 +26,45 @@ def get_fii_real(pos):
     return [(i/pos) for i in range(ceil(pos))]
 
 
+# def get_fii_dict(pos):
+#     if 'tachy' in pos:
+#         return get_tachy(pos)
+#     if 'log' in pos:
+#         return get_log(pos)
+#     position = pos['pos']
+#     if 'offset' in pos:
+#         offset = pos['offset']
+#         out = get_fii(position)
+#         return [a+offset for a in out]
+#     return get_fii(position)
+
+
 def get_fii_dict(pos):
-    # fii_type = get_type(pos)
-    # if fii_type == FiiType.tachy:
+    offset = pos.get('offset', 0)
     if 'tachy' in pos:
-        return get_tachy(pos)
-    # if fii_type == FiiType.log:
-    if 'log' in pos:
-        return get_log(pos)
-    position = pos['pos']
-    if 'offset' in pos:
-        offset = pos['offset']
-        out = get_fii(position)
-        return [a+offset for a in out]
-    # elif 'filter' in pos:
-    #     a_filter = pos['filter']
-    #     return [a / position for a in a_filter]
-    return get_fii(position)
-
-
-def get_type(pos):
-    type_str = pos.get('type', 'linear')
-    return get_enum(FiiType, type_str, pos)
+        out = get_tachy(pos)
+    elif 'log' in pos:
+        out = get_log(pos)
+    else:
+        out = get_fii(pos['pos'])
+    return [normalize_fi(a + offset) for a in out]
 
 
 def get_tachy(pos):
     locations = pos['tachy']
     if type(locations) == dict and \
-        all(('start' in locations, 'end' in locations)):
+            all(('start' in locations, 'end' in locations)):
         locations = get_range(locations)
-    offset = pos.get('offset', 0)
-    return [(60 / a) + offset for a in locations]
+    return [(60 / a) for a in locations]
 
 
 def get_log(pos):
     locations = pos['log']
     if type(locations) == dict and \
-        all(('start' in locations, 'end' in locations)):
+            all(('start' in locations, 'end' in locations)):
         locations = get_range(locations)
     offset = 1 - log10(6)
-    offset += pos.get('offset', 0)
-    return [(log10(a) - 1 + offset) % 1 for a in locations]
+    return [(log10(a) - 1 + offset) for a in locations]
 
 
 def get_range(locations):
