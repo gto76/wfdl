@@ -42,7 +42,8 @@ def replace_in_dict(a_dict, dictionary):
 
 
 def get_value_of_exp(exp, dictionary):
-    if isinstance(exp, Number) or isinstance(exp, list):
+    # if isinstance(exp, Number) or isinstance(exp, list):
+    if type(exp) != str:
         return exp
     tokens = [a for a in re.split('([ +\\-/*()])', exp) if a]
     tokens_out = []

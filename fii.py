@@ -48,9 +48,9 @@ def get_fii_dict(pos):
         offset = pos['offset']
         out = get_fii(position)
         return [a+offset for a in out]
-    elif 'filter' in pos:
-        a_filter = pos['filter']
-        return [a / position for a in a_filter]
+    # elif 'filter' in pos:
+    #     a_filter = pos['filter']
+    #     return [a / position for a in a_filter]
     return get_fii(position)
 
 
@@ -61,17 +61,27 @@ def get_type(pos):
 
 def get_tachy(pos):
     locations = pos['tachy']
-    # locations = pos['pos']
+    if type(locations) == dict and \
+        all(('start' in locations, 'end' in locations)):
+        locations = get_range(locations)
     offset = pos.get('offset', 0)
     return [(60 / a) + offset for a in locations]
 
 
 def get_log(pos):
     locations = pos['log']
-    # locations = pos['pos']
+    if type(locations) == dict and \
+        all(('start' in locations, 'end' in locations)):
+        locations = get_range(locations)
     offset = 1 - log10(6)
     offset += pos.get('offset', 0)
     return [(log10(a) - 1 + offset) % 1 for a in locations]
+
+
+def get_range(locations):
+    start, end, step = locations.get('start'), locations.get('end'), \
+                       locations.get('step', 1)
+    return range(start, end + 1, step)
 
 
 def get_fii_list(pos):
