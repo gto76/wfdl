@@ -1,3 +1,4 @@
+from itertools import chain
 from math import ceil, isclose, log10
 from numbers import Real
 
@@ -55,6 +56,8 @@ def get_tachy(pos):
     if type(locations) == dict and \
             all(('start' in locations, 'end' in locations)):
         locations = get_range(locations)
+    elif type(locations) == list:
+        locations = list_to_range(locations)
     return [(60 / a) for a in locations]
 
 
@@ -63,8 +66,33 @@ def get_log(pos):
     if type(locations) == dict and \
             all(('start' in locations, 'end' in locations)):
         locations = get_range(locations)
+    elif type(locations) == list:
+        locations = list_to_range(locations)
     offset = 1 - log10(6)
     return [(log10(a) - 1 + offset) for a in locations]
+
+
+def list_to_range(a_list):
+    a_len = len(a_list)
+    if a_len == 2:
+        start, end = a_list
+        return range(start, end+1)
+    elif a_len == 3:
+        start, end, step = a_list
+        return range(start, end+1, step)
+    elif a_len > 3:
+        start, end, step = a_list[0], a_list[1], a_list[2]
+        out = range(start, end+1, step)
+        no_pairs = (a_len - 3) / 2
+        if no_pairs % 1 != 0:
+            raise ValueError(f'Wrong number of arguments in locations list: ' \
+                f'{a_list}')
+        for i in range(int(no_pairs)):
+            new_end, step = a_list[3 + 2*i], a_list[4 + 2*i]
+            tmp_range = range(end+step, new_end+1, step)
+            end = new_end
+            out = chain(out, tmp_range)
+        return out
 
 
 def get_range(locations):
