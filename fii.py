@@ -53,36 +53,34 @@ def get_fii_dict(pos):
 
 def get_tachy(pos):
     locations = pos['tachy']
-    if type(locations) == dict and \
-            all(('start' in locations, 'end' in locations)):
-        locations = get_range(locations)
-    elif type(locations) == list:
+    if type(locations) == list:
         locations = list_to_range(locations)
     return [(60 / a) for a in locations]
 
 
 def get_log(pos):
     locations = pos['log']
-    if type(locations) == dict and \
-            all(('start' in locations, 'end' in locations)):
-        locations = get_range(locations)
-    elif type(locations) == list:
+    if type(locations) == list:
         locations = list_to_range(locations)
     offset = 1 - log10(6)
     return [(log10(a) - 1 + offset) for a in locations]
 
 
 def list_to_range(a_list):
+    out = parse_sets(a_list)
     a_len = len(a_list)
+    if a_len < 2:
+        raise ValueError(f'Wrong number of arguments in locations list: ' \
+                         f'{a_list}')
     if a_len == 2:
         start, end = a_list
-        return range(start, end+1)
+        return chain(out, range(start, end+1))
     elif a_len == 3:
         start, end, step = a_list
-        return range(start, end+1, step)
+        return chain(out, range(start, end+1, step))
     elif a_len > 3:
         start, end, step = a_list[0], a_list[1], a_list[2]
-        out = range(start, end+1, step)
+        out = chain(out, range(start, end+1, step))
         no_pairs = (a_len - 3) / 2
         if no_pairs % 1 != 0:
             raise ValueError(f'Wrong number of arguments in locations list: ' \
@@ -93,6 +91,15 @@ def list_to_range(a_list):
             end = new_end
             out = chain(out, tmp_range)
         return out
+
+
+def parse_sets(a_list):
+    out = []
+    set_indexes = [a_list.index(a) for a in a_list if type(a) == set]
+    for i in set_indexes:
+        a_set = a_list.pop(i)
+        out.extend(a_set)
+    return out
 
 
 def get_range(locations):

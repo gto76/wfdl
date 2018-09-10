@@ -1,37 +1,47 @@
 [
-  {"DIAMETER": 365,
-  "a_len": 5, "a_width": 1, "b_off": 2, "b_len": 23,
-  "c_len": 47, "c_width": 11, "c_off": 21, "sub_dia": 118,
-  "c_diameter": "8",
-  "su_off_a": "6", "su_len_a": "8", "su_len_b": "3",
-  "su_wi_a": 2.5, "su_wi_b": 1.5,
-  "sub_font_size": "13",
-  "sub_a":
-    [
+  {
+    "DIAMETER": 365,
+    "a_len": 5,
+    "a_width": 1,
+    "b_off": 2,
+    "b_len": 23,
+    "c_len": 47,
+    "c_width": 11,
+    "c_off": 21,
+    "sub_dia": 118,
+    "c_diameter": "8",
+    "su_off_a": "6",
+    "su_len_a": "8",
+    "su_len_b": "3",
+    "su_wi_a": 2.5,
+    "su_wi_b": 1.5,
+    "sub_font_size": "13",
+    "sub_a":
       [
-        ["su_off_a",
-          [4, "line", ["su_len_a", 3]],
-          [12, "line", ["su_len_a", "su_wi_a"]],
-          [60, "line", ["su_len_b", "su_wi_b"]]
-        ],
-        ["11",
-          [4, "number", ["sub_font_size", "hour", "arial", "horizontal"], 2],
-          [12, "line", ["10", 1.75]]
+        [
+          ["su_off_a",
+            [4, "line", ["su_len_a", 3]],
+            [12, "line", ["su_len_a", "su_wi_a"]],
+            [60, "line", ["su_len_b", "su_wi_b"]]
+          ],
+          ["11",
+            [4, "number", ["sub_font_size", "hour", "arial", "horizontal"], 2],
+            [12, "line", ["10", 1.75]]
+          ]
+        ]
+      ],
+    "sub_b":
+      [
+        [
+          ["su_off_a",
+            [12, "line", ["su_len_a", "su_wi_a"]],
+            [60, "line", ["su_len_b", "su_wi_b"]]
+          ],
+          ["15",
+            [3, "number", ["sub_font_size", "minute", "arial", "horizontal"]]
+          ]
         ]
       ]
-    ],
-  "sub_b":
-    [
-      [
-        ["su_off_a",
-          [12, "line", ["su_len_a", "su_wi_a"]],
-          [60, "line", ["su_len_b", "su_wi_b"]]
-        ],
-        ["15",
-          [3, "number", ["sub_font_size", "minute", "arial", "horizontal"]]
-        ]
-      ]
-    ]
   },
   [
     [4,
@@ -41,18 +51,16 @@
       [1, "border", [1]]
     ],
     [5,
-      [{"tachy": {500, 400, 350, 300, 260, 240, 220, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 85, 80, 75, 70, 65, 60}},
-        "circle", ["a_len"]],
+      [{"tachy": [60, 90, 5, 200, 10, 260, 20, {300, 350, 400, 500}]}, "circle", ["a_len"]],
       [{"tachy": {95, 105, 115, 125}}, "rounded_line", [14, 2.5]],
-      [{"tachy": {"start": 60, "end": 100}}, "rounded_line", [9, 2.5]]
+      [{"tachy": [60, 100]}, "rounded_line", [9, 2.5]]
     ],
     [11,
-      [{"tachy": {170, 160, 150, 140, 130, 120, 110, 100, 90, 85, 80, 75, 70, 65, 60}},
-        "number", [13, "tachy", "arial", "horizontal"]],
-      [{"tachy": {500, 400, 350, 300, 260}, "offset": -0.007},
-        "number", [13, {"kind": "tachy", "offset": 0.007}, "arial", "horizontal"], 4],
-      [{"tachy": {240, 220, 200, 190, 180}, "offset": 0.007},
-        "number", [13, {"kind": "tachy", "offset": -0.007}, "arial", "horizontal"], 4],
+      [{"tachy": [60, 90, 5, 170, 10]}, "number", [13, "tachy", "arial", "horizontal"]],
+      [{"tachy": {260, 300, 350, 400, 500}, "offset": -0.007},
+          "number", [13, {"kind": "tachy", "offset": 0.007}, "arial", "horizontal"], 4],
+      [{"tachy": {180, 190, 200, 220, 240}, "offset": 0.007},
+          "number", [13, {"kind": "tachy", "offset": -0.007}, "arial", "horizontal"], 4],
       [{0.06}, "bent_number", [9.5, "TACHYMETRE", "arial"], 2.5]
     ],
     [21,
@@ -75,5 +83,4 @@
       [{0.5}, "date", ["35", "24"], 1, "white"]
     ]
   ]
-
 ]
