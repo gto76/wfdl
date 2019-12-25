@@ -1,6 +1,6 @@
 WFDL – Watch Face Description Language
 ======================================
-**Language for defining dials of the watches.**
+**Language for defining dials of the watches**
 
 ![Watches](doc/watches.png)
 
