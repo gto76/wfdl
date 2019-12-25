@@ -1,5 +1,5 @@
-Watch Description Language
-==========================
+Watch Face Description Language
+===============================
 **Language for defining watch face design.**
 
 [Watches](doc/watches.png)
