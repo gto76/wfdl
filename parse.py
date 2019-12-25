@@ -39,7 +39,7 @@ ObjParams = namedtuple('ObjParams', ['shape', 'r', 'fi', 'args', 'color'])
 ShapeTup = namedtuple('ShapeTup', ['shape', 'fixed'])
 
 OPTIONS = (
-    OptInfo('max_lines', 'l', True, int, 10000)
+    OptInfo('max_lines', 'l', True, int, 5)
 )
 
 
@@ -49,6 +49,7 @@ OPTIONS = (
 
 def main():
     max_lines, args = get_option_values(OPTIONS, sys.argv)
+    print(max_lines)
     if len(args) < 1:
         svg = parse_all_watches(WATCHES_DIR, max_lines)
     else:

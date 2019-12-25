@@ -70,7 +70,7 @@ def list_to_range(a_list):
     out = parse_sets(a_list)
     a_len = len(a_list)
     if a_len < 2:
-        raise ValueError(f'Wrong number of arguments in locations list: ' \
+        raise ValueError(f'Wrong number of arguments in locations list: '
                          f'{a_list}')
     if a_len == 2:
         start, end = a_list
@@ -83,8 +83,8 @@ def list_to_range(a_list):
         out = chain(out, range(start, end+1, step))
         no_pairs = (a_len - 3) / 2
         if no_pairs % 1 != 0:
-            raise ValueError(f'Wrong number of arguments in locations list: ' \
-                f'{a_list}')
+            raise ValueError(f'Wrong number of arguments in locations list: '
+                             f'{a_list}')
         for i in range(int(no_pairs)):
             new_end, step = a_list[3 + 2*i], a_list[4 + 2*i]
             tmp_range = range(end+step, new_end+1, step)
@@ -133,7 +133,9 @@ def is_between(fi, fi_start, fi_end):
 
 
 def normalize_fi(fi):
-    if -1 >= fi >= 1:
+    # Old and always false:
+    # if -1 >= fi >= 1:
+    if -1 >= fi or fi >= 1:
         fi %= 1
     if fi < 0:
         fi += 1

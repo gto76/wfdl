@@ -8,13 +8,13 @@ OptInfo = namedtuple('OptInfo', ['long', 'short', 'requires_arg', 'arg_type',
 
 HELP_OPT = OptInfo('help', 'h', False, bool, False)
 
-#
+
 # def get_option_values(options, argv):
 #     opts, args = parse_options(options, argv)
 #     opts_dict = {get_opt(options, opt_str): arg for opt_str, arg in opts}
 #     out = [get_option(a, opts_dict) for a in options]
 #     return out + [get_help(options), args]
-#
+
 
 def get_option_values(options, argv):
     argv = argv[1:]

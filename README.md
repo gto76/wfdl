@@ -2,6 +2,8 @@ Watch Description Language
 ==========================
 **Language for defining watch face design.**
 
+[Watches](doc/watches.png)
+
 ### Output
 [Speedmaster](doc/speedmaster.png)
 

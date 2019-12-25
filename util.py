@@ -3,7 +3,7 @@ import operator as op
 import re
 from collections import namedtuple
 from math import pi, cos, sin
-from numbers import Number, Real
+from numbers import Real
 
 
 Point = namedtuple('Point', list('xy'))
@@ -53,7 +53,7 @@ def get_value_of_exp(exp, dictionary):
     exp = ''.join(tokens_out)
 
     # for key, value in dictionary.items():
-        # exp = exp.replace(key, str(value))  #!!!!! more specific
+    #     exp = exp.replace(key, str(value))  #!!!!! more specific
 
     if re.search('[a-zA-Z]', exp):
         return exp

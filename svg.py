@@ -23,8 +23,8 @@ class NumKind(Enum):
     day = auto(), lambda fi: DAYS[get_day(fi)]
     month = auto(), lambda fi: MONTHS[get_month(fi)]
     tachy = auto(), lambda fi: get_tachy(fi)
-    log_100 = auto(), lambda fi: get_log(fi, max=100)
-    log_60 = auto(), lambda fi: get_log(fi, max=60)
+    log_100 = auto(), lambda fi: get_log(fi, max_=100)
+    log_60 = auto(), lambda fi: get_log(fi, max_=60)
 
 
 class NumOrient(Enum):
@@ -97,13 +97,13 @@ def get_bent_rotated(prms, args):
     path = f'M {p1.x} {p1.y} A {r} {r} 0 1 {sweep} {p2.x} {p2.y}'
     # ruler = f'<path d="{path}" fill="rgba(0,0,0,0)" stroke="#ddd"/>'
     return '<defs>' \
-        f'<path id="{a_id}" d="{path}"/></defs>' \
-        f'<text font-size="{get_num_size(args.size)}" ' \
-        f'fill = "{prms.color}" ' \
-        f'font-family="{args.font}">' \
-        f'<textPath xlink:href="#{a_id}" startOffset="50%" ' \
-        f'text-anchor="middle">{i}</textPath>' \
-        '</text>'
+           f'<path id="{a_id}" d="{path}"/></defs>' \
+           f'<text font-size="{get_num_size(args.size)}" ' \
+           f'fill = "{prms.color}" ' \
+           f'font-family="{args.font}">' \
+           f'<textPath xlink:href="#{a_id}" startOffset="50%" ' \
+           f'text-anchor="middle">{i}</textPath>' \
+           '</text>'
 
 
 def get_bent_prms(prms, args):
@@ -122,7 +122,7 @@ def get_num_args(prms):
 
 
 def get_num_size(size):
-    return size*(1 + 1.0 / NUM_FACT*2)
+    return size * (1 + 1.0 / NUM_FACT * 2)
 
 
 def get_border(prms):
@@ -185,21 +185,28 @@ def get_date(prms):
 def get_lange_date(prms):
     height = prms.args[0]
     orig_height = 74
-    width = height * (122/orig_height)
-    line_width = height * (8/orig_height)
-    text_size = height * (46/orig_height)
-    text_1x = height * (-28.5/orig_height)
+    width = height * (122 / orig_height)
+    line_width = height * (8 / orig_height)
+    text_size = height * (46 / orig_height)
+    text_1x = height * (-28.5 / orig_height)
     text_2x = -text_1x
-    surface = _get_line(-width/2, 0, width/2, 0, height, 'white')
-    line_1 = _get_line(-width/2, (-height/2)+line_width/2, width/2, (-height/2)+line_width/2, line_width, 'black')
-    line_2 = _get_line(-width/2, (height/2)-line_width/2, width/2, (height/2)-line_width/2, line_width, 'black')
-    line_3 = _get_line(-width/2+line_width/2, -height/2, -width/2+line_width/2, height/2, line_width, 'black')
-    line_4 = _get_line(0, -height/2, 0, height/2, line_width, 'black')
-    line_5 = _get_line(width/2-line_width/2, -height/2, width/2-line_width/2, height/2, line_width, 'black')
+    surface = _get_line(-width / 2, 0, width / 2, 0, height, 'white')
+    line_1 = _get_line(-width / 2, (-height / 2) + line_width / 2, width / 2,
+                       (-height / 2) + line_width / 2, line_width, 'black')
+    line_2 = _get_line(-width / 2, (height / 2) - line_width / 2, width / 2,
+                       (height / 2) - line_width / 2, line_width, 'black')
+    line_3 = _get_line(-width / 2 + line_width / 2, -height / 2,
+                       -width / 2 + line_width / 2, height / 2, line_width,
+                       'black')
+    line_4 = _get_line(0, -height / 2, 0, height / 2, line_width, 'black')
+    line_5 = _get_line(width / 2 - line_width / 2, -height / 2,
+                       width / 2 - line_width / 2, height / 2, line_width,
+                       'black')
     num_1 = get_lange_number(text='2', x=text_1x, size=text_size)
     num_2 = get_lange_number(text='5', x=text_2x, size=text_size)
     pos = get_point(prms.fi, prms.r - height / 2)
-    return f'<g transform="translate({pos.x}, {pos.y})">{surface}{line_1}{line_2}{line_3}{line_4}{line_5}{num_1}{num_2}</g>'
+    return f'<g transform="translate({pos.x}, {pos.y})">{surface}{line_1}' \
+           f'{line_2}{line_3}{line_4}{line_5}{num_1}{num_2}</g>'
 
 
 def get_lange_number(text, x, size):
@@ -210,17 +217,18 @@ def get_lange_number(text, x, size):
 def get_patek_date(prms):
     height = prms.args[0]
     orig_height = 47
-    width_all = height * (125/orig_height)
-    width_single = height * (60/orig_height)
-    line_width = height * (1/orig_height)
-    border_width = height * (9/orig_height)
-    text_size = height * (22/orig_height)
+    width_all = height * (125 / orig_height)
+    width_single = height * (60 / orig_height)
+    line_width = height * (1 / orig_height)
+    border_width = height * (9 / orig_height)
+    text_size = height * (22 / orig_height)
     left_window = _get_patek_window('MON', height, width_single, line_width,
-                                 border_width, text_size)
+                                    border_width, text_size)
     right_window = _get_patek_window('JUL', height, width_single, line_width,
-                                 border_width, text_size)
+                                     border_width, text_size)
     win_l = f'<g transform="translate({-width_all/2}, 0)">{left_window}</g>'
-    win_r = f'<g transform="translate({(width_all-2*width_single)/2}, 0)">{right_window}</g>'
+    win_r = f'<g transform="translate({(width_all-2*width_single)/2}, 0)">' \
+            f'{right_window}</g>'
     p = get_point(prms.fi, prms.r)
     return f'<g transform="translate({p.x}, {p.y})">{win_l}{win_r}</g>'
 
@@ -228,41 +236,49 @@ def get_patek_date(prms):
 def _get_patek_window(text, height, width, line_width, border_width,
                       text_size):
     outer_rect = _get_rectangle_l(width=width,
-                                height=height,
-                                stroke_width=line_width,
-                                fill='white',
-                                stroke='black')
+                                  height=height,
+                                  stroke_width=line_width,
+                                  fill='white',
+                                  stroke='black')
     inner_rect = _get_rectangle_l(width=width - 2 * border_width,
-                                height=height - 2 * border_width,
-                                stroke_width=line_width,
-                                fill='white',
-                                stroke='black',
-                                additional_attr=f'transform="translate({border_width}, {border_width})"')
-    diagonals = _get_patek_date_diagonals(width, height, border_width, line_width, 'lightgrey')
+                                  height=height - 2 * border_width,
+                                  stroke_width=line_width,
+                                  fill='white',
+                                  stroke='black',
+                                  additional_attr=f'transform="translate('
+                                                  f'{border_width}, '
+                                                  f'{border_width})"')
+    diagonals = _get_patek_date_diagonals(width, height, border_width,
+                                          line_width, 'lightgrey')
     text = _get_text(text=text,
-                     point=get_point_xy(width/2, height/2),
+                     point=get_point_xy(width / 2, height / 2),
                      size=text_size, rotation=0, color='black', weight='',
                      font='patek_date')
     return f'{outer_rect}{inner_rect}{diagonals}{text}'
 
 
-def _get_rectangle(width, height, stroke_width, fill, stroke, additional_attr=''):
-    return f'<rect width="{width}" height="{height}" style="fill:{fill};stroke-width:{stroke_width};stroke:{stroke}" {additional_attr}/>'
+def _get_rectangle(width, height, stroke_width, fill, stroke,
+                   additional_attr=''):
+    return f'<rect width="{width}" height="{height}" style="fill:{fill};' \
+        f'stroke-width:{stroke_width};stroke:{stroke}" {additional_attr}/>'
 
 
-def _get_rectangle_l(width, height, stroke_width, fill, stroke='black', additional_attr=''):
+def _get_rectangle_l(width, height, stroke_width, fill, stroke='black',
+                     additional_attr=''):
     hor_line_1 = _get_line(0, 0, width, 0, stroke_width, stroke)
     hor_line_2 = _get_line(0, height, width, height, stroke_width, stroke)
     ver_line_1 = _get_line(0, 0, 0, height, stroke_width, stroke)
     ver_line_2 = _get_line(width, 0, width, height, stroke_width, stroke)
-    return f'<g {additional_attr}>{hor_line_1}{hor_line_2}{ver_line_1}{ver_line_2}</g>'
+    return f'<g {additional_attr}>{hor_line_1}{hor_line_2}{ver_line_1}' \
+        f'{ver_line_2}</g>'
 
 
 def _get_patek_date_diagonals(width, height, border, line_width, color):
     nw_line = _get_line(0, 0, border, border, line_width, color)
-    ne_line = _get_line(width, 0, width-border, border, line_width, color)
-    sw_line = _get_line(0, height, border, height-border, line_width, color)
-    se_line = _get_line(width, height, width-border, height-border, line_width, color)
+    ne_line = _get_line(width, 0, width - border, border, line_width, color)
+    sw_line = _get_line(0, height, border, height - border, line_width, color)
+    se_line = _get_line(width, height, width - border, height - border,
+                        line_width, color)
     return f'{nw_line}{ne_line}{sw_line}{se_line}'
 
 
@@ -283,10 +299,10 @@ def get_two_lines(prms):
     factor = width / 2 * (1 + sep)
     dx = sin(prms.fi) * factor
     dy = cos(prms.fi) * factor
-    return _get_line(p1.x + dx, p1.y + dy, p2.x + dx, p2.y + dy, width
-                     , prms.color) + \
-        _get_line(p1.x - dx, p1.y - dy, p2.x - dx, p2.y - dy, width
-                  , prms.color)
+    return _get_line(p1.x + dx, p1.y + dy, p2.x + dx, p2.y + dy, width,
+                     prms.color) + \
+           _get_line(p1.x - dx, p1.y - dy, p2.x - dx, p2.y - dy, width,
+                     prms.color)
 
 
 def get_circle(prms):
@@ -331,21 +347,21 @@ def get_moonphase(prms):
     """namedtuple('ObjParams', ['shape', 'r', 'fi', 'args'])"""
     stroke_width = 1.7
     height, r1, r2, r3, r4 = get_moonphase_args(prms)
-    pos = get_point(prms.fi, prms.r-height/2)
+    pos = get_point(prms.fi, prms.r - height / 2)
 
-    t1 = _get_triangle(r3+r1, r1+r2, r2+r3)
+    t1 = _get_triangle(r3 + r1, r1 + r2, r2 + r3)
     p1_a = _get_point(t1)
-    t2 = _get_triangle(r3+r1, r4-r1, r2+r3)
+    t2 = _get_triangle(r3 + r1, r4 - r1, r2 + r3)
     p1_b = _get_point(t2)
 
-    arc_1_a = describe_arc(p1_a.x, -p1_a.y, r1, t1.fi_b, -pi-t1.fi_a, 0)
+    arc_1_a = describe_arc(p1_a.x, -p1_a.y, r1, t1.fi_b, -pi - t1.fi_a, 0)
     arc_1_b = describe_arc(p1_b.x, -p1_b.y, r1, -t2.fi_a, t2.fi_b, 0)
-    arc_1_c = describe_arc(-p1_a.x, -p1_a.y, r1, t1.fi_a, -pi-t1.fi_b, 0)
-    arc_1_d = describe_arc(-p1_b.x, -p1_b.y, r1, pi-t2.fi_b, pi+t2.fi_a, 0)
-    arc_2 = describe_arc(0, 0, r2, -pi+t1.fi_a, -t1.fi_a, 0)
-    arc_3_a = describe_arc(r2+r3, 0, r3, -pi+t1.fi_b, -pi+t2.fi_b, 0)
-    arc_3_b = describe_arc(-(r2+r3), 0, r3, -t2.fi_b, -t1.fi_b, 0)
-    arc_4 = describe_arc(0, 0, r4, -pi+t2.fi_a, -t2.fi_a, 0)
+    arc_1_c = describe_arc(-p1_a.x, -p1_a.y, r1, t1.fi_a, -pi - t1.fi_b, 0)
+    arc_1_d = describe_arc(-p1_b.x, -p1_b.y, r1, pi - t2.fi_b, pi + t2.fi_a, 0)
+    arc_2 = describe_arc(0, 0, r2, -pi + t1.fi_a, -t1.fi_a, 0)
+    arc_3_a = describe_arc(r2 + r3, 0, r3, -pi + t1.fi_b, -pi + t2.fi_b, 0)
+    arc_3_b = describe_arc(-(r2 + r3), 0, r3, -t2.fi_b, -t1.fi_b, 0)
+    arc_4 = describe_arc(0, 0, r4, -pi + t2.fi_a, -t2.fi_a, 0)
 
     arc = arc_1_a + arc_1_b + arc_1_c + arc_1_d + arc_2 + arc_3_a + arc_3_b + \
           arc_4
@@ -366,7 +382,7 @@ def get_moonphase_args(prms):
 
 def _get_point(t):
     y = t.a * sin(t.fi_b)
-    x = sqrt(t.b**2 - y**2)
+    x = sqrt(t.b ** 2 - y ** 2)
     return get_point_xy(x, y)
 
 
@@ -380,7 +396,8 @@ def _get_angles(a, b, c):
     z_alpha = (a ** 2 - (b - c) ** 2) / ((b + c) ** 2 - a ** 2)
     z_beta = (b ** 2 - (c - a) ** 2) / ((c + a) ** 2 - b ** 2)
     z_delta = (c ** 2 - (a - b) ** 2) / ((a + b) ** 2 - c ** 2)
-    return 2*atan(sqrt(z_alpha)), 2*atan(sqrt(z_beta)), 2*atan(sqrt(z_delta))
+    return 2 * atan(sqrt(z_alpha)), 2 * atan(sqrt(z_beta)), 2 * atan(
+        sqrt(z_delta))
 
 
 # def get_octagon(prms, dbg_context):
@@ -492,15 +509,18 @@ def get_month(fi):
 
 
 def get_tachy(fi):
-    return int(60 / get_cent(fi))
+    cent = get_cent(fi)
+    if cent == 0:
+        cent = 1
+    return int(60 / cent)
 
 
-def get_log(fi, max):
+def get_log(fi, max_):
     offset = 1 - log10(6)
     fi_cent = get_cent(fi) - offset
     fi_cent %= 1
     out = 10 ** (fi_cent + 1)
-    if out >= max:
+    if out >= max_:
         out /= 10
     # if out == 100:
     #     out = 10
@@ -517,7 +537,7 @@ def fi_to_time(fi, factor, use_zero=False, whole_nums=False):
     if whole_nums:
         i = round(i)
     else:
-        i = round(i*10)/10
+        i = round(i * 10) / 10
     if i % 1 == 0:
         i = round(i)
     if i < 0:
@@ -548,5 +568,5 @@ def get_fi_rotating(fi):
 
 
 def get_fi_perpendicular(fi):
-    rad = fi if fi <= pi/2 else fi+pi
+    rad = fi if fi <= pi / 2 else fi + pi
     return degrees(rad)

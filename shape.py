@@ -38,7 +38,6 @@ class Shape(Enum):
     patek_date = Properties(lambda a: a[0], lambda a: a[0]*(125/47), 1, (100, ), 1)      # height
     moonphase = Properties(lambda a: a[0], lambda a: 2*a[0], 1, (100, 10, 40, 80), 1)         # height
 
-
     def get_height(self, args):
         fun = self.value.get_height
         return fun(args)
