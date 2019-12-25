@@ -22,6 +22,7 @@
     "sub_2": [
         [
           [0,
+            [{0}, "bent_number centered", [21, "DAYTONA", "arial"], -12.5],
             [1, "border", [1]]
           ],
           [2,
@@ -67,8 +68,11 @@
       [{0.5}, "face", ["subdial_diameter", "sub_2"]],
       [{0.75}, "face", ["subdial_diameter", "sub_3"]]
     ],
-    [9,
-      [1, "number", [18, ["ROLEX"], "arial"]],
+    [145,
+      [1, "number", [21, ["ROLEX"], "arial"]],
+    ],
+    [29,
+      [1, "number", [11, ["COSMOGRAPH"], "arial"]],
     ]
   ]
 ]
