@@ -73,7 +73,7 @@
       [12, "line", ["d_len", "d_width"]]
     ],
     [0,
-      [1, "lange_date", [29], 10],
+      [1, "lange_date", [29], 10.3],
       [{0.3135}, "face", ["sub_1_len", "sub_1"], "-(b_off+1)"],
       [{0.6865}, "face", ["sub_1_len", "sub_2"], "-(b_off+1)"]
     ]

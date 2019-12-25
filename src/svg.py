@@ -202,16 +202,16 @@ def get_lange_date(prms):
     line_5 = _get_line(width / 2 - line_width / 2, -height / 2,
                        width / 2 - line_width / 2, height / 2, line_width,
                        'black')
-    num_1 = get_lange_number(text='2', x=text_1x, size=text_size)
-    num_2 = get_lange_number(text='5', x=text_2x, size=text_size)
+    num_1 = get_lange_number(text='2', x=text_1x, size=text_size, height=height)
+    num_2 = get_lange_number(text='5', x=text_2x, size=text_size, height=height)
     pos = get_point(prms.fi, prms.r - height / 2)
     return f'<g transform="translate({pos.x}, {pos.y})">{surface}{line_1}' \
            f'{line_2}{line_3}{line_4}{line_5}{num_1}{num_2}</g>'
 
 
-def get_lange_number(text, x, size):
-    return _get_text(text=text, point=get_point_xy(x, 0), size=size, rotation=0,
-                     color='black', weight='', font='lange_thin')
+def get_lange_number(text, x, size, height):
+    return _get_text(text=text, point=get_point_xy(x, -height*0.065), size=size, 
+                     rotation=0, color='black', weight='', font='lange_thin')
 
 
 def get_patek_date(prms):
