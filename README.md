@@ -4,6 +4,14 @@ WFDL – Watch Face Description Language
 
 ![Watches](doc/watches.png)
 
+### How to run
+```
+$ git clone https://github.com/gto76/wfdl.git
+$ cd wfdl
+$ python3 parse.py
+```
+* **Open `'index.html'`.**
+
 ### Input
 ```python
 [
@@ -24,14 +32,6 @@ WFDL – Watch Face Description Language
 
 ### Output
 ![Speedmaster](doc/speedmaster.png)
-
-### How to run
-```
-$ git clone https://github.com/gto76/wfdl.git
-$ cd wfdl
-$ python3 parse.py
-```
-* **Open `'index.html'`.**
 
 ### Description
 Watch is defined with following Python data structures: List, Dictionary and Set.
