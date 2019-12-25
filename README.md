@@ -83,7 +83,7 @@ Each element consists of three fields:
   * Second one defines the shape of the element.
   * Third one is a list of parameters that are required by the specific shape.
 
-For instance our first element contains 12 lines of length `'a_len'` and width `'a_width * 1.5'`.
+For instance our first element consists of 12 lines of length `'a_len'` and width `'a_width * 1.5'`.
 ```python
       [12, "line", ["a_len", "a_width * 1.5"]], 
 ```
