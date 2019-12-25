@@ -1,4 +1,4 @@
-WFDL - Watch Face Description Language
+WFDL — Watch Face Description Language
 ======================================
 **Language for defining dials of the watches.**
 
@@ -26,12 +26,12 @@ WFDL - Watch Face Description Language
 ![Speedmaster](doc/speedmaster.png)
 
 ### How to run
-```bash
+```
 $ git clone https://github.com/gto76/wfdl.git
 $ cd wfdl
 $ python3 parse.py
 ```
-* Open 'index.html'.
+* **Open `'index.html'`.**
 
 ### Description
 Watch is defined with following Python data structures: List, Dictionary and Set.
