@@ -4,8 +4,8 @@ from numbers import Real
 from enum import Enum, auto
 from random import random
 
-from shape import Shape
-from util import get_enum, check_args, get_cent, get_point, get_point_xy, \
+from src.shape import Shape
+from src.util import get_enum, check_args, get_cent, get_point, get_point_xy, \
     add_defaults
 
 

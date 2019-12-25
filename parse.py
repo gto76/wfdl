@@ -12,14 +12,14 @@ import sys
 from collections import namedtuple
 from math import ceil, sqrt
 
-from fii import get_fii
-from fonts import get_font_def, FONTS_ALIASES
-from options import OptInfo, get_option_values
-from ranges import GrpRanges, range_occupied, update_ranges, pos_occupied, \
+from src.fii import get_fii
+from src.fonts import get_font_def, FONTS_ALIASES
+from src.options import OptInfo, get_option_values
+from src.ranges import GrpRanges, range_occupied, update_ranges, pos_occupied, \
     get_angular_width
-from shape import Shape
-from svg import get_shape
-from util import replace_matched_items, read_file, write_to_file, get_enum, \
+from src.shape import Shape
+from src.svg import get_shape
+from src.util import replace_matched_items, read_file, write_to_file, get_enum, \
     check_args, get_rad, get_point, add_defaults
 
 
