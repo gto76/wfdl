@@ -65,6 +65,8 @@ Second element of the top level list is a list that contains descriptions of fac
   ]
 ``` 
 
+#### Groups:
+
 Face elements are grouped by the distance from the watches edge. 0 means "on the edge" and 100 "in the center" of the watch. Our first group contains three elements, all of which are positioned one hundredth of the watches diameter from the edge.
 
 ```python
@@ -73,6 +75,8 @@ Face elements are grouped by the distance from the watches edge. 0 means "on the
       [60, "line", [11, "a_width"]], 
       [240, "line", ["a_len", "a_width"]]],
 ```
+
+#### Elements:
 
 Each element consists of three fields:
   * First one defines the number of times that it is repeated around the face. 
