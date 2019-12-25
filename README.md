@@ -1,5 +1,5 @@
-Watch Face Description Language
-===============================
+WFDL — Watch Face Description Language
+======================================
 **Language for defining dials of the watches.**
 
 ![Watches](doc/watches.png)
@@ -35,7 +35,7 @@ $ python3 parse.py
 
 ### Description
 Watch is defined with following Python data structures: List, Dictionary and Set.
-On top level is a list that contains two elements. First one is a dictionary of variables, that defines name, value pairs. 
+On top level is a list that contains two elements. First one is a dictionary of variables, that defines name-value pairs. 
 ```python
   {"a_len": 2, "a_width": 0.5, "b_off": 2, "b_len": 23, 
    "c_diameter": 3},
