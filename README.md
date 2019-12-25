@@ -1,11 +1,8 @@
 Watch Face Description Language
 ===============================
-**Language for defining watch face design.**
+**Language for defining dials of the watches.**
 
 ![Watches](doc/watches.png)
-
-### Output
-![Speedmaster](doc/speedmaster.png)
 
 ### Input
 ```python
@@ -25,11 +22,14 @@ Watch Face Description Language
 ]
 ```
 
+### Output
+![Speedmaster](doc/speedmaster.png)
+
 ### How to run
 ```bash
-$ git clone ...
-$ cd wdl
-$ ./parse speedmaster.txt
+$ git clone https://github.com/gto76/wfdl.git
+$ cd wfdl
+$ python3 parse.py
 ```
 * Open 'index.html'.
 

@@ -49,7 +49,6 @@ OPTIONS = (
 
 def main():
     max_lines, args = get_option_values(OPTIONS, sys.argv)
-    print(max_lines)
     if len(args) < 1:
         svg = parse_all_watches(WATCHES_DIR, max_lines)
     else:
