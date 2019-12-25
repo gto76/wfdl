@@ -66,19 +66,6 @@ This group then contains list of elements, that are repeated around the face. Fo
       [12, "line", ["a_len", "a_width * 1.5"]], 
 ```
 
-### Simple Example
-![simple example](doc/example.png)
-
-```python
-[
-  {"line_len": 20, "line_width": 3},
-  [
-    [0, 
-      [12, "line", ["line_len", "line_width"]]]
-  ]
-]
-```
-
 ### Complex Example
 ![complex example](doc/lange.png)
 
