@@ -42,7 +42,9 @@ $ python3 parse.py
 
 ### Explanation
 
-Watch is defined with following Python data structures: List, Dictionary and Set.
+Watch is defined by nesting following Python data structures: List, Dictionary and Set.
+
+#### Top Level
 On top level is a list that contains two elements. First one is a dictionary of variables, that defines name-value pairs. 
 
 ```python
@@ -65,8 +67,7 @@ Second element of the top level list is a list that contains descriptions of fac
   ]
 ``` 
 
-#### Groups:
-
+#### Groups
 Face elements are grouped by the distance from the watches edge. 0 means "on the edge" and 100 "in the center" of the watch. Our first group contains three elements, all of which are positioned one hundredth of the watches diameter from the edge.
 
 ```python
@@ -76,8 +77,7 @@ Face elements are grouped by the distance from the watches edge. 0 means "on the
       [240, "line", ["a_len", "a_width"]]],
 ```
 
-#### Elements:
-
+#### Elements
 Each element consists of three fields:
   * First one defines the number of times that it is repeated around the face. 
   * Second one defines the shape of the element.
