@@ -50,7 +50,7 @@ On top level is a list that contains two elements. First one is a dictionary of 
    "c_diameter": 3},
 ```
 
-Second element of the top level list is a list that contains the descriptions of watche's face elements.
+Second element of the top level list is a list that contains descriptions of face elements.
 
 ```python
   [
@@ -65,7 +65,7 @@ Second element of the top level list is a list that contains the descriptions of
   ]
 ``` 
 
-Elements are grouped by distance from the watches edge.  0 means on the edge and 100 in the center of the watch. First element of the list denotes how much toward the center are all the elements in the group positioned. In this case only one hundredth of the watches diameter.
+Elements are grouped by distance from the watches edge.  0 means "on the edge" and 100 "in the center" of the watch. First element of the group denotes how much toward the center are all the elements in the group positioned. In this case only one hundredth of the watches diameter.
 
 ```python
     [1, 
@@ -74,7 +74,7 @@ Elements are grouped by distance from the watches edge.  0 means on the edge and
       [240, "line", ["a_len", "a_width"]]],
 ```
 
-This group then contains list of elements, that are repeated around the face. For instance the first list  draws 12 lines of length 'a_len' and width 'a_width * 1.5'.
+This group then contains list of elements, that are repeated around the face. For instance the first element contains 12 lines of length `'a_len'` and width `'a_width * 1.5'`.
 
 ```python
       [12, "line", ["a_len", "a_width * 1.5"]], 
