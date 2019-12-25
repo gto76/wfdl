@@ -2,10 +2,10 @@ Watch Face Description Language
 ===============================
 **Language for defining watch face design.**
 
-[Watches](doc/watches.png)
+![Watches](doc/watches.png)
 
 ### Output
-[Speedmaster](doc/speedmaster.png)
+![Speedmaster](doc/speedmaster.png)
 
 ### Input
 ```python
@@ -76,6 +76,6 @@ This group then contains list of elements, that are repeated around the face. Fo
   ]
 ]
 ```
-[simple example](doc/example.png)
+![simple example](doc/example.png)
 
 
