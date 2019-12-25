@@ -4,7 +4,9 @@ WFDL – Watch Face Description Language
 
 ![Watches](doc/watches.png)
 
+
 ### How to run
+
 ```
 $ git clone https://github.com/gto76/wfdl.git
 $ cd wfdl
@@ -12,7 +14,9 @@ $ python3 parse.py
 ```
 * **Open `'index.html'`.**
 
+
 ### Input
+
 ```python
 [
   {"a_len": 2, "a_width": 0.5, "b_off": 2, "b_len": 23, 
@@ -30,18 +34,24 @@ $ python3 parse.py
 ]
 ```
 
+
 ### Output
+
 ![Speedmaster](doc/speedmaster.png)
 
-### Description
+
+### Explanation
+
 Watch is defined with following Python data structures: List, Dictionary and Set.
 On top level is a list that contains two elements. First one is a dictionary of variables, that defines name-value pairs. 
+
 ```python
   {"a_len": 2, "a_width": 0.5, "b_off": 2, "b_len": 23, 
    "c_diameter": 3},
 ```
 
-Second element of the top level list is a list that contains the descriptions of watche's face elements. 
+Second element of the top level list is a list that contains the descriptions of watche's face elements.
+
 ```python
   [
     [1, 
@@ -54,19 +64,25 @@ Second element of the top level list is a list that contains the descriptions of
       [{"1/60", "-1/60"}, "circle", ["c_diameter"]]]
   ]
 ``` 
+
 Elements are grouped by distance from the watches edge.  0 means on the edge and 100 in the center of the watch. First element of the list denotes how much toward the center are all the elements in the group positioned. In this case only one hundredth of the watches diameter.
+
 ```python
     [1, 
       [12, "line", ["a_len", "a_width * 1.5"]], 
       [60, "line", [11, "a_width"]], 
       [240, "line", ["a_len", "a_width"]]],
 ```
+
 This group then contains list of elements, that are repeated around the face. For instance the first list  draws 12 lines of length 'a_len' and width 'a_width * 1.5'.
+
 ```python
       [12, "line", ["a_len", "a_width * 1.5"]], 
 ```
 
+
 ### Complex Example
+
 ![complex example](doc/lange.png)
 
 ```python
@@ -200,4 +216,3 @@ This group then contains list of elements, that are repeated around the face. Fo
   ]
 ]
 ```
-
